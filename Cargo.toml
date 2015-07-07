@@ -1,0 +1,13 @@
+[package]
+name = "rocket"
+version = "0.1.0"
+authors = ["Adolfo Ochagavía <aochagavia92@gmail.com>"]
+
+[dependencies]
+itertools = "0.3"
+piston = "0.1"
+piston2d-graphics = "0.2"
+pistoncore-glutin_window = "0.1"
+piston2d-opengl_graphics = "0.2"
+pistoncore-input = "0.1"
+rand = "0.3"
