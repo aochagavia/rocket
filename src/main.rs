@@ -1,5 +1,3 @@
-#![feature(associated_consts)]
-
 extern crate glutin_window;
 extern crate graphics;
 extern crate itertools;

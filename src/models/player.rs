@@ -14,14 +14,14 @@ pub struct Player {
 
 derive_position_direction!(Player);
 
-impl Player {
-    /// The player is drawn as the triangle below
-    const POLYGON: &'static [[f64; 2]] = &[
-        [0.0, -8.0],
-        [20.0, 0.0],
-        [0.0, 8.0]
-    ];
+/// The player is drawn as the triangle below
+const POLYGON: &'static [[f64; 2]] = &[
+    [0.0, -8.0],
+    [20.0, 0.0],
+    [0.0, 8.0]
+];
 
+impl Player {
     /// Create a new `Player` with a random position and direction
     pub fn random<R: Rng>(rng: &mut R, bounds: Size) -> Player {
         Player { vector: Vector::random(rng, bounds) }
@@ -34,12 +34,12 @@ impl Player {
                                    .rot_rad(self.direction());
 
         // Draw a rectangle on the position of the player
-        Polygon::new(color::RED).draw(Player::POLYGON, &c.draw_state, transform, gl);
+        Polygon::new(color::RED).draw(POLYGON, &c.draw_state, transform, gl);
     }
 
     /// Returns the nose of the rocket
     pub fn nose(&self) -> Point {
-        Point::new(Player::POLYGON[1][0], Player::POLYGON[1][1])
+        Point::new(POLYGON[1][0], POLYGON[1][1])
             .rotate(self.direction())
             .translate(&self.position())
     }
