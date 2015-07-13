@@ -27,6 +27,7 @@ fn main() {
         WindowSettings::new("Rocket", [1024, 600])
             .exit_on_esc(true)
             .opengl(opengl)
+            .samples(8)
             .into();
 
     let mut gl = GlGraphics::new(opengl);
