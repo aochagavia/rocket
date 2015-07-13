@@ -23,10 +23,11 @@ fn main() {
     // Initialization stuff
     let opengl = OpenGL::_3_2;
 
-    let window = GlutinWindow::new(
-        opengl,
-        WindowSettings::new("Rocket", [1024, 600]).exit_on_esc(true)
-    );
+    let window: GlutinWindow =
+        WindowSettings::new("Rocket", [1024, 600])
+            .exit_on_esc(true)
+            .opengl(opengl)
+            .into();
 
     let mut gl = GlGraphics::new(opengl);
 
