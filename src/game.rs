@@ -14,6 +14,9 @@ use drawing::{color, Point, Size};
 use models::{Bullet, Enemy, Particle, Vector, World};
 use traits::{Advance, Collide, Position};
 
+const UPS: u16 = 120;
+const BULLET_RATE: f64 = 0.05;
+
 /// The data structure that drives the game
 pub struct Game {
     /// The world contains everything that needs to be drawn
@@ -114,10 +117,10 @@ impl Game {
 
         // Update rocket rotation
         if self.actions.rotate_left {
-            *self.world.player.direction_mut() += -0.06;
+            *self.world.player.direction_mut() += (-0.06 * UPS as f64) * dt;
         }
         if self.actions.rotate_right {
-            *self.world.player.direction_mut() += 0.06;
+            *self.world.player.direction_mut() += (0.06 * UPS as f64) * dt;
         };
 
         // Set speed and advance the player with wrap around
@@ -139,7 +142,7 @@ impl Game {
         }
 
         // Add bullets
-        if self.actions.shoot && self.timers.current_time - self.timers.last_shoot > 0.01 {
+        if self.actions.shoot && self.timers.current_time - self.timers.last_shoot > BULLET_RATE {
             self.timers.last_shoot = self.timers.current_time;
             self.world.bullets.push(Bullet::new(Vector::new(self.world.player.nose(), self.world.player.direction())));
         }
@@ -158,7 +161,13 @@ impl Game {
         // Spawn enemies at random locations
         if self.timers.current_time - self.timers.last_spawned_enemy > 1.0 {
             self.timers.last_spawned_enemy = self.timers.current_time;
-            let new_enemy = Enemy::new(Vector::random(&mut self.rng, self.world.size.clone()));
+            let mut new_enemy: Enemy;
+            loop {
+                new_enemy = Enemy::new(Vector::random(&mut self.rng, self.world.size.clone()));
+                if !self.world.player.collides_with(&new_enemy) {
+                    break;
+                }
+            }
             self.world.enemies.push(new_enemy);
         }
 
@@ -205,23 +214,28 @@ impl Game {
         self.score += 10 * killed_enemies;
     }
 
+    /// reset our game-state
+    fn reset(&mut self) {
+        // Reset player position
+        *self.world.player.x_mut() = self.world.size.random_x(&mut self.rng);
+        *self.world.player.y_mut() = self.world.size.random_y(&mut self.rng);
+
+        // Reset score
+        self.score = 0;
+
+        // Remove all enemies and bullets
+        self.world.bullets.clear();
+        self.world.enemies.clear();
+    }
+
     /// Handles collisions between the player and the enemies
     fn handle_player_collisions(&mut self) {
         if self.world.enemies.iter().any(|enemy| self.world.player.collides_with(enemy)) {
             // Make an explosion where the player was
             let ppos = self.world.player.position();
             Game::make_explosion(&mut self.world.particles, ppos, 8);
-
-            // Reset player position
-            *self.world.player.x_mut() = self.world.size.random_x(&mut self.rng);
-            *self.world.player.y_mut() = self.world.size.random_y(&mut self.rng);
-
-            // Reset score
-            self.score = 0;
-
-            // Remove all enemies and bullets
-            self.world.bullets.clear();
-            self.world.enemies.clear();
+            
+            self.reset();
         }
     }
 
