@@ -28,8 +28,8 @@ impl Bullet {
     }
 
     /// Update the bullet's position
-    pub fn update(&mut self, elapsed_time: f64) {
-        self.advance(elapsed_time);
+    pub fn update(&mut self, units: f64) {
+        self.advance(units);
     }
 }
 

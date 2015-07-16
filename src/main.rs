@@ -36,7 +36,7 @@ fn main() {
     let mut game = Game::new(Size::new(1024.0, 600.0));
 
     // Event handling
-    for e in window.events() {
+    for e in window.events().ups(60).max_fps(60) {
         match e {
             Event::Input(Input::Press(Button::Keyboard(key))) => {
                 game.key_press(key);
