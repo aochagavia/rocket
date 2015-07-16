@@ -12,7 +12,7 @@ mod traits;
 
 use glutin_window::GlutinWindow;
 use opengl_graphics::{GlGraphics, OpenGL};
-use piston::event::{Event, Events, RenderEvent};
+use piston::event::{Event, Events, EventLoop, RenderEvent};
 use piston::input::{Button, Input};
 use piston::window::WindowSettings;
 
