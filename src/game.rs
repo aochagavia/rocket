@@ -15,7 +15,7 @@ use models::{Bullet, Enemy, Particle, Vector, World};
 use traits::{Advance, Collide, Position};
 
 const UPS: u16 = 120;
-const BULLET_RATE: f64 = 0.05;
+const BULLET_RATE: f64 = 0.01;
 
 /// The data structure that drives the game
 pub struct Game {
