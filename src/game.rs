@@ -1,7 +1,7 @@
 //! This module contains the game logic
 
 use std::f64;
-use std::path::Path;
+use std::env::current_exe;
 
 use graphics::{self, Transformed};
 use itertools;
@@ -60,13 +60,14 @@ impl Game {
     /// Returns a new `Game` containing a `World` of the given `Size`
     pub fn new(size: Size) -> Game {
         let mut rng = rand::thread_rng();
+        let exe_directory = current_exe().unwrap().parent().unwrap().to_owned();
         Game {
             world: World::new(&mut rng, size),
             score: 0,
             actions: Actions::default(),
             timers: Timers::default(),
             rng: rng,
-            resources: Resources { font: GlyphCache::new(&Path::new("resources/FiraMono-Bold.ttf")).unwrap() }
+            resources: Resources { font: GlyphCache::new(&exe_directory.join("resources/FiraMono-Bold.ttf")).unwrap() }
         }
     }
 

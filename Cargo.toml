@@ -2,6 +2,7 @@
 name = "rocket"
 version = "0.1.0"
 authors = ["Adolfo Ochagavía <aochagavia92@gmail.com>"]
+build = "build.rs"
 
 [dependencies]
 itertools = "0.3"
