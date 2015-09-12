@@ -21,7 +21,7 @@ use game::Game;
 
 fn main() {
     // Initialization stuff
-    let opengl = OpenGL::_3_2;
+    let opengl = OpenGL::_2_1;
 
     let window: GlutinWindow =
         WindowSettings::new("Rocket", [1024, 600])
