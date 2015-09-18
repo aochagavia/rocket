@@ -20,7 +20,7 @@ impl Enemy {
 
     /// Draw the enemy
     pub fn draw(&self, c: &Context, gl: &mut GlGraphics) {
-        Ellipse::new([1.0, 1.0, 0.0, 1.0]).draw(
+        Ellipse::new([1.0, 1.0, 0.0, 1.0]).resolution(16).draw(
             [self.x() - 10.0, self.y() - 10.0, 20.0, 20.0],
             &c.draw_state, c.transform, gl);
     }

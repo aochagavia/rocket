@@ -22,7 +22,7 @@ impl Bullet {
 
     /// Draw the bullet
     pub fn draw(&self, c: &Context, gl: &mut GlGraphics) {
-        Ellipse::new(color::BLUE).draw(
+        Ellipse::new(color::BLUE).resolution(8).draw(
             [self.x() - self.radius(), self.y() - self.radius(), self.diameter(), self.diameter()],
             &c.draw_state, c.transform, gl);
     }

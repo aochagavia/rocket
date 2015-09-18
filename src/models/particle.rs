@@ -26,7 +26,7 @@ impl Particle {
     /// Draw the particle
     pub fn draw(&self, c: &Context, gl: &mut GlGraphics) {
         let radius = 5.0 * self.ttl;
-        Ellipse::new(color::VIOLET).draw(
+        Ellipse::new(color::VIOLET).resolution(8).draw(
             [self.x() - radius, self.y() - radius, radius * 2.0, radius * 2.0],
             &c.draw_state, c.transform, gl);
     }
