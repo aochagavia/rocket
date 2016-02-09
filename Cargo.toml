@@ -5,9 +5,9 @@ authors = ["Adolfo Ochagavía <aochagavia92@gmail.com>"]
 build = "build.rs"
 
 [dependencies]
-itertools = "0.3"
-piston = "0.10"
-piston2d-graphics = "0.9"
-pistoncore-glutin_window = "0.12"
-piston2d-opengl_graphics = "0.12"
+itertools = "0.4.8"
+piston = "0.17"
+piston_window = "0.34"
+piston2d-graphics = "0.13"
+piston2d-opengl_graphics = "0.23"
 rand = "0.3"
