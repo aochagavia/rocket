@@ -25,7 +25,7 @@ fn main() {
     let mut game = Game::new(drawing::Size::new(1024.0, 600.0));
 
     let mut window: PistonWindow = WindowSettings::new("Rocket!", [1024, 600])
-        .opengl(opengl).exit_on_esc(true).build().unwrap();
+        .opengl(opengl).samples(8).exit_on_esc(true).build().unwrap();
 
     window.set_ups(60);
     window.set_max_fps(60);
