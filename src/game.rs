@@ -7,7 +7,7 @@ use graphics::{self, Transformed};
 use itertools;
 use opengl_graphics::GlGraphics;
 use opengl_graphics::glyph_cache::GlyphCache;
-use piston::input::Key;
+use piston::input::*;
 use rand::{self, ThreadRng};
 
 use drawing::{color, Point, Size};
@@ -90,6 +90,64 @@ impl Game {
             Key::Space => self.actions.shoot = pressed,
             _ => ()
         }
+    }
+
+    /// Processes a key press
+    pub fn button_press(&mut self, joystick: JoystickButton) {
+        self.handle_button(joystick, true);
+    }
+
+    /// Processes a key release
+    pub fn button_release(&mut self, joystick: JoystickButton) {
+        self.handle_button(joystick, false);
+    }
+
+    /// Handles a button press or release
+    fn handle_button(&mut self, joystick: JoystickButton, pressed: bool) {
+        // Button 10 is A button on XInput
+        match joystick.button {
+            10 => self.actions.shoot = pressed,
+            _ => ()
+        }
+    }
+
+    /// Handles a joystick axis input
+    pub fn handle_axis(&mut self, joystick: JoystickAxisArgs) {
+
+        // Axis 0 is left stick (XInput). -1.0 left to 1.0 right
+        if joystick.axis == 0 {
+            match joystick.position {
+                -1.0 ... -0.2 => {
+                    self.actions.rotate_left = true;
+                    self.actions.rotate_right = false;
+                },
+                0.2 ... 1.0 => {
+                    self.actions.rotate_left = false;
+                    self.actions.rotate_right = true;
+                },
+                -0.199 ... 0.199 => {
+                    self.actions.rotate_left = false;
+                    self.actions.rotate_right = false;   
+                },
+                _ => {}
+            }
+        }
+
+        // Axis 5 is right trigger (XInput). -1.0 is not pressed, 1.0 is fully pressed
+        if joystick.axis == 5 {
+            match joystick.position {
+                -0.8 ... 1.0 => {
+                    self.actions.boost = true;
+                },
+                -1.0 ... -0.799 => {
+                    self.actions.boost = false;
+                },
+                _ => {}
+            }
+        }
+
+        // TODO: Actually use stick position value to affect rotation amount
+        //       Actually use trigger position value affect boost amount
     }
 
     /// Renders the game to the screen
