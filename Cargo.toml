@@ -1,14 +1,14 @@
 [package]
 name = "rocket"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Adolfo Ochagavía <aochagavia92@gmail.com>"]
 build = "build.rs"
 
 [dependencies]
-itertools = "0.4.8"
-piston = "0.17"
-piston_window = "0.34"
-piston2d-graphics = "0.13"
-piston2d-opengl_graphics = "0.23"
-rand = "0.3"
-pistoncore-sdl2_window = "*"
+itertools = "0.4.13"
+piston = "0.22.0"
+piston_window = "0.45.0"
+piston2d-graphics = "0.16.0"
+piston2d-opengl_graphics = "0.28.2"
+rand = "0.3.14"
+pistoncore-sdl2_window = "0.30.0"

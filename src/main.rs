@@ -19,8 +19,8 @@ use sdl2_window::Sdl2Window;
 use game::Game;
 
 // Use this typedef to make type of window prettier.
-// Need to use Sdl2Window as backend in order to get joystick events currently.
-pub type SDL2GameWindow = PistonWindow<(), Sdl2Window>;
+// Need to use Sdl2Window as backend in order to get controller/joystick events currently.
+pub type SDL2GameWindow = PistonWindow<Sdl2Window>;
 
 // Returns a result containing a GlutinWindow or an error if the window
 // settings are not supported
@@ -51,16 +51,16 @@ fn main() {
                 game.key_release(key);
             }
 
-            Event::Input(Input::Press(Button::Joystick(button))) => {
+            Event::Input(Input::Press(Button::Controller(button))) => {
                 game.button_press(button);
             }
 
-            Event::Input(Input::Release(Button::Joystick(button))) => {
+            Event::Input(Input::Release(Button::Controller(button))) => {
                 game.button_release(button);
             }
 
-            // Joystick Axis are Move Input types
-            Event::Input(Input::Move(Motion::JoystickAxis(axis))) => {
+            // Controller Axis are Move Input types
+            Event::Input(Input::Move(Motion::ControllerAxis(axis))) => {
                 game.handle_axis(axis);
             }
 
