@@ -3,12 +3,11 @@ use opengl_graphics::GlGraphics;
 use rand::Rng;
 
 use drawing::Size;
-use models::{Bullet, Enemy, Particle, Player};
+use models::{Bullet, Enemy, Player};
 
 /// A model that contains the other models and renders them
 pub struct World {
     pub player: Player,
-    pub particles: Vec<Particle>,
     pub bullets: Vec<Bullet>,
     pub enemies: Vec<Enemy>,
     pub size: Size
@@ -19,7 +18,6 @@ impl World {
     pub fn new<R: Rng>(rng: &mut R, size: Size) -> World {
         World {
             player: Player::random(rng, size.clone()),
-            particles: Vec::with_capacity(1000),
             bullets: vec![],
             enemies: vec![],
             size: size
@@ -28,9 +26,6 @@ impl World {
 
     /// Renders the world and everything in it
     pub fn render(&self, c: graphics::context::Context, g: &mut GlGraphics) {
-        for particle in &self.particles {
-            particle.draw(&c, g);
-        }
 
         for bullet in &self.bullets {
             bullet.draw(&c, g);
