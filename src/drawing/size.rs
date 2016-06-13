@@ -9,6 +9,7 @@ pub struct Size {
     pub height: f64
 }
 
+#[allow(dead_code)]
 impl Size {
     /// Returns a new `Size` of the given dimensions
     pub fn new(width: f64, height: f64) -> Size {

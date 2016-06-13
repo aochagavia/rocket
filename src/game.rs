@@ -11,7 +11,7 @@ use piston::input::*;
 use rand::{self, ThreadRng};
 
 use drawing::{color, Point, Size};
-use models::{Bullet, Enemy, Particle, Vector, World};
+use models::{Bullet, Enemy, Vector, World};
 use traits::{Advance, Collide, Position};
 
 const UPS: u16 = 120;
@@ -176,28 +176,22 @@ impl Game {
 
         // Update rocket rotation
         if self.actions.rotate_left {
-            *self.world.player.direction_mut() += (-0.06 * UPS as f64) * dt;
+            *self.world.player.direction_mut() += (-0.04 * UPS as f64) * dt;
         }
         if self.actions.rotate_right {
-            *self.world.player.direction_mut() += (0.06 * UPS as f64) * dt;
+            *self.world.player.direction_mut() += (0.04 * UPS as f64) * dt;
         };
 
         // Set speed and advance the player with wrap around
-        let speed = if self.actions.boost { 400.0  } else { 200.0 };
+        let speed = if self.actions.boost { 500.0  } else { 200.0 };
         self.world.player.advance_wrapping(dt * speed, self.world.size.clone());
-
-        // Update particles
-        for particle in &mut self.world.particles {
-            particle.update(dt);
-        }
-
-        // Remove old particles
-        self.world.particles.retain(|p| p.ttl > 0.0);
 
         // Add new particles at the player's position, to leave a trail
         if self.timers.current_time - self.timers.last_tail_particle > 0.05 {
             self.timers.last_tail_particle = self.timers.current_time;
-            self.world.particles.push(Particle::new(self.world.player.vector.clone().invert(), 0.5));
+            let mut trail = Bullet::new_dur(self.world.player.vector.clone().invert(), 0.5);
+            trail.update(20.0, self.world.size.clone(), 0.0);
+            self.world.bullets.push(trail);
         }
 
         // Add bullets
@@ -208,14 +202,16 @@ impl Game {
 
         // Advance bullets
         for bullet in &mut self.world.bullets {
-            bullet.update(dt * 500.0);
+            bullet.update(dt * 500.0, self.world.size.clone(), dt);
         }
+        
+        self.world.bullets.retain(|b| b.ttl > 0.0);        
 
         // Remove bullets outside the viewport
-        { // Shorten the lifetime of size
-        let size = &self.world.size;
-        self.world.bullets.retain(|b| size.contains(b.position()));
-        }
+        // { // Shorten the lifetime of size
+        // let size = &self.world.size;
+        // self.world.bullets.retain(|b| size.contains(b.position()));
+        // }
 
         // Spawn enemies at random locations
         if self.timers.current_time - self.timers.last_spawned_enemy > 1.0 {
@@ -247,30 +243,43 @@ impl Game {
         let old_enemy_count = self.world.enemies.len();
 
         { // We introduce a scope to shorten the lifetime of the borrows below
-        // The references are to avoid using self in the closure
-        // (the borrow checker doesn't like that)
-        let bullets = &mut self.world.bullets;
-        let enemies = &mut self.world.enemies;
-        let particles = &mut self.world.particles;
+            // The references are to avoid using self in the closure
+            // (the borrow checker doesn't like that)
+            let bullets = &mut self.world.bullets;
+            let enemies = &mut self.world.enemies;
+            let mut posvec: Vec<Point> = Vec::new();
 
-        bullets.retain(|bullet| {
-            // Remove the first enemy that collides with a bullet (if any)
-            // Add an explosion on its place
-            if let Some((index, position)) = enemies.iter().enumerate()
-                .find(|&(_, enemy)| enemy.collides_with(bullet))
-                .map(|(index, enemy)| (index, enemy.position()))
-            {
-                Game::make_explosion(particles, position, 10);
-                enemies.remove(index);
-                false
-            } else {
-                true
+            bullets.retain(|bullet| {
+                // Remove the first enemy that collides with a bullet (if any)
+                // Add an explosion on its place
+                if let Some((index, position)) = enemies.iter().enumerate()
+                    .find(|&(_, enemy)| enemy.collides_with(bullet))
+                    .map(|(index, enemy)| (index, enemy.position()))
+                {
+                    // Game::make_explosion(bullets, position, 10);
+                    posvec.push(position);
+                    enemies.remove(index);
+                    false
+                } else {
+                    true
+                }
+            });
+            for pos in posvec {
+                Game::make_explosion(bullets, pos, 10);
             }
-        });
         }
 
         let killed_enemies = (old_enemy_count - self.world.enemies.len()) as u32;
         self.score += 10 * killed_enemies;
+        
+        
+        if self.world.bullets.iter().any(|enemy| self.world.player.collides_with(enemy)) {
+            // Make an explosion where the player was
+            let ppos = self.world.player.position();
+            Game::make_explosion(&mut self.world.bullets, ppos, 8);
+            
+            self.reset();
+        }
     }
 
     /// reset our game-state
@@ -283,7 +292,7 @@ impl Game {
         self.score = 0;
 
         // Remove all enemies and bullets
-        self.world.bullets.clear();
+        // self.world.bullets.clear();
         self.world.enemies.clear();
     }
 
@@ -292,17 +301,17 @@ impl Game {
         if self.world.enemies.iter().any(|enemy| self.world.player.collides_with(enemy)) {
             // Make an explosion where the player was
             let ppos = self.world.player.position();
-            Game::make_explosion(&mut self.world.particles, ppos, 8);
+            Game::make_explosion(&mut self.world.bullets, ppos, 8);
             
             self.reset();
         }
     }
 
     // Generates a new explosion of the given intensity at the given position. This works best with values between 5 and 25
-    fn make_explosion(particles: &mut Vec<Particle>, position: Point, intensity: u8) {
+    fn make_explosion(bullets: &mut Vec<Bullet>, position: Point, intensity: u8) {
         for rotation in itertools::linspace(0.0, 2.0 * f64::consts::PI, 30) {
-            for ttl in (1..intensity).map(|x| (x as f64) / 10.0) {
-                particles.push(Particle::new(Vector::new(position.clone(), rotation), ttl));
+            for ttl in (1..intensity).map(|x| (x as f64) / 16.0) {
+                bullets.push(Bullet::new_dur(Vector::new(position.clone(), rotation), ttl));
             }
         }
     }
