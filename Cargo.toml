@@ -5,7 +5,7 @@ authors = ["Adolfo Ochagavía <aochagavia92@gmail.com>"]
 build = "build.rs"
 
 [dependencies]
-itertools = "0.4.13"
+itertools = "0.4.19"
 piston = "0.26.0"
 piston_window = "0.54.0"
 piston2d-graphics = "0.17.3"

@@ -2,7 +2,7 @@
 name = "rocket"
 version = "0.2.0"
 dependencies = [
- "itertools 0.4.13 (registry+https://github.com/rust-lang/crates.io-index)",
+ "itertools 0.4.19 (registry+https://github.com/rust-lang/crates.io-index)",
  "piston 0.26.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "piston2d-graphics 0.17.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "piston2d-opengl_graphics 0.34.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -338,7 +338,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "itertools"
-version = "0.4.13"
+version = "0.4.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
