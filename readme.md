@@ -28,7 +28,7 @@ As always, it is a real pleasure to work with Cargo. You only need the following
 cargo run --release
 ```
 
-There is one non-Rust dependencies that you will need to install in order to compile the game:
+There is one non-Rust dependency that you will need to install in order to compile the game:
 
 1. The SDL2 library. Follow the instructions here to install it on your system: [Install SDL2](https://github.com/PistonDevelopers/hematite#getting-started)
 
