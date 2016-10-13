@@ -18,12 +18,12 @@ use sdl2_window::Sdl2Window;
 
 use game::Game;
 
-// Use this typedef to make type of window prettier.
-// Need to use Sdl2Window as backend in order to get controller/joystick events currently.
+/// Use this typedef to make type of window prettier.
+/// Need to use Sdl2Window as backend in order to get controller/joystick events currently.
 pub type SDL2GameWindow = PistonWindow<Sdl2Window>;
 
-// Returns a result containing a GlutinWindow or an error if the window
-// settings are not supported
+/// Returns a result containing a GlutinWindow or an error if the window
+/// settings are not supported
 fn main() {
 
     let opengl = OpenGL::V3_2;
