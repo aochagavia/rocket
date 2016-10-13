@@ -28,11 +28,9 @@ As always, it is a real pleasure to work with Cargo. You only need the following
 cargo run --release
 ```
 
-There are two non-Rust dependencies that you will need to install in order to compile the game:
+There is one non-Rust dependencies that you will need to install in order to compile the game:
 
-1. The FreeType library. Follow the instructions here to install it on your system: [Install Freetype](https://github.com/bvssvni/Piston-Tutorials/tree/4772bfa970247cd0da80e92c582898a7a9a3218c/getting-started#freetype-on-os-x)
-
-2. The SDL2 library. Follow the instructions here to install it on your system: [Install SDL2](https://github.com/PistonDevelopers/hematite#getting-started)
+1. The SDL2 library. Follow the instructions here to install it on your system: [Install SDL2](https://github.com/PistonDevelopers/hematite#getting-started)
 
 
 ## Why?
