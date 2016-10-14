@@ -49,7 +49,7 @@ pub trait Advance: Position {
         *self.y_mut() += self.direction().sin() * units;
     }
 
-    /// Similar to `Advance::advance`, but the final possition will be wrapped
+    /// Similar to `Advance::advance`, but the final position will be wrapped
     /// around the given bounds
     fn advance_wrapping(&mut self, units: f64, bounds: Size) {
         self.advance(units);
