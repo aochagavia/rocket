@@ -17,7 +17,6 @@ use opengl_graphics::GlGraphics;
 use game::Game;
 
 fn main() {
-
     let opengl = OpenGL::V3_2;
 
     let mut game = Game::new(drawing::Size::new(1024.0, 600.0));
@@ -33,7 +32,7 @@ fn main() {
     let mut events = window.events();
 
     while let Some(e) = events.next(&mut window) {
-    // Event handling
+        // Event handling
         match e {
             Event::Input(Input::Press(Button::Keyboard(key))) => {
                 game.key_press(key);
@@ -67,5 +66,4 @@ fn main() {
             _ => {}
         }
     }
-
 }
