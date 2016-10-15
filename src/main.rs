@@ -10,7 +10,8 @@ mod game;
 mod models;
 mod traits;
 
-use piston_window::*;
+use piston_window::{Button, Event, Events, EventLoop, Input, Motion, OpenGL, PistonWindow,
+    WindowSettings};
 use opengl_graphics::GlGraphics;
 
 use game::Game;
