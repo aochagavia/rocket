@@ -20,7 +20,11 @@ Left     | Rotate left
 Right    | Rotate right
 Space    | Shoot
 
-## Running it with Cargo
+## Requirements
+
+Rocket targets the latest stable version of Rust.
+
+### Running it with Cargo
 
 As always, it is a real pleasure to work with Cargo. You only need the following:
 
