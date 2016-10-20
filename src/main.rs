@@ -10,9 +10,9 @@ mod game;
 mod models;
 mod traits;
 
+use opengl_graphics::GlGraphics;
 use piston_window::{Button, Event, Events, EventLoop, Input, Motion, OpenGL, PistonWindow,
     WindowSettings};
-use opengl_graphics::GlGraphics;
 
 use game::Game;
 
@@ -22,7 +22,7 @@ fn main() {
     let mut game = Game::new(drawing::Size::new(1124.0, 700.0));
 
     let mut window: PistonWindow = WindowSettings::new("Rocket!", [1024, 600])
-        .opengl(opengl).samples(8).exit_on_esc(true).build().unwrap();
+        .opengl(opengl).samples(4).exit_on_esc(true).build().unwrap();
 
     window.set_ups(60);
     window.set_max_fps(60);
@@ -60,7 +60,7 @@ fn main() {
             }
 
             Event::Update(args) => {
-                //game.update(args.dt);
+                game.update(args.dt);
             }
 
             _ => {}

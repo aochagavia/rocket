@@ -21,13 +21,6 @@ impl Bullet {
         Bullet { vector: vector, ttl: 4.0 }
     }
 
-    /// Draw the bullet
-    pub fn draw(&self, c: &Context, gl: &mut GlGraphics) {
-        Ellipse::new(color::BLUE).resolution(8).draw(
-            [self.x() - self.radius(), self.y() - self.radius(), self.diameter(), self.diameter()],
-            &c.draw_state, c.transform, gl);
-    }
-
     /// Update the bullet's position
     pub fn update(&mut self, dt: f64) {
         self.ttl -= dt;

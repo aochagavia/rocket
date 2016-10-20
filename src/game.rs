@@ -34,7 +34,8 @@ pub struct Game {
     /// The camera that is used to render the game
     ///
     /// FIXME: should this be used directly from main?
-    cam: Camera
+    cam: Camera,
+    triangle_buffer: Vec<f32>
 }
 
 /// Active actions (toggled by user input)
@@ -72,7 +73,8 @@ impl Game {
             timers: Timers::default(),
             rng: rng,
             resources: Resources { font: GlyphCache::new(&exe_directory.join("resources/FiraMono-Bold.ttf")).unwrap() },
-            cam: Camera { size: Size::new(1024., 600.), pos: Point::new(0.0, 0.0) }
+            cam: Camera { size: Size::new(1024., 600.), pos: Point::new(0.0, 0.0) },
+            triangle_buffer: Vec::with_capacity(15000)
         };
 
         game.reset();
@@ -164,7 +166,7 @@ impl Game {
         graphics::clear(color::BLACK, g);
 
         // Render the world
-        self.world.render(c, g, &self.cam);
+        self.world.render(c, g, &self.cam, &mut self.triangle_buffer);
 
         // Render the score
         let mut text = graphics::Text::new(22);
