@@ -19,11 +19,6 @@ impl Vector {
         Vector { position: position, direction: direction }
     }
 
-    /// Returns a random `Vector` within the given bounds
-    pub fn random<R: Rng>(rng: &mut R, bounds: Size) -> Vector {
-        Vector::new(Point::random(rng, bounds), rng.gen())
-    }
-
     /// Consumes the vector and returns a new one with inverted direction
     pub fn invert(mut self) -> Vector {
         self.direction -= f64::consts::PI;

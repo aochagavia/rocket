@@ -19,7 +19,7 @@ use game::Game;
 fn main() {
     let opengl = OpenGL::V3_2;
 
-    let mut game = Game::new(drawing::Size::new(1024.0, 600.0));
+    let mut game = Game::new(drawing::Size::new(1124.0, 700.0));
 
     let mut window: PistonWindow = WindowSettings::new("Rocket!", [1024, 600])
         .opengl(opengl).samples(8).exit_on_esc(true).build().unwrap();
@@ -60,7 +60,7 @@ fn main() {
             }
 
             Event::Update(args) => {
-                game.update(args.dt);
+                //game.update(args.dt);
             }
 
             _ => {}

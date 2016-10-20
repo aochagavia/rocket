@@ -1,4 +1,4 @@
-use drawing::color;
+use drawing::{color, Camera};
 use super::Vector;
 use traits::{Advance, Position};
 
@@ -25,6 +25,7 @@ impl Particle {
 
     /// Draw the particle
     pub fn draw(&self, c: &Context, gl: &mut GlGraphics) {
+
         let radius = 5.0 * self.ttl;
         Ellipse::new(color::VIOLET).resolution(8).draw(
             [self.x() - radius, self.y() - radius, radius * 2.0, radius * 2.0],

@@ -1,9 +1,9 @@
-use graphics;
+use graphics::{self, Transformed};
 use opengl_graphics::GlGraphics;
 use rand::Rng;
 
-use drawing::Size;
-use models::{Bullet, Enemy, Particle, Player};
+use drawing::{Camera, Size, Point};
+use models::{Bullet, Enemy, Particle, Player, Vector};
 
 /// A model that contains the other models and renders them
 pub struct World {
@@ -16,30 +16,31 @@ pub struct World {
 
 impl World {
     /// Returns a new world of the given size
-    pub fn new<R: Rng>(rng: &mut R, size: Size) -> World {
+    pub fn new(size: Size) -> World {
         World {
-            player: Player::random(rng, size.clone()),
+            player: Player::new(),
             particles: Vec::with_capacity(1000),
-            bullets: vec![],
-            enemies: vec![],
+            bullets: Vec::with_capacity(100),
+            enemies: Vec::with_capacity(1000),
             size: size
         }
     }
 
     /// Renders the world and everything in it
-    pub fn render(&self, c: graphics::context::Context, g: &mut GlGraphics) {
+    pub fn render(&self, c: graphics::context::Context, g: &mut GlGraphics, cam: &Camera) {
+        let new_context = c.trans(-cam.pos.x, -cam.pos.y);
         for particle in &self.particles {
-            particle.draw(&c, g);
+            particle.draw(&new_context, g);
         }
 
         for bullet in &self.bullets {
-            bullet.draw(&c, g);
+            bullet.draw(&new_context, g);
         }
 
         for enemy in &self.enemies {
-            enemy.draw(&c, g);
+            enemy.draw(&new_context, g);
         }
 
-        self.player.draw(&c, g);
+        self.player.draw(&new_context, g);
     }
 }

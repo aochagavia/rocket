@@ -22,9 +22,9 @@ const POLYGON: &'static [[f64; 2]] = &[
 ];
 
 impl Player {
-    /// Create a new `Player` with a random position and direction
-    pub fn random<R: Rng>(rng: &mut R, bounds: Size) -> Player {
-        Player { vector: Vector::random(rng, bounds) }
+    /// Create a new `Player`
+    pub fn new() -> Player {
+        Player { vector: Vector::new(Point::new(0., 0.), 0.) }
     }
 
     /// Draw the player

@@ -10,7 +10,7 @@ use opengl_graphics::glyph_cache::GlyphCache;
 use piston::input::*;
 use rand::{self, ThreadRng};
 
-use drawing::{color, Point, Size};
+use drawing::{color, Camera, Point, Size};
 use models::{Bullet, Enemy, Particle, Vector, World};
 use traits::{Advance, Collide, Position};
 
@@ -30,7 +30,11 @@ pub struct Game {
     /// A random number generator
     rng: ThreadRng,
     /// Resources needed for drawing
-    resources: Resources
+    resources: Resources,
+    /// The camera that is used to render the game
+    ///
+    /// FIXME: should this be used directly from main?
+    cam: Camera
 }
 
 /// Active actions (toggled by user input)
@@ -48,7 +52,7 @@ struct Timers {
     current_time: f64,
     last_tail_particle: f64,
     last_shoot: f64,
-    last_spawned_enemy: f64
+    last_spawned_enemy: f64,
 }
 
 /// Additional resources needed for the game
@@ -61,14 +65,18 @@ impl Game {
     pub fn new(size: Size) -> Game {
         let mut rng = rand::thread_rng();
         let exe_directory = current_exe().unwrap().parent().unwrap().to_owned();
-        Game {
-            world: World::new(&mut rng, size),
+        let mut game = Game {
+            world: World::new(size.clone()),
             score: 0,
             actions: Actions::default(),
             timers: Timers::default(),
             rng: rng,
-            resources: Resources { font: GlyphCache::new(&exe_directory.join("resources/FiraMono-Bold.ttf")).unwrap() }
-        }
+            resources: Resources { font: GlyphCache::new(&exe_directory.join("resources/FiraMono-Bold.ttf")).unwrap() },
+            cam: Camera { size: Size::new(1024., 600.), pos: Point::new(0.0, 0.0) }
+        };
+
+        game.reset();
+        game
     }
 
     /// Processes a key press
@@ -127,7 +135,7 @@ impl Game {
                 },
                 -0.199 ... 0.199 => {
                     self.actions.rotate_left = false;
-                    self.actions.rotate_right = false;   
+                    self.actions.rotate_right = false;
                 },
                 _ => {}
             }
@@ -156,7 +164,7 @@ impl Game {
         graphics::clear(color::BLACK, g);
 
         // Render the world
-        self.world.render(c, g);
+        self.world.render(c, g, &self.cam);
 
         // Render the score
         let mut text = graphics::Text::new(22);
@@ -174,6 +182,8 @@ impl Game {
     pub fn update(&mut self, dt: f64) {
         self.timers.current_time += dt;
 
+        self.cam.pos = self.world.player.vector.position.clone().translate(&Point::new(-512., -300.));
+
         // Update rocket rotation
         if self.actions.rotate_left {
             *self.world.player.direction_mut() += (-0.06 * UPS as f64) * dt;
@@ -182,9 +192,9 @@ impl Game {
             *self.world.player.direction_mut() += (0.06 * UPS as f64) * dt;
         };
 
-        // Set speed and advance the player with wrap around
+        // Set speed and advance the player
         let speed = if self.actions.boost { 400.0  } else { 200.0 };
-        self.world.player.advance_wrapping(dt * speed, self.world.size.clone());
+        self.world.player.advance(dt * speed);
 
         // Update particles
         for particle in &mut self.world.particles {
@@ -206,23 +216,21 @@ impl Game {
             self.world.bullets.push(Bullet::new(Vector::new(self.world.player.nose(), self.world.player.direction())));
         }
 
-        // Advance bullets
+        // Update bullets
         for bullet in &mut self.world.bullets {
-            bullet.update(dt * 500.0);
+            bullet.update(dt);
         }
 
-        // Remove bullets outside the viewport
-        { // Shorten the lifetime of size
-        let size = &self.world.size;
-        self.world.bullets.retain(|b| size.contains(b.position()));
-        }
+        // Remove dead bullets
+        self.world.bullets.retain(|b| b.ttl > 0.0);
 
         // Spawn enemies at random locations
-        if self.timers.current_time - self.timers.last_spawned_enemy > 1.0 {
+        if self.timers.current_time - self.timers.last_spawned_enemy > 0.2 {
             self.timers.last_spawned_enemy = self.timers.current_time;
             let mut new_enemy: Enemy;
             loop {
-                new_enemy = Enemy::new(Vector::random(&mut self.rng, self.world.size.clone()));
+                let pos = Point::random(&mut self.rng, &self.world.player.position(), self.cam.size.width);
+                new_enemy = Enemy::new(Vector::new(pos, 0.0));
                 if !self.world.player.collides_with(&new_enemy) {
                     break;
                 }
@@ -276,8 +284,11 @@ impl Game {
     /// reset our game-state
     fn reset(&mut self) {
         // Reset player position
-        *self.world.player.x_mut() = self.world.size.random_x(&mut self.rng);
-        *self.world.player.y_mut() = self.world.size.random_y(&mut self.rng);
+        *self.world.player.x_mut() = 0.0;
+        *self.world.player.y_mut() = 0.0;
+
+        // Let the camera follow the new position of the player
+        self.cam.follow(self.world.player.position());
 
         // Reset score
         self.score = 0;
@@ -285,6 +296,12 @@ impl Game {
         // Remove all enemies and bullets
         self.world.bullets.clear();
         self.world.enemies.clear();
+
+        // Create new enemies
+        for _ in 0..5000 {
+            let pos = Point::random(&mut self.rng, &Point::new(0.0, 0.0), 5000.0);
+            self.world.enemies.push(Enemy::new(Vector::new(pos, 0.0)));
+        }
     }
 
     /// Handles collisions between the player and the enemies
@@ -293,7 +310,7 @@ impl Game {
             // Make an explosion where the player was
             let ppos = self.world.player.position();
             Game::make_explosion(&mut self.world.particles, ppos, 8);
-            
+
             self.reset();
         }
     }

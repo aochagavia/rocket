@@ -9,7 +9,8 @@ use opengl_graphics::GlGraphics;
 ///
 /// When an enemy is reached by a bullet, it will explode
 pub struct Bullet {
-    vector: Vector
+    vector: Vector,
+    pub ttl: f64
 }
 
 derive_position_direction!(Bullet);
@@ -17,7 +18,7 @@ derive_position_direction!(Bullet);
 impl Bullet {
     /// Create a bullet with the given vector
     pub fn new(vector: Vector) -> Bullet {
-        Bullet { vector: vector }
+        Bullet { vector: vector, ttl: 4.0 }
     }
 
     /// Draw the bullet
@@ -28,8 +29,9 @@ impl Bullet {
     }
 
     /// Update the bullet's position
-    pub fn update(&mut self, units: f64) {
-        self.advance(units);
+    pub fn update(&mut self, dt: f64) {
+        self.ttl -= dt;
+        self.advance(dt * 500.0);
     }
 }
 

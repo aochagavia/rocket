@@ -16,10 +16,10 @@ impl Point {
     }
 
     /// Returns a random `Point` within the given bounds (exclusive)
-    pub fn random<R: Rng>(rng: &mut R, bounds: Size) -> Point {
+    pub fn random<R: Rng>(rng: &mut R, quadrant_center: &Point, quadrant_side: f64) -> Point {
         Point {
-            x: rng.gen_range(0.0, bounds.width),
-            y: rng.gen_range(0.0, bounds.height)
+            x: rng.gen_range(quadrant_center.x - quadrant_side, quadrant_center.x + quadrant_side),
+            y: rng.gen_range(quadrant_center.y - quadrant_side, quadrant_center.y + quadrant_side)
         }
     }
 
