@@ -1,9 +1,8 @@
-use graphics::{self, math, triangulation, Context, Graphics, Transformed};
+use graphics::{self, triangulation, Context, Graphics, Transformed};
 use opengl_graphics::GlGraphics;
-use rand::Rng;
 
-use drawing::{color, Camera, Size, Point};
-use models::{Bullet, Enemy, Particle, Player, Vector};
+use drawing::{color, Camera, Size};
+use models::{Bullet, Enemy, Particle, Player};
 use traits::{Collide, Position};
 
 /// A model that contains the other models and renders them

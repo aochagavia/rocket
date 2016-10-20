@@ -1,9 +1,5 @@
-use drawing::{color, Camera};
 use super::Vector;
-use traits::{Advance, Position};
-
-use graphics::{Context, Ellipse};
-use opengl_graphics::GlGraphics;
+use traits::Advance;
 
 /// A model representing a particle
 ///

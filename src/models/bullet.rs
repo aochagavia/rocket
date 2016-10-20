@@ -1,9 +1,5 @@
-use drawing::color;
 use super::Vector;
-use traits::{Advance, Collide, Position};
-
-use graphics::{Context, Ellipse};
-use opengl_graphics::GlGraphics;
+use traits::{Advance, Collide};
 
 /// Bullets are spawned when the player shoots
 ///

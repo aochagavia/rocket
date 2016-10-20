@@ -1,8 +1,5 @@
 use std::f64;
-
-use rand::Rng;
-
-use drawing::{Point, Size};
+use drawing::Point;
 
 /// A `Vector`
 #[derive(Clone, Default)]
