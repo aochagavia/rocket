@@ -316,6 +316,9 @@ impl Game {
         }
     }
 
+    /// Handle collisions between the enemies
+    //fn handle_enemy_enemy_collisions(&)
+
     /// Generates a new explosion of the given intensity at the given position. This works best with values between 5 and 25
     fn make_explosion(particles: &mut Vec<Particle>, position: Point, intensity: u8) {
         for rotation in itertools::linspace(0.0, 2.0 * f64::consts::PI, 30) {
