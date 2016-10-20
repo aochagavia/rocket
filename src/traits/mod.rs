@@ -1,8 +1,6 @@
 //! Traits used by the models
-
 use std::f64;
-
-use drawing::{Point, Size};
+use drawing::Point;
 
 /// A trait for objects that occupy a position in space
 pub trait Position {
@@ -47,23 +45,6 @@ pub trait Advance: Position {
     fn advance(&mut self, units: f64) {
         *self.x_mut() += self.direction().cos() * units;
         *self.y_mut() += self.direction().sin() * units;
-    }
-
-    /// Similar to `Advance::advance`, but the final position will be wrapped
-    /// around the given bounds
-    fn advance_wrapping(&mut self, units: f64, bounds: Size) {
-        self.advance(units);
-
-        fn wrap(k: &mut f64, bound: f64) {
-            if *k < 0.0 {
-                *k += bound;
-            } else if *k >= bound {
-                *k -= bound;
-            }
-        }
-
-        wrap(self.x_mut(), bounds.width);
-        wrap(self.y_mut(), bounds.height);
     }
 }
 

@@ -1,7 +1,5 @@
 use rand::Rng;
 
-use super::Size;
-
 /// A `Point` represents a position in space
 #[derive(Clone, Default)]
 pub struct Point {

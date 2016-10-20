@@ -1,5 +1,4 @@
 //! This module contains the game logic
-
 use std::f64;
 use std::env::current_exe;
 
@@ -64,7 +63,7 @@ struct Resources {
 impl Game {
     /// Returns a new `Game` containing a `World` of the given `Size`
     pub fn new(size: Size) -> Game {
-        let mut rng = rand::thread_rng();
+        let rng = rand::thread_rng();
         let exe_directory = current_exe().unwrap().parent().unwrap().to_owned();
         let mut game = Game {
             world: World::new(size.clone()),
