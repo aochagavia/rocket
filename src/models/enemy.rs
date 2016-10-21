@@ -23,7 +23,7 @@ impl Enemy {
         self.advance(speed);
     }
 
-    pub fn melt(&mut self, other: Self) {
+    pub fn melt(&mut self, other: &Self) {
         self.size += other.size;
     }
 }

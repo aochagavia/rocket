@@ -239,6 +239,9 @@ impl Game {
             self.world.enemies.push(new_enemy);
         }
 
+        // Melt enemies together
+        self.handle_enemy_enemy_collisions();
+
         // Move enemies in the player's direction
         for enemy in &mut self.world.enemies {
             enemy.update(dt * 100.0, self.world.player.position());
@@ -299,7 +302,7 @@ impl Game {
         self.world.enemies.clear();
 
         // Create new enemies
-        for _ in 0..5000 {
+        for _ in 0..1000 {
             let pos = Point::random(&mut self.rng, &Point::new(0.0, 0.0), 5000.0);
             self.world.enemies.push(Enemy::new(Vector::new(pos, 0.0)));
         }
@@ -317,7 +320,39 @@ impl Game {
     }
 
     /// Handle collisions between the enemies
-    //fn handle_enemy_enemy_collisions(&)
+    fn handle_enemy_enemy_collisions(&mut self) {
+        let particles = &mut self.world.particles;
+        let len = self.world.enemies.len();
+        let mut del = 0;
+        {
+            let v = &mut *self.world.enemies;
+
+            for i in 0..len {
+                let mut retain = true;
+                for i2 in i + 1..len {
+                    if *&v[i2].collides_with(&v[i]) {
+                        let epos = v[i].position();
+                        Game::make_explosion(particles, epos, 4);
+                        unsafe {
+                            let e1: &mut Enemy = &mut *(v.get_unchecked_mut(i) as *mut _);
+                            let e2: &mut Enemy = &mut *(v.get_unchecked_mut(i2) as *mut _);
+                            e2.melt(&e1);
+                        }
+                        retain = false;
+                        break;
+                    }
+                }
+                if !retain{
+                    del += 1;
+                } else if del > 0 {
+                    v.swap(i - del, i);
+                }
+            }
+        }
+        if del > 0 {
+            self.world.enemies.truncate(len - del);
+        }
+    }
 
     /// Generates a new explosion of the given intensity at the given position. This works best with values between 5 and 25
     fn make_explosion(particles: &mut Vec<Particle>, position: Point, intensity: u8) {
