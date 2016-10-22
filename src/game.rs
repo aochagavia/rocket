@@ -43,7 +43,8 @@ struct Actions {
     rotate_left: bool,
     rotate_right: bool,
     boost: bool,
-    shoot: bool
+    shoot: bool,
+    shield: bool,
 }
 
 /// Timers to handle creation of bullets, enemies and particles
@@ -97,6 +98,7 @@ impl Game {
             Key::Right => self.actions.rotate_right = pressed,
             Key::Up => self.actions.boost = pressed,
             Key::Space => self.actions.shoot = pressed,
+            Key::S => self.actions.shield = pressed,
             _ => ()
         }
     }
@@ -216,6 +218,13 @@ impl Game {
             self.timers.last_shoot = self.timers.current_time;
             self.world.bullets.push(Bullet::new(Vector::new(self.world.player.nose(), self.world.player.direction())));
         }
+        // Add shielding bullets
+        if self.actions.shield && self.timers.current_time - self.timers.last_shoot > BULLET_RATE {
+            self.timers.last_shoot = self.timers.current_time;
+            for rotation in itertools::linspace(0.0, 2.0 * f64::consts::PI, 30) {
+                self.world.bullets.push(Bullet::new_ttl(Vector::new(self.world.player.nose(), rotation), 0.1));
+            }
+        }
 
         // Update bullets
         for bullet in &mut self.world.bullets {
@@ -225,19 +234,22 @@ impl Game {
         // Remove dead bullets
         self.world.bullets.retain(|b| b.ttl > 0.0);
 
-        // Spawn enemies at random locations
-        if self.timers.current_time - self.timers.last_spawned_enemy > 0.2 {
-            self.timers.last_spawned_enemy = self.timers.current_time;
-            let mut new_enemy: Enemy;
-            loop {
-                let pos = Point::random(&mut self.rng, &self.world.player.position(), self.cam.size.width);
-                new_enemy = Enemy::new(Vector::new(pos, 0.0));
-                if !self.world.player.collides_with(&new_enemy) {
-                    break;
-                }
-            }
-            self.world.enemies.push(new_enemy);
-        }
+        //// Spawn enemies at random locations
+        //if self.timers.current_time - self.timers.last_spawned_enemy > 0.2 {
+        //    self.timers.last_spawned_enemy = self.timers.current_time;
+        //    let mut new_enemy: Enemy;
+        //    loop {
+        //        let pos = Point::random(&mut self.rng, &self.world.player.position(), self.cam.size.width);
+        //        new_enemy = Enemy::new(Vector::new(pos, 0.0));
+        //        if !self.world.player.collides_with(&new_enemy) {
+        //            break;
+        //        }
+        //    }
+        //    self.world.enemies.push(new_enemy);
+        //}
+
+        // Melt enemies together
+        self.handle_enemy_enemy_collisions();
 
         // Move enemies in the player's direction
         for enemy in &mut self.world.enemies {
@@ -270,7 +282,9 @@ impl Game {
                 .map(|(index, enemy)| (index, enemy.position()))
             {
                 Game::make_explosion(particles, position, 10);
-                enemies.remove(index);
+                if !enemies[index].survive_hit() {
+                    enemies.remove(index);
+                }
                 false
             } else {
                 true
@@ -313,6 +327,41 @@ impl Game {
             Game::make_explosion(&mut self.world.particles, ppos, 8);
 
             self.reset();
+        }
+    }
+
+    /// Handle collisions between the enemies
+    fn handle_enemy_enemy_collisions(&mut self) {
+        let particles = &mut self.world.particles;
+        let len = self.world.enemies.len();
+        let mut del = 0;
+        {
+            let v = &mut *self.world.enemies;
+
+            for i in 0..len {
+                let mut retain = true;
+                for i2 in i + 1..len {
+                    if *&v[i2].collides_with(&v[i]) {
+                        let epos = v[i].position();
+                        Game::make_explosion(particles, epos, 4);
+                        unsafe {
+                            let e1: &mut Enemy = &mut *(v.get_unchecked_mut(i) as *mut _);
+                            let e2: &mut Enemy = &mut *(v.get_unchecked_mut(i2) as *mut _);
+                            e2.melt(&e1);
+                        }
+                        retain = false;
+                        break;
+                    }
+                }
+                if !retain{
+                    del += 1;
+                } else if del > 0 {
+                    v.swap(i - del, i);
+                }
+            }
+        }
+        if del > 0 {
+            self.world.enemies.truncate(len - del);
         }
     }
 
