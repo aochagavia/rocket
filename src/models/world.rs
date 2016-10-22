@@ -38,7 +38,7 @@ impl World {
         let bullets = self.bullets.iter().map(|b| [b.x() - b.radius(), b.y() - b.radius(), b.diameter(), b.diameter()]);
         draw_ellipses(&c, g, triangle_buffer, &color::BLUE, 8, bullets);
 
-        let enemies = self.enemies.iter().map(|e| [e.x() - 10.0, e.y() - 10.0, 20.0, 20.0]);
+        let enemies = self.enemies.iter().map(|e| [e.x() - e.radius(), e.y() - e.radius(), e.diameter(), e.diameter()]);
         draw_ellipses(&c, g, triangle_buffer, &color::YELLOW, 16, enemies);
 
         self.player.draw(&c, g);

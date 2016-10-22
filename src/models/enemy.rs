@@ -26,8 +26,12 @@ impl Enemy {
     pub fn melt(&mut self, other: &Self) {
         self.size += other.size;
     }
+    pub fn survive_hit(&mut self) -> bool {
+        self.size -= 1.0;
+        self.size > 0.0
+    }
 }
 
 impl Collide for Enemy {
-    fn radius(&self) -> f64 { self.size * 10.0 }
+    fn radius(&self) -> f64 { self.size + 10.0 }
 }

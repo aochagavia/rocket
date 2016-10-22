@@ -43,7 +43,8 @@ struct Actions {
     rotate_left: bool,
     rotate_right: bool,
     boost: bool,
-    shoot: bool
+    shoot: bool,
+    shield: bool,
 }
 
 /// Timers to handle creation of bullets, enemies and particles
@@ -97,6 +98,7 @@ impl Game {
             Key::Right => self.actions.rotate_right = pressed,
             Key::Up => self.actions.boost = pressed,
             Key::Space => self.actions.shoot = pressed,
+            Key::S => self.actions.shield = pressed,
             _ => ()
         }
     }
@@ -216,6 +218,13 @@ impl Game {
             self.timers.last_shoot = self.timers.current_time;
             self.world.bullets.push(Bullet::new(Vector::new(self.world.player.nose(), self.world.player.direction())));
         }
+        // Add shielding bullets
+        if self.actions.shield && self.timers.current_time - self.timers.last_shoot > BULLET_RATE {
+            self.timers.last_shoot = self.timers.current_time;
+            for rotation in itertools::linspace(0.0, 2.0 * f64::consts::PI, 30) {
+                self.world.bullets.push(Bullet::new_ttl(Vector::new(self.world.player.nose(), rotation), 0.1));
+            }
+        }
 
         // Update bullets
         for bullet in &mut self.world.bullets {
@@ -225,19 +234,19 @@ impl Game {
         // Remove dead bullets
         self.world.bullets.retain(|b| b.ttl > 0.0);
 
-        // Spawn enemies at random locations
-        if self.timers.current_time - self.timers.last_spawned_enemy > 0.2 {
-            self.timers.last_spawned_enemy = self.timers.current_time;
-            let mut new_enemy: Enemy;
-            loop {
-                let pos = Point::random(&mut self.rng, &self.world.player.position(), self.cam.size.width);
-                new_enemy = Enemy::new(Vector::new(pos, 0.0));
-                if !self.world.player.collides_with(&new_enemy) {
-                    break;
-                }
-            }
-            self.world.enemies.push(new_enemy);
-        }
+        //// Spawn enemies at random locations
+        //if self.timers.current_time - self.timers.last_spawned_enemy > 0.2 {
+        //    self.timers.last_spawned_enemy = self.timers.current_time;
+        //    let mut new_enemy: Enemy;
+        //    loop {
+        //        let pos = Point::random(&mut self.rng, &self.world.player.position(), self.cam.size.width);
+        //        new_enemy = Enemy::new(Vector::new(pos, 0.0));
+        //        if !self.world.player.collides_with(&new_enemy) {
+        //            break;
+        //        }
+        //    }
+        //    self.world.enemies.push(new_enemy);
+        //}
 
         // Melt enemies together
         self.handle_enemy_enemy_collisions();
@@ -273,7 +282,9 @@ impl Game {
                 .map(|(index, enemy)| (index, enemy.position()))
             {
                 Game::make_explosion(particles, position, 10);
-                enemies.remove(index);
+                if !enemies[index].survive_hit() {
+                    enemies.remove(index);
+                }
                 false
             } else {
                 true
@@ -302,7 +313,7 @@ impl Game {
         self.world.enemies.clear();
 
         // Create new enemies
-        for _ in 0..1000 {
+        for _ in 0..5000 {
             let pos = Point::random(&mut self.rng, &Point::new(0.0, 0.0), 5000.0);
             self.world.enemies.push(Enemy::new(Vector::new(pos, 0.0)));
         }
