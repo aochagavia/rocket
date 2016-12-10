@@ -10,7 +10,7 @@ mod game;
 mod models;
 mod traits;
 
-use piston_window::{Button, Event, Events, EventLoop, Input, Motion, OpenGL, PistonWindow,
+use piston_window::{Button, Event, EventLoop, Input, Motion, OpenGL, PistonWindow,
     WindowSettings};
 use opengl_graphics::GlGraphics;
 
@@ -29,9 +29,7 @@ fn main() {
 
     let mut gl = GlGraphics::new(opengl);
 
-    let mut events = window.events();
-
-    while let Some(e) = events.next(&mut window) {
+    while let Some(e) = window.next() {
         // Event handling
         match e {
             Event::Input(Input::Press(Button::Keyboard(key))) => {
