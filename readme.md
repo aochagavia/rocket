@@ -9,7 +9,9 @@ Rocket
 
 ![Screenshot](screenshots/gameplay2.png)
 
-You can find more screenshots in the `screenshots` directory
+You can find more screenshots in the [screenshots] directory
+
+[screenshots]: screenshots/
 
 ## How to play
 
