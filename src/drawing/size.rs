@@ -3,7 +3,7 @@ use rand::Rng;
 use super::Point;
 
 /// A `Size` represents a region in space
-#[derive(Clone, Default)]
+#[derive(Clone, Copy, Default)]
 pub struct Size {
     pub width: f64,
     pub height: f64
