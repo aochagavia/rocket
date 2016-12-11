@@ -7,7 +7,7 @@ use graphics::{self, Transformed};
 use itertools;
 use opengl_graphics::GlGraphics;
 use opengl_graphics::glyph_cache::GlyphCache;
-use piston::input::*;
+use piston::input::{ControllerButton, ControllerAxisArgs, Key};
 use rand::{self, ThreadRng};
 
 use drawing::{color, Point, Size};
