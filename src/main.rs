@@ -19,9 +19,11 @@ use game::Game;
 fn main() {
     let opengl = OpenGL::V3_2;
 
-    let mut game = Game::new(drawing::Size::new(1024.0, 600.0));
+    let game_size: drawing::Size = drawing::Size::new(1024.0, 600.0);
+    let mut game = Game::new(game_size);
 
-    let mut window: PistonWindow = WindowSettings::new("Rocket!", [1024, 600])
+    let mut window: PistonWindow = WindowSettings::new(
+        "Rocket!", [game_size.width as u32, game_size.height as u32])
         .opengl(opengl).samples(8).exit_on_esc(true).build().unwrap();
 
     window.set_ups(60);
