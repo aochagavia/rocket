@@ -18,16 +18,16 @@ fn main() {
 fn add_resources(source_path: &PathBuf, target_path: &PathBuf) -> io::Result<()> {
     match read_dir(source_path) {
         Ok(entry_iter) => {
-            try!(create_dir_all(target_path));
+            create_dir_all(target_path)?;
             for entry in entry_iter {
-                let entry = try!(entry);
+                let entry = entry?;
                 let source_path = entry.path();
                 let target_path = target_path.join(entry.file_name());
-                try!(add_resources(&source_path, &target_path));
+                add_resources(&source_path, &target_path)?;
             }
         }
         Err(_) => {
-            try!(copy(&source_path, &target_path));
+            copy(&source_path, &target_path)?;
         }
     }
     Ok(())
