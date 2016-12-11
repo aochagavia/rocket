@@ -159,7 +159,7 @@ impl Game {
         self.world.render(c, g);
 
         // Render the score
-        let mut text = graphics::Text::new_color(color::ORANGE, 22);
+        let text = graphics::Text::new_color(color::ORANGE, 22);
         text.draw(&format!("Score: {}", self.score),
                   &mut self.resources.font,
                   &c.draw_state,
