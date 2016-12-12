@@ -127,7 +127,7 @@ impl Game {
                 },
                 -0.199 ... 0.199 => {
                     self.actions.rotate_left = false;
-                    self.actions.rotate_right = false;   
+                    self.actions.rotate_right = false;
                 },
                 _ => {}
             }
@@ -159,13 +159,12 @@ impl Game {
         self.world.render(c, g);
 
         // Render the score
-        let mut text = graphics::Text::new(22);
-        text.color = color::ORANGE;
-        text.draw(&format!("Score: {}", self.score),
-                  &mut self.resources.font,
-                  &c.draw_state,
-                  c.trans(10.0, 20.0).transform,
-                  g);
+        graphics::text(color::ORANGE,
+                       22,
+                       &format!("Score: {}", self.score),
+                       &mut self.resources.font,
+                       c.trans(10.0, 20.0).transform,
+                       g);
     }
 
     /// Updates the game
@@ -293,7 +292,7 @@ impl Game {
             // Make an explosion where the player was
             let ppos = self.world.player.position();
             Game::make_explosion(&mut self.world.particles, ppos, 8);
-            
+
             self.reset();
         }
     }
