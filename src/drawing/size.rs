@@ -18,7 +18,7 @@ impl Size {
     /// Returns true if the `Point` is contained in this `Size` or false otherwise
     pub fn contains(&self, point: Point) -> bool {
         0.0 <= point.x && point.x <= self.width
-        && 0.0 <= point.y && point.y <= self.height
+            && 0.0 <= point.y && point.y <= self.height
     }
 
     /// Returns a random x coordinate within the bounds of this `Size`
