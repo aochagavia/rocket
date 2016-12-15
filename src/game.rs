@@ -113,7 +113,6 @@ impl Game {
 
     /// Handles a controller axis input
     pub fn handle_axis(&mut self, controller: ControllerAxisArgs) {
-
         // Axis 0 is left stick (XInput). -1.0 left to 1.0 right
         if controller.axis == 0 {
             match controller.position {
@@ -182,7 +181,7 @@ impl Game {
         };
 
         // Set speed and advance the player with wrap around
-        let speed = if self.actions.boost { 400.0  } else { 200.0 };
+        let speed = if self.actions.boost { 400.0 } else { 200.0 };
         self.world.player.advance_wrapping(dt * speed, self.world.size.clone());
 
         // Update particles
@@ -211,9 +210,10 @@ impl Game {
         }
 
         // Remove bullets outside the viewport
-        { // Shorten the lifetime of size
-        let size = &self.world.size;
-        self.world.bullets.retain(|b| size.contains(b.position()));
+        {
+            // Shorten the lifetime of size
+            let size = &self.world.size;
+            self.world.bullets.retain(|b| size.contains(b.position()));
         }
 
         // Spawn enemies at random locations
@@ -245,27 +245,28 @@ impl Game {
     fn handle_bullet_collisions(&mut self) {
         let old_enemy_count = self.world.enemies.len();
 
-        { // We introduce a scope to shorten the lifetime of the borrows below
-        // The references are to avoid using self in the closure
-        // (the borrow checker doesn't like that)
-        let bullets = &mut self.world.bullets;
-        let enemies = &mut self.world.enemies;
-        let particles = &mut self.world.particles;
+        {
+            // We introduce a scope to shorten the lifetime of the borrows below
+            // The references are to avoid using self in the closure
+            // (the borrow checker doesn't like that)
+            let bullets = &mut self.world.bullets;
+            let enemies = &mut self.world.enemies;
+            let particles = &mut self.world.particles;
 
-        bullets.retain(|bullet| {
-            // Remove the first enemy that collides with a bullet (if any)
-            // Add an explosion on its place
-            if let Some((index, position)) = enemies.iter().enumerate()
-                .find(|&(_, enemy)| enemy.collides_with(bullet))
-                .map(|(index, enemy)| (index, enemy.position()))
-            {
-                Game::make_explosion(particles, position, 10);
-                enemies.remove(index);
-                false
-            } else {
-                true
-            }
-        });
+            bullets.retain(|bullet| {
+                // Remove the first enemy that collides with a bullet (if any)
+                // Add an explosion on its place
+                if let Some((index, position)) = enemies.iter().enumerate()
+                    .find(|&(_, enemy)| enemy.collides_with(bullet))
+                    .map(|(index, enemy)| (index, enemy.position()))
+                    {
+                        Game::make_explosion(particles, position, 10);
+                        enemies.remove(index);
+                        false
+                    } else {
+                    true
+                }
+            });
         }
 
         let killed_enemies = (old_enemy_count - self.world.enemies.len()) as u32;
