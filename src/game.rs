@@ -116,7 +116,7 @@ impl Game {
         // Axis 0 is left stick (XInput). -1.0 left to 1.0 right
         if controller.axis == 0 {
             match controller.position {
-                - 1.0 ... - 0.2 => {
+                -1.0 ... -0.2 => {
                     self.actions.rotate_left = true;
                     self.actions.rotate_right = false;
                 },
@@ -124,7 +124,7 @@ impl Game {
                     self.actions.rotate_left = false;
                     self.actions.rotate_right = true;
                 },
-                - 0.199 ... 0.199 => {
+                -0.199 ... 0.199 => {
                     self.actions.rotate_left = false;
                     self.actions.rotate_right = false;
                 },
@@ -135,10 +135,10 @@ impl Game {
         // Axis 5 is right trigger (XInput). -1.0 is not pressed, 1.0 is fully pressed
         if controller.axis == 5 {
             match controller.position {
-                - 0.8 ... 1.0 => {
+                -0.8 ... 1.0 => {
                     self.actions.boost = true;
                 },
-                - 1.0 ... - 0.799 => {
+                -1.0 ... -0.799 => {
                     self.actions.boost = false;
                 },
                 _ => {}
