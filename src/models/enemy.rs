@@ -4,7 +4,8 @@ use traits::{Advance, Collide};
 
 /// Enemies follow the player in order to cause a collision and let him explode
 pub struct Enemy {
-    vector: Vector
+    vector: Vector,
+    size: f64
 }
 
 derive_position_direction!(Enemy);
@@ -12,7 +13,7 @@ derive_position_direction!(Enemy);
 impl Enemy {
     /// Create a enemy with the given vector
     pub fn new(vector: Vector) -> Enemy {
-        Enemy { vector: vector }
+        Enemy { vector: vector, size: 1.0 }
     }
 
     /// Update the enemy
@@ -21,8 +22,16 @@ impl Enemy {
         self.point_to(player_position);
         self.advance(speed);
     }
+
+    pub fn melt(&mut self, other: &Self) {
+        self.size += other.size;
+    }
+    pub fn survive_hit(&mut self) -> bool {
+        self.size -= 1.0;
+        self.size > 0.0
+    }
 }
 
 impl Collide for Enemy {
-    fn radius(&self) -> f64 { 10.0 }
+    fn radius(&self) -> f64 { self.size + 10.0 }
 }
