@@ -1,4 +1,4 @@
-use graphics::{Context, Polygon, Transformed};
+use graphics::{Context, polygon, Transformed};
 use opengl_graphics::GlGraphics;
 use rand::Rng;
 
@@ -34,7 +34,7 @@ impl Player {
             .rot_rad(self.direction());
 
         // Draw a rectangle on the position of the player
-        Polygon::new(color::RED).draw(POLYGON, &c.draw_state, transform, gl);
+        polygon(color::RED, POLYGON, transform, gl);
     }
 
     /// Returns the nose of the rocket
