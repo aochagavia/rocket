@@ -2,7 +2,7 @@ use drawing::color;
 use super::Vector;
 use traits::{Advance, Position};
 
-use graphics::{Context, Ellipse};
+use graphics::{Context, ellipse};
 use opengl_graphics::GlGraphics;
 
 /// A model representing a particle
@@ -26,9 +26,9 @@ impl Particle {
     /// Draw the particle
     pub fn draw(&self, c: &Context, gl: &mut GlGraphics) {
         let radius = 5.0 * self.ttl;
-        Ellipse::new(color::VIOLET).resolution(8).draw(
-            [self.x() - radius, self.y() - radius, radius * 2.0, radius * 2.0],
-            &c.draw_state, c.transform, gl);
+        ellipse(color::VIOLET,
+                [self.x() - radius, self.y() - radius, radius * 2.0, radius * 2.0],
+                c.transform, gl);
     }
 
     /// Update the particle

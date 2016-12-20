@@ -2,7 +2,7 @@ use drawing::color;
 use super::Vector;
 use traits::{Advance, Collide, Position};
 
-use graphics::{Context, Ellipse};
+use graphics::{Context, ellipse};
 use opengl_graphics::GlGraphics;
 
 /// Bullets are spawned when the player shoots
@@ -22,9 +22,10 @@ impl Bullet {
 
     /// Draw the bullet
     pub fn draw(&self, c: &Context, gl: &mut GlGraphics) {
-        Ellipse::new(color::BLUE).resolution(8).draw(
-            [self.x() - self.radius(), self.y() - self.radius(), self.diameter(), self.diameter()],
-            &c.draw_state, c.transform, gl);
+        ellipse(color::BLUE,
+                [self.x() - self.radius(), self.y() - self.radius(), self.diameter(), self.diameter()],
+                c.transform,
+                gl);
     }
 
     /// Update the bullet's position
