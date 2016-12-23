@@ -2,6 +2,7 @@ Rocket
 ======
 
 [![Build Status](https://travis-ci.org/aochagavia/rocket.svg)](https://travis-ci.org/aochagavia/rocket)
+[![Build status](https://ci.appveyor.com/api/projects/status/its182aar6vol45b?svg=true)](https://ci.appveyor.com/project/aochagavia/rocket)
 
 > Rocket is a toy game written in Rust, using the Piston library. The code is thoroughly commented in order to help people to follow it easily.
 
