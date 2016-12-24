@@ -14,8 +14,22 @@ use drawing::{color, Point, Size};
 use models::{Bullet, Enemy, Particle, Vector, World};
 use traits::{Advance, Collide, Position};
 
-const UPS: u16 = 120;
-const BULLET_RATE: f64 = 0.01;
+// Constants related to time
+const BULLETS_PER_SECOND: f64 = 100.0;
+const BULLET_RATE: f64 = 1.0 / BULLETS_PER_SECOND;
+
+const ENEMY_SPAWNS_PER_SECOND: f64 = 1.0;
+const ENEMY_SPAWN_RATE: f64 = 1.0 / ENEMY_SPAWNS_PER_SECOND;
+
+const TRAIL_PARTICLES_PER_SECOND: f64 = 20.0;
+const TRAIL_PARTICLE_RATE: f64 = 1.0 / TRAIL_PARTICLES_PER_SECOND;
+
+// Constants related to movement
+const ADVANCE_SPEED: f64 = 200.0;
+const BULLET_SPEED: f64 = 500.0;
+const ENEMY_SPEED: f64 = 100.0;
+const ROTATE_SPEED: f64 = 7.2;
+
 
 /// The data structure that drives the game
 pub struct Game {
@@ -144,9 +158,6 @@ impl Game {
                 _ => {}
             }
         }
-
-        // TODO: Actually use stick position value to affect rotation amount
-        //       Actually use trigger position value affect boost amount
     }
 
     /// Renders the game to the screen
@@ -174,14 +185,14 @@ impl Game {
 
         // Update rocket rotation
         if self.actions.rotate_left {
-            *self.world.player.direction_mut() += (-0.06 * UPS as f64) * dt;
+            *self.world.player.direction_mut() += -ROTATE_SPEED * dt;
         }
         if self.actions.rotate_right {
-            *self.world.player.direction_mut() += (0.06 * UPS as f64) * dt;
+            *self.world.player.direction_mut() += ROTATE_SPEED * dt;
         };
 
         // Set speed and advance the player with wrap around
-        let speed = if self.actions.boost { 400.0 } else { 200.0 };
+        let speed = if self.actions.boost { 2.0 * ADVANCE_SPEED } else { ADVANCE_SPEED };
         self.world.player.advance_wrapping(dt * speed, self.world.size.clone());
 
         // Update particles
@@ -193,7 +204,7 @@ impl Game {
         self.world.particles.retain(|p| p.ttl > 0.0);
 
         // Add new particles at the player's position, to leave a trail
-        if self.timers.current_time - self.timers.last_tail_particle > 0.05 {
+        if self.timers.current_time - self.timers.last_tail_particle > TRAIL_PARTICLE_RATE {
             self.timers.last_tail_particle = self.timers.current_time;
             self.world.particles.push(Particle::new(self.world.player.vector.clone().invert(), 0.5));
         }
@@ -206,7 +217,7 @@ impl Game {
 
         // Advance bullets
         for bullet in &mut self.world.bullets {
-            bullet.update(dt * 500.0);
+            bullet.update(dt * BULLET_SPEED);
         }
 
         // Remove bullets outside the viewport
@@ -217,9 +228,9 @@ impl Game {
         }
 
         // Spawn enemies at random locations
-        if self.timers.current_time - self.timers.last_spawned_enemy > 1.0 {
+        if self.timers.current_time - self.timers.last_spawned_enemy > ENEMY_SPAWN_RATE {
             self.timers.last_spawned_enemy = self.timers.current_time;
-            let mut new_enemy: Enemy;
+            let mut new_enemy;
             loop {
                 new_enemy = Enemy::new(Vector::random(&mut self.rng, self.world.size.clone()));
                 if !self.world.player.collides_with(&new_enemy) {
@@ -231,7 +242,7 @@ impl Game {
 
         // Move enemies in the player's direction
         for enemy in &mut self.world.enemies {
-            enemy.update(dt * 100.0, self.world.player.position());
+            enemy.update(dt * ENEMY_SPEED, self.world.player.position());
         }
 
         self.handle_player_collisions();
@@ -244,11 +255,9 @@ impl Game {
     /// will be removed. Additionally, the score will be increased by 10
     fn handle_bullet_collisions(&mut self) {
         let old_enemy_count = self.world.enemies.len();
-
+        
+        // We introduce a scope to shorten the lifetime of the borrows below
         {
-            // We introduce a scope to shorten the lifetime of the borrows below
-            // The references are to avoid using self in the closure
-            // (the borrow checker doesn't like that)
             let bullets = &mut self.world.bullets;
             let enemies = &mut self.world.enemies;
             let particles = &mut self.world.particles;
