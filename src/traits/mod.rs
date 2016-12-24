@@ -26,7 +26,10 @@ pub trait Position {
 
 /// A trait for objects that have can move in a given direction
 pub trait Advance: Position {
-    /// Returns the direction of the object
+    /// Returns the direction of the object, measured in radians
+    ///
+    /// Note: 0.0 points to the right and a positive number means a clockwise
+    /// rotation
     fn direction(&self) -> f64;
 
     /// Returns a mutable reference to the direction of the object

@@ -25,10 +25,12 @@ const TRAIL_PARTICLES_PER_SECOND: f64 = 20.0;
 const TRAIL_PARTICLE_RATE: f64 = 1.0 / TRAIL_PARTICLES_PER_SECOND;
 
 // Constants related to movement
+// Speed is measured in pixels per second
+// Rotation speed is measured in radians per second
 const ADVANCE_SPEED: f64 = 200.0;
 const BULLET_SPEED: f64 = 500.0;
 const ENEMY_SPEED: f64 = 100.0;
-const ROTATE_SPEED: f64 = 7.2;
+const ROTATE_SPEED: f64 = 2.0 * f64::consts::PI;
 
 
 /// The data structure that drives the game
