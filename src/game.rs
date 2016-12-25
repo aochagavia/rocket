@@ -3,11 +3,10 @@
 use std::f64;
 use std::env::current_exe;
 
-use graphics::{self, Transformed};
 use itertools;
 use opengl_graphics::GlGraphics;
 use opengl_graphics::glyph_cache::GlyphCache;
-use piston::input::{ControllerButton, ControllerAxisArgs, Key};
+use piston_window::{clear, ControllerButton, Context, ControllerAxisArgs, Key, text, Transformed};
 use rand::{self, ThreadRng};
 
 use drawing::{color, Point, Size};
@@ -163,20 +162,20 @@ impl Game {
     }
 
     /// Renders the game to the screen
-    pub fn render(&mut self, c: graphics::context::Context, g: &mut GlGraphics) {
+    pub fn render(&mut self, c: Context, g: &mut GlGraphics) {
         // Clear everything
-        graphics::clear(color::BLACK, g);
+        clear(color::BLACK, g);
 
         // Render the world
         self.world.render(c, g);
 
         // Render the score
-        graphics::text(color::ORANGE,
-                       22,
-                       &format!("Score: {}", self.score),
-                       &mut self.resources.font,
-                       c.trans(10.0, 20.0).transform,
-                       g);
+        text(color::ORANGE,
+             22,
+             &format!("Score: {}", self.score),
+             &mut self.resources.font,
+             c.trans(10.0, 20.0).transform,
+             g);
     }
 
     /// Updates the game
@@ -257,7 +256,7 @@ impl Game {
     /// will be removed. Additionally, the score will be increased by 10
     fn handle_bullet_collisions(&mut self) {
         let old_enemy_count = self.world.enemies.len();
-        
+
         // We introduce a scope to shorten the lifetime of the borrows below
         {
             let bullets = &mut self.world.bullets;

@@ -1,5 +1,5 @@
-use graphics;
 use opengl_graphics::GlGraphics;
+use piston_window::{Context};
 use rand::Rng;
 
 use drawing::Size;
@@ -27,7 +27,7 @@ impl World {
     }
 
     /// Renders the world and everything in it
-    pub fn render(&self, c: graphics::context::Context, g: &mut GlGraphics) {
+    pub fn render(&self, c: Context, g: &mut GlGraphics) {
         for particle in &self.particles {
             particle.draw(&c, g);
         }

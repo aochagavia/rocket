@@ -1,5 +1,5 @@
-use graphics::{Context, polygon, Transformed};
 use opengl_graphics::GlGraphics;
+use piston_window::{Context, polygon, Transformed};
 use rand::Rng;
 
 use drawing::{color, Point, Size};
