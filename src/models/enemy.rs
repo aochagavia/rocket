@@ -2,8 +2,8 @@ use drawing::{color, Point};
 use super::Vector;
 use traits::{Advance, Collide, Position};
 
-use graphics::{Context, ellipse};
 use opengl_graphics::GlGraphics;
+use piston_window::{Context, ellipse};
 
 /// Enemies follow the player in order to cause a collision and let him explode 
 pub struct Enemy {

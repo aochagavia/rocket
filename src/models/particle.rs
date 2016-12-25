@@ -2,8 +2,8 @@ use drawing::color;
 use super::Vector;
 use traits::{Advance, Position};
 
-use graphics::{Context, ellipse};
 use opengl_graphics::GlGraphics;
+use piston_window::{Context, ellipse};
 
 /// A model representing a particle
 ///
