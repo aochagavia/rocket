@@ -1,5 +1,5 @@
 extern crate piston_window;
-extern crate itertools;
+extern crate itertools_num;
 extern crate opengl_graphics;
 extern crate rand;
 
