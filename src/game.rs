@@ -196,7 +196,7 @@ impl Game {
 
         // Set speed and advance the player with wrap around
         let speed = if self.actions.boost { 2.0 * ADVANCE_SPEED } else { ADVANCE_SPEED };
-        self.world.player.advance_wrapping(dt * speed, self.world.size.clone());
+        self.world.player.advance_wrapping(dt * speed, self.world.size);
 
         // Update particles
         for particle in &mut self.world.particles {
@@ -237,7 +237,7 @@ impl Game {
             self.timers.last_spawned_enemy = self.timers.current_time;
             let mut new_enemy;
             loop {
-                new_enemy = Enemy::new(Vector::random(&mut self.rng, self.world.size.clone()));
+                new_enemy = Enemy::new(Vector::random(&mut self.rng, self.world.size));
                 if !self.world.player.collides_with(&new_enemy) {
                     break;
                 }
