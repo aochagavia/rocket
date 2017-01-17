@@ -122,9 +122,8 @@ impl Game {
     /// Handles a button press or release
     fn handle_button(&mut self, controller: ControllerButton, pressed: bool) {
         // Button 10 is A button on XInput
-        match controller.button {
-            10 => self.actions.shoot = pressed,
-            _ => ()
+        if controller.button == 10 {
+            self.actions.shoot = pressed
         }
     }
 
