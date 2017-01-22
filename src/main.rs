@@ -1,3 +1,7 @@
+#![deny(missing_docs)]
+
+//! A 2D toy game written in Rust, using the Piston library.
+
 extern crate piston_window;
 extern crate itertools_num;
 extern crate opengl_graphics;
