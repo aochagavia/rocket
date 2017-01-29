@@ -12,8 +12,7 @@ mod game;
 mod models;
 mod traits;
 
-use piston_window::{Button, Event, EventLoop, Input, Motion, OpenGL, PistonWindow,
-    WindowSettings};
+use piston_window::{Button, EventLoop, Input, Motion, OpenGL, PistonWindow, WindowSettings};
 use opengl_graphics::GlGraphics;
 
 use game::Game;
@@ -36,32 +35,32 @@ fn main() {
     while let Some(e) = window.next() {
         // Event handling
         match e {
-            Event::Input(Input::Press(Button::Keyboard(key))) => {
+            Input::Press(Button::Keyboard(key)) => {
                 game.key_press(key);
             }
 
-            Event::Input(Input::Release(Button::Keyboard(key))) => {
+            Input::Release(Button::Keyboard(key)) => {
                 game.key_release(key);
             }
 
-            Event::Input(Input::Press(Button::Controller(button))) => {
+            Input::Press(Button::Controller(button)) => {
                 game.button_press(button);
             }
 
-            Event::Input(Input::Release(Button::Controller(button))) => {
+            Input::Release(Button::Controller(button)) => {
                 game.button_release(button);
             }
 
             // Controller Axis are Move Input types
-            Event::Input(Input::Move(Motion::ControllerAxis(axis))) => {
+            Input::Move(Motion::ControllerAxis(axis)) => {
                 game.handle_axis(axis);
             }
 
-            Event::Render(args) => {
+            Input::Render(args) => {
                 gl.draw(args.viewport(), |c, g| game.render(c, g));
             }
 
-            Event::Update(args) => {
+            Input::Update(args) => {
                 game.update(args.dt);
             }
 
