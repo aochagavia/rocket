@@ -11,7 +11,7 @@ commented in order to help people to follow it easily.
 
 ![Screenshot](screenshots/gameplay2.png)
 
-You can find more screenshots in the [screenshots] directory
+You can find more screenshots in the [screenshots] directory.
 
 [screenshots]: screenshots/
 
@@ -20,12 +20,12 @@ You can find more screenshots in the [screenshots] directory
 As you can see in the screenshots below, you are the red rocket and have to save the world from 
 the yellow invaders. To do so, you can use the following controls:
 
-Keyboard | Action
--------- | ------------
-Up       | Boost
-Left     | Rotate left
-Right    | Rotate right
-Space    | Shoot
+Keyboard                | Action
+----------------------- | ------------
+<kbd>&uparrow;</kbd>    | Boost
+<kbd>&leftarrow;</kbd>  | Rotate left
+<kbd>&rightarrow;</kbd> | Rotate right
+<kbd>Space</kbd>        | Shoot
 
 ## Requirements
 
