@@ -1,6 +1,6 @@
 [root]
 name = "rocket"
-version = "0.2.0"
+version = "1.0.0"
 dependencies = [
  "itertools-num 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "piston2d-opengl_graphics 0.39.0 (registry+https://github.com/rust-lang/crates.io-index)",
