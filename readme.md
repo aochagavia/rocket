@@ -22,9 +22,9 @@ the yellow invaders. To do so, you can use the following controls:
 
 Keyboard         | Action
 ---------------- | ------------
-<kbd>Up</kbd>    | Boost
-<kbd>Left</kbd>  | Rotate left
-<kbd>Right</kbd> | Rotate right
+<kbd>&uparrow;</kbd>    | Boost
+<kbd>&leftarrow;</kbd>  | Rotate left
+<kbd>&rightarrow;</kbd> | Rotate right
 <kbd>Space</kbd> | Shoot
 
 ## Requirements
