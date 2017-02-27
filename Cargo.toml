@@ -6,6 +6,6 @@ build = "build.rs"
 
 [dependencies]
 itertools-num = "0.1.1"
-piston_window = "0.63.0"
-piston2d-opengl_graphics = "0.39.0"
-rand = "0.3.14"
+piston_window = "0.64.0"
+piston2d-opengl_graphics = "0.42.0"
+rand = "0.3.15"
