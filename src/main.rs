@@ -11,6 +11,7 @@ mod drawing;
 mod game;
 mod models;
 mod traits;
+mod util;
 
 use piston_window::{Button, EventLoop, Input, Motion, OpenGL, PistonWindow, WindowSettings};
 use opengl_graphics::GlGraphics;

@@ -12,6 +12,7 @@ use rand::{self, ThreadRng};
 use drawing::{color, Point, Size};
 use models::{Bullet, Enemy, Particle, Vector, World};
 use traits::{Advance, Collide, Position};
+use util;
 
 // Constants related to time
 const BULLETS_PER_SECOND: f64 = 100.0;
@@ -203,7 +204,7 @@ impl Game {
         }
 
         // Remove old particles
-        self.world.particles.retain(|p| p.ttl > 0.0);
+        util::fast_retain(&mut self.world.particles, |p| p.ttl > 0.0);
 
         // Add new particles at the player's position, to leave a trail
         if self.timers.current_time - self.timers.last_tail_particle > TRAIL_PARTICLE_RATE {
@@ -228,7 +229,7 @@ impl Game {
         {
             // Shorten the lifetime of size
             let size = &self.world.size;
-            self.world.bullets.retain(|b| size.contains(b.position()));
+            util::fast_retain(&mut self.world.bullets, |b| size.contains(b.position()));
         }
 
         // Spawn enemies at random locations
@@ -266,7 +267,7 @@ impl Game {
             let enemies = &mut self.world.enemies;
             let particles = &mut self.world.particles;
 
-            bullets.retain(|bullet| {
+            util::fast_retain(bullets, |bullet| {
                 // Remove the first enemy that collides with a bullet (if any)
                 // Add an explosion on its place
                 if let Some((index, position)) = enemies.iter().enumerate()
