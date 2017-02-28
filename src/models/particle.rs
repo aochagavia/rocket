@@ -1,9 +1,5 @@
-use drawing::color;
 use super::Vector;
-use traits::{Advance, Position};
-
-use opengl_graphics::GlGraphics;
-use piston_window::{Context, ellipse};
+use traits::Advance;
 
 /// A model representing a particle
 ///
@@ -21,14 +17,6 @@ impl Particle {
     /// Create a particle with the given vector and time to live in seconds
     pub fn new(vector: Vector, ttl: f64) -> Particle {
         Particle { vector: vector, ttl: ttl }
-    }
-
-    /// Draw the particle
-    pub fn draw(&self, c: &Context, gl: &mut GlGraphics) {
-        let radius = 5.0 * self.ttl;
-        ellipse(color::VIOLET,
-                [self.x() - radius, self.y() - radius, radius * 2.0, radius * 2.0],
-                c.transform, gl);
     }
 
     /// Update the particle

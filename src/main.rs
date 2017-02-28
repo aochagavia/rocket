@@ -10,8 +10,10 @@ extern crate rand;
 mod drawing;
 mod game;
 mod models;
+mod resources;
 mod traits;
 mod util;
+mod view;
 
 use piston_window::{Button, EventLoop, Input, Motion, OpenGL, PistonWindow, WindowSettings};
 use opengl_graphics::GlGraphics;
@@ -58,7 +60,7 @@ fn main() {
             }
 
             Input::Render(args) => {
-                gl.draw(args.viewport(), |c, g| game.render(c, g));
+                gl.draw(args.viewport(), |c, g| view::render_game(c, g, &mut game.resources, &game.world, game.score));
             }
 
             Input::Update(args) => {

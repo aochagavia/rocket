@@ -1,5 +1,3 @@
-use opengl_graphics::GlGraphics;
-use piston_window::{Context};
 use rand::Rng;
 
 use drawing::Size;
@@ -24,22 +22,5 @@ impl World {
             enemies: vec![],
             size: size
         }
-    }
-
-    /// Renders the world and everything in it
-    pub fn render(&self, c: Context, g: &mut GlGraphics) {
-        for particle in &self.particles {
-            particle.draw(&c, g);
-        }
-
-        for bullet in &self.bullets {
-            bullet.draw(&c, g);
-        }
-
-        for enemy in &self.enemies {
-            enemy.draw(&c, g);
-        }
-
-        self.player.draw(&c, g);
     }
 }
