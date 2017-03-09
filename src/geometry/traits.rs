@@ -2,7 +2,7 @@
 
 use std::f64;
 
-use drawing::{Point, Size};
+use super::{Point, Size};
 
 /// A trait for objects that occupy a position in space
 pub trait Position {

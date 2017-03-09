@@ -2,7 +2,7 @@ use std::f64;
 
 use rand::Rng;
 
-use drawing::{Point, Size};
+use geometry::{Point, Size};
 
 /// A `Vector`
 #[derive(Clone, Default)]
@@ -35,14 +35,14 @@ impl Vector {
 #[macro_export]
 macro_rules! derive_position_direction {
     ($t:ty) => {
-        impl ::traits::Position for $t {
+        impl ::geometry::Position for $t {
             fn x(&self) -> f64 { self.vector.position.x }
             fn x_mut(&mut self) -> &mut f64 { &mut self.vector.position.x }
             fn y(&self) -> f64 { self.vector.position.y }
             fn y_mut(&mut self) -> &mut f64 { &mut self.vector.position.y }
         }
 
-        impl ::traits::Advance for $t {
+        impl ::geometry::Advance for $t {
             fn direction(&self) -> f64 {
                 self.vector.direction
             }

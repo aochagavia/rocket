@@ -1,5 +1,5 @@
 use super::Vector;
-use traits::{Advance, Collide};
+use geometry::{Advance, Collide};
 
 /// Bullets are spawned when the player shoots
 ///
