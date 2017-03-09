@@ -2,22 +2,23 @@ use opengl_graphics::GlGraphics;
 use piston_window::{self, Context, Transformed};
 
 use drawing::color;
+use game_state::GameState;
+use geometry::{Advance, Collide, Position};
 use models::{Bullet, Enemy, Particle, Player, World, PLAYER_POLYGON};
 use resources::Resources;
-use geometry::{Advance, Collide, Position};
 
 /// Renders the game to the screen
-pub fn render_game(c: Context, g: &mut GlGraphics, res: &mut Resources, world: &World, score: u32) {
+pub fn render_game(c: Context, g: &mut GlGraphics, res: &mut Resources, state: &GameState) {
     // Clear everything
     piston_window::clear(color::BLACK, g);
 
     // Render the world
-    render_world(world, c, g);
+    render_world(&state.world, c, g);
 
     // Render the score
     piston_window::text(color::ORANGE,
             22,
-            &format!("Score: {}", score),
+            &format!("Score: {}", state.score),
             &mut res.font,
             c.trans(10.0, 20.0).transform,
             g);

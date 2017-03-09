@@ -7,8 +7,9 @@ extern crate itertools_num;
 extern crate opengl_graphics;
 extern crate rand;
 
+mod controllers;
 mod drawing;
-mod game;
+mod game_state;
 mod geometry;
 mod models;
 mod resources;
@@ -18,14 +19,15 @@ mod view;
 use piston_window::{Button, EventLoop, Input, Motion, OpenGL, PistonWindow, WindowSettings};
 use opengl_graphics::GlGraphics;
 
-use game::Game;
+use controllers::{CollisionsController, InputController, TimeController};
+use game_state::GameState;
 use geometry::Size;
+use resources::Resources;
 
 fn main() {
     let opengl = OpenGL::V3_2;
 
     let game_size = Size::new(1024.0, 600.0);
-    let mut game = Game::new(game_size);
 
     let mut window: PistonWindow = WindowSettings::new(
         "Rocket!", [game_size.width as u32, game_size.height as u32])
@@ -35,37 +37,42 @@ fn main() {
     window.set_max_fps(60);
 
     let mut gl = GlGraphics::new(opengl);
+    let mut resources = Resources::new();
+    let mut input_controller = InputController::new();
+    let mut time_controller = TimeController::new();
+    let mut state = GameState::new(game_size);
 
+    // The game loop
     while let Some(e) = window.next() {
         // Event handling
         match e {
             Input::Press(Button::Keyboard(key)) => {
-                game.key_press(key);
+                input_controller.key_press(key);
             }
 
             Input::Release(Button::Keyboard(key)) => {
-                game.key_release(key);
+                input_controller.key_release(key);
             }
 
             Input::Press(Button::Controller(button)) => {
-                game.button_press(button);
+                input_controller.button_press(button);
             }
 
             Input::Release(Button::Controller(button)) => {
-                game.button_release(button);
+                input_controller.button_release(button);
             }
 
-            // Controller Axis are Move Input types
             Input::Move(Motion::ControllerAxis(axis)) => {
-                game.handle_axis(axis);
-            }
-
-            Input::Render(args) => {
-                gl.draw(args.viewport(), |c, g| view::render_game(c, g, &mut game.resources, &game.world, game.score));
+                input_controller.handle_axis(axis);
             }
 
             Input::Update(args) => {
-                game.update(args.dt);
+                time_controller.update_seconds(args.dt, input_controller.actions(), &mut state);
+                CollisionsController::handle_collisions(&mut state);
+            }
+
+            Input::Render(args) => {
+                gl.draw(args.viewport(), |c, g| view::render_game(c, g, &mut resources, &state));
             }
 
             _ => {}
