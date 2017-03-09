@@ -1,8 +1,6 @@
-use opengl_graphics::GlGraphics;
-use piston_window::{Context, polygon, Transformed};
 use rand::Rng;
 
-use drawing::{color, Point, Size};
+use drawing::{Point, Size};
 use super::Vector;
 use traits::{Advance, Collide, Position};
 
@@ -14,8 +12,8 @@ pub struct Player {
 
 derive_position_direction!(Player);
 
-/// The player is drawn as the triangle below
-const POLYGON: &'static [[f64; 2]] = &[
+/// The player is represented as the polygon below
+pub const POLYGON: &'static [[f64; 2]] = &[
     [0.0, -8.0],
     [20.0, 0.0],
     [0.0, 8.0]
@@ -27,18 +25,8 @@ impl Player {
         Player { vector: Vector::random(rng, bounds) }
     }
 
-    /// Draw the player
-    pub fn draw(&self, c: &Context, gl: &mut GlGraphics) {
-        // Set the center of the player as the origin and rotate it
-        let transform = c.transform.trans(self.x(), self.y())
-            .rot_rad(self.direction());
-
-        // Draw a rectangle on the position of the player
-        polygon(color::RED, POLYGON, transform, gl);
-    }
-
-    /// Returns the nose of the rocket
-    pub fn nose(&self) -> Point {
+    /// Returns the front of the rocket
+    pub fn front(&self) -> Point {
         Point::new(POLYGON[1][0], POLYGON[1][1])
             .rotate(self.direction())
             .translate(&self.position())

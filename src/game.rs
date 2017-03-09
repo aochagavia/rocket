@@ -1,16 +1,14 @@
 //! This module contains the game logic
 
 use std::f64;
-use std::env::current_exe;
 
 use itertools_num;
-use opengl_graphics::GlGraphics;
-use opengl_graphics::glyph_cache::GlyphCache;
-use piston_window::{clear, ControllerButton, Context, ControllerAxisArgs, Key, text, Transformed};
+use piston_window::{ControllerButton, ControllerAxisArgs, Key};
 use rand::{self, ThreadRng};
 
-use drawing::{color, Point, Size};
+use drawing::{Point, Size};
 use models::{Bullet, Enemy, Particle, Vector, World};
+use resources::Resources;
 use traits::{Advance, Collide, Position};
 use util;
 
@@ -32,13 +30,12 @@ const BULLET_SPEED: f64 = 500.0;
 const ENEMY_SPEED: f64 = 100.0;
 const ROTATE_SPEED: f64 = 2.0 * f64::consts::PI;
 
-
 /// The data structure that drives the game
 pub struct Game {
     /// The world contains everything that needs to be drawn
-    world: World,
+    pub world: World,
     /// The current score of the player
-    score: u32,
+    pub score: u32,
     /// The active actions
     actions: Actions,
     /// Timers needed by the game
@@ -46,7 +43,7 @@ pub struct Game {
     /// A random number generator
     rng: ThreadRng,
     /// Resources needed for drawing
-    resources: Resources
+    pub resources: Resources
 }
 
 /// Active actions (toggled by user input)
@@ -67,25 +64,17 @@ struct Timers {
     last_spawned_enemy: f64
 }
 
-/// Additional resources needed for the game
-struct Resources {
-    font: GlyphCache<'static>
-}
-
 impl Game {
     /// Returns a new `Game` containing a `World` of the given `Size`
     pub fn new(size: Size) -> Game {
         let mut rng = rand::thread_rng();
-        let exe_directory = current_exe().unwrap().parent().unwrap().to_owned();
         Game {
             world: World::new(&mut rng, size),
             score: 0,
             actions: Actions::default(),
             timers: Timers::default(),
             rng: rng,
-            resources: Resources {
-                font: GlyphCache::new(&exe_directory.join("resources/FiraMono-Bold.ttf")).unwrap()
-            }
+            resources: Resources::new()
         }
     }
 
@@ -163,23 +152,6 @@ impl Game {
         }
     }
 
-    /// Renders the game to the screen
-    pub fn render(&mut self, c: Context, g: &mut GlGraphics) {
-        // Clear everything
-        clear(color::BLACK, g);
-
-        // Render the world
-        self.world.render(c, g);
-
-        // Render the score
-        text(color::ORANGE,
-             22,
-             &format!("Score: {}", self.score),
-             &mut self.resources.font,
-             c.trans(10.0, 20.0).transform,
-             g);
-    }
-
     /// Updates the game
     ///
     /// `dt` is the amount of seconds that have passed since the last update
@@ -216,7 +188,7 @@ impl Game {
         // Add bullets
         if self.actions.shoot && self.timers.current_time - self.timers.last_shoot > BULLET_RATE {
             self.timers.last_shoot = self.timers.current_time;
-            self.world.bullets.push(Bullet::new(Vector::new(self.world.player.nose(),
+            self.world.bullets.push(Bullet::new(Vector::new(self.world.player.front(),
                                                             self.world.player.direction())));
         }
 
