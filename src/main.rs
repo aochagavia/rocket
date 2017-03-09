@@ -9,9 +9,9 @@ extern crate rand;
 
 mod drawing;
 mod game;
+mod geometry;
 mod models;
 mod resources;
-mod traits;
 mod util;
 mod view;
 
@@ -19,11 +19,12 @@ use piston_window::{Button, EventLoop, Input, Motion, OpenGL, PistonWindow, Wind
 use opengl_graphics::GlGraphics;
 
 use game::Game;
+use geometry::Size;
 
 fn main() {
     let opengl = OpenGL::V3_2;
 
-    let game_size: drawing::Size = drawing::Size::new(1024.0, 600.0);
+    let game_size = Size::new(1024.0, 600.0);
     let mut game = Game::new(game_size);
 
     let mut window: PistonWindow = WindowSettings::new(

@@ -1,6 +1,6 @@
-use drawing::Point;
+use geometry::Point;
 use super::Vector;
-use traits::{Advance, Collide};
+use geometry::{Advance, Collide};
 
 /// Enemies follow the player in order to cause a collision and let him explode
 pub struct Enemy {

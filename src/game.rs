@@ -6,10 +6,10 @@ use itertools_num;
 use piston_window::{ControllerButton, ControllerAxisArgs, Key};
 use rand::{self, ThreadRng};
 
-use drawing::{Point, Size};
+use geometry::{Point, Size};
 use models::{Bullet, Enemy, Particle, Vector, World};
 use resources::Resources;
-use traits::{Advance, Collide, Position};
+use geometry::{Advance, Collide, Position};
 use util;
 
 // Constants related to time

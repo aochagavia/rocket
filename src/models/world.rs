@@ -1,6 +1,6 @@
 use rand::Rng;
 
-use drawing::Size;
+use geometry::Size;
 use models::{Bullet, Enemy, Particle, Player};
 
 /// A model that contains the other models and renders them

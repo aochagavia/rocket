@@ -4,7 +4,7 @@ use piston_window::{self, Context, Transformed};
 use drawing::color;
 use models::{Bullet, Enemy, Particle, Player, World, PLAYER_POLYGON};
 use resources::Resources;
-use traits::{Advance, Collide, Position};
+use geometry::{Advance, Collide, Position};
 
 /// Renders the game to the screen
 pub fn render_game(c: Context, g: &mut GlGraphics, res: &mut Resources, world: &World, score: u32) {

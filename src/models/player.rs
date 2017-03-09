@@ -1,8 +1,8 @@
 use rand::Rng;
 
-use drawing::{Point, Size};
+use geometry::{Point, Size};
 use super::Vector;
-use traits::{Advance, Collide, Position};
+use geometry::{Advance, Collide, Position};
 
 /// The `Player` is the rocket controlled by the user
 #[derive(Default)]
