@@ -34,7 +34,7 @@ impl CollisionsController {
                     .find(|&(_, enemy)| enemy.collides_with(bullet))
                     .map(|(index, enemy)| (index, enemy.position()))
                     {
-                        util::make_explosion(particles, position, 10);
+                        util::make_explosion(particles, &position, 10);
                         enemies.remove(index);
                         false
                     } else {
@@ -52,7 +52,7 @@ impl CollisionsController {
         if state.world.enemies.iter().any(|enemy| state.world.player.collides_with(enemy)) {
             // Make an explosion where the player was
             let ppos = state.world.player.position();
-            util::make_explosion(&mut state.world.particles, ppos, 8);
+            util::make_explosion(&mut state.world.particles, &ppos, 8);
 
             state.reset();
         }

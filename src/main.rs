@@ -1,4 +1,6 @@
 #![deny(missing_docs)]
+#![cfg_attr(feature="clippy", feature(plugin))]
+#![cfg_attr(feature="clippy", plugin(clippy))]
 
 //! A 2D toy game written in Rust, using the Piston library.
 
