@@ -1,5 +1,8 @@
 use opengl_graphics::GlGraphics;
 use piston_window::{self, Context, Transformed};
+use piston_window::ellipse::Ellipse;
+use piston_window::math::Matrix2d;
+use piston_window::types::Color;
 
 use drawing::color;
 use game_state::GameState;
@@ -41,10 +44,26 @@ pub fn render_world(world: &World, c: Context, g: &mut GlGraphics) {
     render_player(&world.player, &c, g);
 }
 
+fn ellipse(color: Color, rectangle: [f64; 4], transform: Matrix2d, graphics: &mut GlGraphics)
+{
+    // There's piston_window::ellipse, but it uses a resolution of 128
+    // which is unnecessarily high. Using 16 is much quicker to draw,
+    // without looking any different.
+    Ellipse {
+            color: color,
+            border: None,
+            resolution: 16,
+    }.draw(
+        rectangle,
+        &Default::default(),
+        transform,
+        graphics);
+}
+
 /// Renders a particle
 pub fn render_particle(particle: &Particle, c: &Context, gl: &mut GlGraphics) {
     let radius = 5.0 * particle.ttl;
-    piston_window::ellipse(
+    ellipse(
         color::VIOLET,
         [0.0, 0.0, radius * 2.0, radius * 2.0],
         c.trans(particle.x() - radius, particle.y() - radius).transform,
@@ -53,7 +72,7 @@ pub fn render_particle(particle: &Particle, c: &Context, gl: &mut GlGraphics) {
 
 /// Renders a bullet
 pub fn render_bullet(bullet: &Bullet, c: &Context, gl: &mut GlGraphics) {
-    piston_window::ellipse(
+    ellipse(
         color::BLUE,
         [0.0, 0.0, bullet.diameter(), bullet.diameter()],
         c.trans(bullet.x() - bullet.radius(), bullet.y() - bullet.radius()).transform,
@@ -62,7 +81,7 @@ pub fn render_bullet(bullet: &Bullet, c: &Context, gl: &mut GlGraphics) {
 
 /// Renders an enemy
 pub fn render_enemy(enemy: &Enemy, c: &Context, gl: &mut GlGraphics) {
-    piston_window::ellipse(
+    ellipse(
         color::YELLOW,
         [0.0, 0.0, 20.0, 20.0],
         c.trans(enemy.x() - 10.0, enemy.y() - 10.0).transform,
