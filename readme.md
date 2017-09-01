@@ -1,6 +1,8 @@
 Rocket
 ======
 
+*Note: this project is no longer being maintained and pull requests will be ignored. Feel free to fork if you think something is missing.*
+
 [![Travis Build Status][travis-build-status-svg]][travis-build-status] 
 [![AppVeyor Build Status][appveyor-build-status-svg]][appveyor-build-status]
 
