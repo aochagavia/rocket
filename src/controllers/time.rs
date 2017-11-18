@@ -3,7 +3,7 @@ use rand::{self, ThreadRng};
 
 use super::Actions;
 use game_state::GameState;
-use geometry::{Advance, Collide, Position, Point};
+use geometry::{Advance, Position, Point};
 use models::{Bullet, Enemy, Particle, Vector};
 use util;
 
@@ -116,7 +116,7 @@ impl TimeController {
             }
             // Check if the newly spawned enemy is inside the player's grace area,
             // if so, we push its spawn point to the edge of the area
-            if (enemy_pos.position.intersect_circle(&player_pos.position, PLAYER_GRACE_AREA)) {
+            if enemy_pos.position.intersect_circle(&player_pos.position, PLAYER_GRACE_AREA) {
                 let length: f64 = enemy_pos.position.squared_distance_to(&player_pos.position).sqrt();
                 let dp: Point = enemy_pos.position - player_pos.position;
                 enemy_pos.position = player_pos.position + dp / length * PLAYER_GRACE_AREA;
