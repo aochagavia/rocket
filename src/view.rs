@@ -1,100 +1,87 @@
-use opengl_graphics::GlGraphics;
-use piston_window::{self, Context, Transformed};
-use piston_window::ellipse::Ellipse;
-use piston_window::math::Matrix2d;
-use piston_window::types::Color;
+use ggez::graphics::{self, DrawMode, Point2};
+use ggez::{Context, GameResult};
 
+use ApplicationState;
 use drawing::color;
-use game_state::GameState;
 use geometry::{Advance, Collide, Position};
 use models::{Bullet, Enemy, Particle, Player, World, PLAYER_POLYGON};
-use resources::Resources;
 
 /// Renders the game to the screen
-pub fn render_game(c: Context, g: &mut GlGraphics, res: &mut Resources, state: &GameState) {
+pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<()> {
     // Clear everything
-    piston_window::clear(color::BLACK, g);
+    graphics::clear(ctx);
 
     // Render the world
-    render_world(&state.world, c, g);
+    render_world(&app.game_state.world, ctx)?;
 
     // Render the score
-    piston_window::text(color::ORANGE,
-            22,
-            &format!("Score: {}", state.score),
-            &mut res.font,
-            c.trans(10.0, 20.0).transform,
-            g);
+    let text = graphics::Text::new(ctx, &format!("Score: {}", app.game_state.score), &app.resources.font)?;
+    let pt = Point2::new(8.0, 4.0);
+    graphics::set_color(ctx, color::ORANGE)?;
+    graphics::draw(ctx, &text, pt, 0.0)?;
+
+    // NOTE: for limiting FPS rate, see https://github.com/ggez/ggez/issues/171
+    // If you want to log the current FPS, uncomment the next line
+    // println!("{}", ggez::timer::get_fps(ctx));
+
+    graphics::present(ctx);
+    Ok(())
 }
 
 /// Renders the world and everything in it
-pub fn render_world(world: &World, c: Context, g: &mut GlGraphics) {
+pub fn render_world(world: &World, ctx: &mut Context) -> GameResult<()> {
+    // Draws particles in violet
+    graphics::set_color(ctx, color::VIOLET)?;
     for particle in &world.particles {
-        render_particle(particle, &c, g);
+        render_particle(particle, ctx)?;
     }
-
+    
+    // Draw any bullets as blue
+    graphics::set_color(ctx, color::BLUE)?;
     for bullet in &world.bullets {
-        render_bullet(bullet, &c, g);
+        render_bullet(bullet, ctx)?;
     }
 
+    // Now we draw the enemies as yellow
+    graphics::set_color(ctx, color::YELLOW)?;
     for enemy in &world.enemies {
-        render_enemy(enemy, &c, g);
+        render_enemy(enemy, ctx)?;
     }
 
-    render_player(&world.player, &c, g);
-}
+    // Finally draw the player as red
+    graphics::set_color(ctx, color::RED)?;
+    render_player(&world.player, ctx)?;
 
-fn ellipse(color: Color, rectangle: [f64; 4], transform: Matrix2d, graphics: &mut GlGraphics)
-{
-    // There's piston_window::ellipse, but it uses a resolution of 128
-    // which is unnecessarily high. Using 16 is much quicker to draw,
-    // without looking any different.
-    Ellipse {
-            color: color,
-            border: None,
-            resolution: 16,
-    }.draw(
-        rectangle,
-        &Default::default(),
-        transform,
-        graphics);
+    Ok(())
 }
 
 /// Renders a particle
-pub fn render_particle(particle: &Particle, c: &Context, gl: &mut GlGraphics) {
-    let radius = 5.0 * particle.ttl;
-    ellipse(
-        color::VIOLET,
-        [0.0, 0.0, radius * 2.0, radius * 2.0],
-        c.trans(particle.x() - radius, particle.y() - radius).transform,
-        gl);
+pub fn render_particle(particle: &Particle, ctx: &mut Context) -> GameResult<()> {
+    let radius = 5.0 * particle.ttl as f32;
+    let pt = Point2::new(particle.x() as f32, particle.y() as f32);
+    graphics::circle(ctx, DrawMode::Fill, pt, radius, 2.0)
 }
 
 /// Renders a bullet
-pub fn render_bullet(bullet: &Bullet, c: &Context, gl: &mut GlGraphics) {
-    ellipse(
-        color::BLUE,
-        [0.0, 0.0, bullet.diameter(), bullet.diameter()],
-        c.trans(bullet.x() - bullet.radius(), bullet.y() - bullet.radius()).transform,
-        gl);
+pub fn render_bullet(bullet: &Bullet, ctx: &mut Context) -> GameResult<()> {
+    let pt = Point2::new(bullet.x() as f32, bullet.y() as f32);
+    graphics::circle(ctx, DrawMode::Fill, pt, bullet.radius() as f32, 2.0)
 }
 
 /// Renders an enemy
-pub fn render_enemy(enemy: &Enemy, c: &Context, gl: &mut GlGraphics) {
-    ellipse(
-        color::YELLOW,
-        [0.0, 0.0, 20.0, 20.0],
-        c.trans(enemy.x() - 10.0, enemy.y() - 10.0).transform,
-        gl);
+pub fn render_enemy(enemy: &Enemy, ctx: &mut Context) -> GameResult<()> {
+    let pt = Point2::new(enemy.x() as f32, enemy.y() as f32);
+    graphics::circle(ctx, DrawMode::Fill, pt, enemy.radius() as f32, 0.5)
 }
 
 /// Render the player
-pub fn render_player(player: &Player, c: &Context, gl: &mut GlGraphics) {
-    // Set the center of the player as the origin and rotate it
-    let transform = c.transform
-        .trans(player.x(), player.y())
-        .rot_rad(player.direction());
+pub fn render_player(player: &Player, ctx: &mut Context) -> GameResult<()> {
+    let p1 = Point2::new(PLAYER_POLYGON[0][0] as f32, PLAYER_POLYGON[0][1] as f32);
+    let p2 = Point2::new(PLAYER_POLYGON[1][0] as f32, PLAYER_POLYGON[1][1] as f32);
+    let p3 = Point2::new(PLAYER_POLYGON[2][0] as f32, PLAYER_POLYGON[2][1] as f32);
 
-    // Draw a rectangle on the position of the player
-    piston_window::polygon(color::RED, PLAYER_POLYGON, transform, gl);
+    let mesh = graphics::Mesh::new_polygon(ctx, DrawMode::Fill, &[p1, p2, p3])?;
+    let pt = Point2::new(player.x() as f32, player.y() as f32);
+    let dir = player.direction() as f32;
+    graphics::draw(ctx, &mesh, pt, dir)
 }

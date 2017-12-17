@@ -114,12 +114,20 @@ impl TimeController {
                     break;
                 }
             }
+
             // Check if the newly spawned enemy is inside the player's grace area,
             // if so, we push its spawn point to the edge of the area
             if enemy_pos.position.intersect_circle(&player_pos.position, PLAYER_GRACE_AREA) {
-                let length: f64 = enemy_pos.position.squared_distance_to(&player_pos.position).sqrt();
+                // Treat the player as the centre of a circle with radius PLAYER_GRACE_AREA
+                let Point { x: cx, y: cy } = player_pos.position;
                 let dp: Point = enemy_pos.position - player_pos.position;
-                enemy_pos.position = player_pos.position + dp / length * PLAYER_GRACE_AREA;
+                // Calculate the angle between the player's position and the enemy's
+                let angle = (dp.y).atan2(dp.x);
+                // Use that to place the enemy on the edge of the circle surrounding the player
+                enemy_pos.position = Point {
+                    x: cx + PLAYER_GRACE_AREA * angle.cos(),
+                    y: cy + PLAYER_GRACE_AREA * angle.sin()
+                };
             }
 
             let new_enemy = Enemy::new(enemy_pos);

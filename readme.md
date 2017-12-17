@@ -3,7 +3,7 @@ Rocket
 
 *Note: this project is no longer being maintained and pull requests will be ignored. Feel free to fork if you think something is missing.*
 
-> Rocket is a toy game written in Rust, using the Piston library. The code is thoroughly 
+> Rocket is a toy game written in Rust, using the [`ggez`](https://github.com/ggez/ggez) library. The code is thoroughly 
 commented in order to help people to follow it easily.
 
 ## Screenshots
@@ -26,10 +26,10 @@ Keyboard                | Action
 <kbd>&rightarrow;</kbd> | Rotate right
 <kbd>Space</kbd>        | Shoot
 
-### Running it with Cargo
+### Running Rocket
 
-As always, it is a real pleasure to work with Cargo. You only need the following:
-
+You'll need to install SDL2 on your system - there are detailed instructions [here](https://github.com/Rust-SDL2/rust-sdl2).
+And as always, it is a real pleasure to work with Cargo. After that you only need the following:
 ```
 cargo run --release
 ```
