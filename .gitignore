@@ -1,3 +1,5 @@
 target
 .vscode
 .idea
+
+/SDL2.dll
