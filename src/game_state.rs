@@ -7,6 +7,8 @@ use models::World;
 pub struct GameState {
     /// The world contains everything that needs to be drawn
     pub world: World,
+    /// The current difficulty - the enemies will speed up over time
+    pub difficulty: f64,
     /// The current score of the player
     pub score: u32
 }
@@ -17,6 +19,7 @@ impl GameState {
         let mut rng = rand::thread_rng();
         GameState {
             world: World::new(&mut rng, size),
+            difficulty: 0.0,
             score: 0
         }
     }
@@ -31,6 +34,9 @@ impl GameState {
 
         // Reset score
         self.score = 0;
+
+        // Reset difficulty
+        self.difficulty = 0.0;
 
         // Remove all enemies and bullets
         self.world.bullets.clear();

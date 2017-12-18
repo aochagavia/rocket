@@ -53,6 +53,7 @@ impl TimeController {
     /// `dt` is the amount of seconds that have passed since the last update
     pub fn update_seconds(&mut self, dt: f64, actions: &Actions, state: &mut GameState) {
         self.current_time += dt;
+        state.difficulty += dt / 100.0;
 
         // Update rocket rotation
         if actions.rotate_left {
@@ -136,7 +137,7 @@ impl TimeController {
 
         // Move enemies in the player's direction
         for enemy in &mut state.world.enemies {
-            enemy.update(dt * ENEMY_SPEED, state.world.player.position());
+            enemy.update(dt * ENEMY_SPEED + state.difficulty, state.world.player.position());
         }
     }
 }
