@@ -75,16 +75,16 @@ impl event::EventHandler for ApplicationState {
     }
 
     // Listen for keyboard events
-    fn key_down_event(&mut self, _ctx: &mut Context, keycode: Keycode, keymod: Mod, repeat: bool) {
-        self.input_controller.key_press(keycode, keymod, repeat);
+    fn key_down_event(&mut self, _ctx: &mut Context, keycode: Keycode, keymod: Mod, _repeat: bool) {
+        self.input_controller.key_press(keycode, keymod);
     }
-    fn key_up_event(&mut self, _ctx: &mut Context, keycode: Keycode, keymod: Mod, repeat: bool) {
-        self.input_controller.key_release(keycode, keymod, repeat);
+    fn key_up_event(&mut self, _ctx: &mut Context, keycode: Keycode, keymod: Mod, _repeat: bool) {
+        self.input_controller.key_release(keycode, keymod);
     }
 
     // Listen for window focus to pause the game's execution
-    fn focus_event(&mut self, _ctx: &mut Context, gained: bool) {
-        self.has_focus = gained;
+    fn focus_event(&mut self, _ctx: &mut Context, has_focus: bool) {
+        self.has_focus = has_focus;
     }
 }
 
@@ -97,7 +97,7 @@ fn main() {
     let cb = ContextBuilder::new("rocket", "ggez")
         .window_setup(conf::WindowSetup::default().title("Rocket!"))
         .window_mode(conf::WindowMode::default().dimensions(game_size.width as u32, game_size.height as u32));
-    
+
     // Create the rendering context and set the background color to black.
     let ctx = &mut cb.build().unwrap();
     graphics::set_background_color(ctx, color::BLACK);

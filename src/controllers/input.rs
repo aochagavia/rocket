@@ -26,12 +26,12 @@ impl InputController {
     }
 
     /// Processes a key press
-    pub fn key_press(&mut self, keycode: Keycode, _keymod: Mod, _repeat: bool) {
+    pub fn key_press(&mut self, keycode: Keycode, _keymod: Mod) {
         self.handle_key(keycode, true);
     }
 
     /// Processes a key release
-    pub fn key_release(&mut self, keycode: Keycode, _keymod: Mod, _repeat: bool) {
+    pub fn key_release(&mut self, keycode: Keycode, _keymod: Mod) {
         self.handle_key(keycode, false);
     }
 
