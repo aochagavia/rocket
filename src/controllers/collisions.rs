@@ -1,3 +1,7 @@
+use std::time::Duration;
+use ggez::{self, Context};
+
+use ApplicationState;
 use game_state::GameState;
 use geometry::{Collide, Position};
 use util;
@@ -7,15 +11,27 @@ const SCORE_PER_ENEMY: u32 = 10;
 pub struct CollisionsController;
 
 impl CollisionsController {
-    pub fn handle_collisions(state: &mut GameState) {
-        CollisionsController::handle_bullet_collisions(state);
-        CollisionsController::handle_player_collisions(state);
+    pub fn handle_collisions(app: &mut ApplicationState, ctx: &mut Context) {
+        // Don't handle collisions if the player is dead
+        if app.game_state.world.player.is_dead { return; }
+
+        CollisionsController::handle_bullet_collisions(&mut app.game_state);
+        CollisionsController::handle_player_collisions(&mut app.game_state);
+        
+        // If the player died then we set a timeout (3 seconds) after which a game over message
+        // will appear, and the user will be able to restart.
+        if app.game_state.world.player.is_dead {
+            // TODO: use closures here ?
+            fn handler(app: &mut ApplicationState) { app.game_state.game_over(); };
+            let when = ggez::timer::get_time_since_start(ctx) + Duration::from_secs(3);
+            app.scheduled_events.push(when, handler);
+        }
     }
 
     /// Handles collisions between the bullets and the enemies
     ///
-    /// When an enemy is reached by a bullet, both the enemy and the bullet
-    /// will be removed. Additionally, the score of the player will be increased.
+    /// When an enemy is reached by a bullet, both the enemy and the bullet will be removed. 
+    /// Additionally, the score of the player will be increased
     fn handle_bullet_collisions(state: &mut GameState) {
         let old_enemy_count = state.world.enemies.len();
 
@@ -53,8 +69,8 @@ impl CollisionsController {
             // Make an explosion where the player was
             let ppos = state.world.player.position();
             util::make_explosion(&mut state.world.particles, &ppos, 8);
-
-            state.reset();
+            // Mark the player as dead (to stop drawing it on screen)
+            state.world.player.is_dead = true;
         }
     }
 }

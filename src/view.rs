@@ -3,8 +3,9 @@ use ggez::{Context, GameResult};
 
 use ApplicationState;
 use drawing::color;
-use geometry::{Advance, Collide, Position};
+use geometry::{Advance, Collide, Position, Size};
 use models::{Bullet, Enemy, Particle, Player, World, PLAYER_POLYGON};
+use game_state::Message;
 
 /// Renders the game to the screen
 pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<()> {
@@ -13,6 +14,11 @@ pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<
 
     // Render the world
     render_world(&app.game_state.world, ctx)?;
+
+    // Render game message if it should show
+    if app.game_state.message.should_show {
+        render_message(app, ctx)?;
+    }
 
     // Render the score
     let text = graphics::Text::new(ctx, &format!("Score: {}", app.game_state.score), &app.resources.font)?;
@@ -25,6 +31,29 @@ pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<
     // println!("{}", ggez::timer::get_fps(ctx));
 
     graphics::present(ctx);
+    Ok(())
+}
+
+/// Renders the Message struct contained in the game's state to the middle of the screen
+fn render_message(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<()> {
+    let Message { title, subtitle, should_show: _ } = app.game_state.message;
+    let Size { width, height } = app.game_state.world.size;
+
+    let w = width as f32 / 2.0;
+    let h = height as f32 / 2.0;
+
+    let mut draw_text = |text: &str, color: graphics::Color, is_title: bool| {
+        let drawable = graphics::Text::new(ctx, text, &app.resources.font).unwrap();
+        let width = w - (drawable.width() as f32 / 2.0);
+        let height = if is_title { h - drawable.height() as f32 } else { h };
+        let point = Point2::new(width, height);
+        graphics::set_color(ctx, color).unwrap();
+        graphics::draw(ctx, &drawable, point, 0.0).unwrap();
+    };
+
+    draw_text(title, color::WHITE, true);
+    draw_text(subtitle, color::GREY, false);
+
     Ok(())
 }
 
@@ -48,9 +77,11 @@ pub fn render_world(world: &World, ctx: &mut Context) -> GameResult<()> {
         render_enemy(enemy, ctx)?;
     }
 
-    // Finally draw the player as red
-    graphics::set_color(ctx, color::RED)?;
-    render_player(&world.player, ctx)?;
+    if !world.player.is_dead {
+        // Finally draw the player as red
+        graphics::set_color(ctx, color::RED)?;
+        render_player(&world.player, ctx)?;
+    }
 
     Ok(())
 }

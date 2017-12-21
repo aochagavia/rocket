@@ -55,6 +55,8 @@ impl TimeController {
         self.current_time += dt;
         state.difficulty += dt / 100.0;
 
+        let player_alive = !state.world.player.is_dead;
+
         // Update rocket rotation
         if actions.rotate_left {
             *state.world.player.direction_mut() += -ROTATE_SPEED * dt;
@@ -76,14 +78,13 @@ impl TimeController {
         util::fast_retain(&mut state.world.particles, |p| p.ttl > 0.0);
 
         // Add new particles at the player's position, to leave a trail
-        if self.current_time - self.last_tail_particle > TRAIL_PARTICLE_RATE {
+        if player_alive && self.current_time - self.last_tail_particle > TRAIL_PARTICLE_RATE {
             self.last_tail_particle = self.current_time;
-            state.world.particles.push(Particle::new(state.world.player.vector.clone().invert(),
-                                                    0.5));
+            state.world.particles.push(Particle::new(state.world.player.vector.clone().invert(), 0.5));
         }
 
         // Add bullets
-        if actions.shoot && self.current_time - self.last_shoot > BULLET_RATE {
+        if player_alive && actions.shoot && self.current_time - self.last_shoot > BULLET_RATE {
             self.last_shoot = self.current_time;
             state.world.bullets.push(Bullet::new(Vector::new(state.world.player.front(),
                                                             state.world.player.direction())));
@@ -135,9 +136,14 @@ impl TimeController {
             state.world.enemies.push(new_enemy);
         }
 
-        // Move enemies in the player's direction
+        // Move enemies in the player's direction if player is alive, otherwise let them drift in
+        // the direction they're facing
         for enemy in &mut state.world.enemies {
-            enemy.update(dt * ENEMY_SPEED + state.difficulty, state.world.player.position());
+            if player_alive {
+                enemy.update(dt * ENEMY_SPEED + state.difficulty, state.world.player.position());
+            } else {
+                enemy.advance(dt * ENEMY_SPEED);
+            }
         }
     }
 }
