@@ -5,19 +5,21 @@ use std::fmt;
 
 use ApplicationState;
 
-/// TODO: docs
 // This is a Priority Queue. Rust's native implementation of a BinaryHeap is a max-heap - we want to
-// use a min-heap, so we have to define a min-ordering for our custom `min` type which is just an
-// alias for `u64`.
+// use a min-heap, so we have to define a min-ordering for a custom type which is just a wrapper for
+// (Duration, fn(&mut ApplicationState)
 
-/// A ScheduledEvent is a tuple of a `Duration` (time) and `fn(&mut ApplicationState)` (handler).
+/// A ScheduledEvent is a tuple of a `Duration` (time) and `fn(&mut ApplicationState)` (handler)
 struct ScheduledEvent(Duration, fn(&mut ApplicationState));
 
+// Implement the Debug trait so we can log it
 impl fmt::Debug for ScheduledEvent {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "ScheduledEvent: {:?}", self.0)
     }
 }
+
+// The following traits are implemented so that we can achieve the "min" ordering
 
 impl Eq for ScheduledEvent {}
 
@@ -44,13 +46,13 @@ impl Ord for ScheduledEvent {
     }
 }
 
-#[derive(Debug)]
+/// Our PriorityQueue. In reality it's just a thin wrapper around a BinaryHeap, but we wrap it so
+/// we can have a min-heap without having to worry about the ScheduledEvent structure elsewhere in
+/// our code
 pub struct PriorityQueue {
     heap: BinaryHeap<ScheduledEvent>
 }
 
-// Thin wrapper around our BinaryHeap<ScheduledEvent> so we don't have to use the `ScheduledEvent` type 
-// elsewhere in the code.
 impl PriorityQueue {
     pub fn new() -> PriorityQueue {
         PriorityQueue {

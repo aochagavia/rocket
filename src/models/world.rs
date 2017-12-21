@@ -1,7 +1,7 @@
 use rand::Rng;
 
 use geometry::Size;
-use models::{Bullet, Enemy, Particle, Player};
+use models::{Bullet, Enemy, Particle, Player, Star};
 
 /// A model that contains the other models and renders them
 pub struct World {
@@ -9,6 +9,7 @@ pub struct World {
     pub particles: Vec<Particle>,
     pub bullets: Vec<Bullet>,
     pub enemies: Vec<Enemy>,
+    pub stars: Vec<Star>,
     pub size: Size
 }
 
@@ -20,6 +21,7 @@ impl World {
             particles: Vec::with_capacity(1000),
             bullets: vec![],
             enemies: vec![],
+            stars: vec![],
             size: size
         }
     }

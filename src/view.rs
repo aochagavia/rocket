@@ -1,4 +1,6 @@
+use std;
 use ggez::graphics::{self, DrawMode, Point2};
+use ggez::graphics::spritebatch::SpriteBatch;
 use ggez::{Context, GameResult};
 
 use ApplicationState;
@@ -59,6 +61,10 @@ fn render_message(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<(
 
 /// Renders the world and everything in it
 pub fn render_world(world: &World, ctx: &mut Context) -> GameResult<()> {
+    // Render stars in the background
+    graphics::set_color(ctx, color::GREY)?;
+    render_stars(world, ctx)?;
+
     // Draws particles in violet
     graphics::set_color(ctx, color::VIOLET)?;
     for particle in &world.particles {
@@ -77,13 +83,32 @@ pub fn render_world(world: &World, ctx: &mut Context) -> GameResult<()> {
         render_enemy(enemy, ctx)?;
     }
 
+    // Finally draw the player as red
     if !world.player.is_dead {
-        // Finally draw the player as red
         graphics::set_color(ctx, color::RED)?;
         render_player(&world.player, ctx)?;
     }
 
     Ok(())
+}
+
+/// Renders all the stars in the background
+fn render_stars(world: &World, ctx: &mut Context) -> GameResult<()> {
+    let img = graphics::Image::solid(ctx, 1, color::GREY)?;
+    let mut sb = SpriteBatch::new(img);
+
+    // Iterate through the stars list and draw them with a rotation based on their index in the
+    // list - this isn't a truly random rotation, but it works visually
+    for (i, star) in world.stars.iter().enumerate() {
+        sb.add(graphics::DrawParam {
+            dest: Point2::new(star.x() as f32, star.y() as f32),
+            rotation: (i as f32 / 100.0) * 2.0 * std::f32::consts::PI,
+            scale: Point2::new(star.size as f32, star.size as f32),
+            .. Default::default()
+        });
+    }
+
+    graphics::draw_ex(ctx, &sb, graphics::DrawParam { ..Default::default() })
 }
 
 /// Renders a particle

@@ -21,7 +21,6 @@ impl CollisionsController {
         // If the player died then we set a timeout (3 seconds) after which a game over message
         // will appear, and the user will be able to restart.
         if app.game_state.world.player.is_dead {
-            // TODO: use closures here ?
             fn handler(app: &mut ApplicationState) { app.game_state.game_over(); };
             let when = ggez::timer::get_time_since_start(ctx) + Duration::from_secs(3);
             app.scheduled_events.push(when, handler);
