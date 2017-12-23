@@ -18,19 +18,12 @@ pub struct World {
 impl World {
     /// Returns a new world of the given size
     pub fn new<R: Rng>(rng: &mut R, size: Size) -> World {
-
-        // Add stars up to MAX_STARS
-        let mut stars = vec![];
-        while stars.len() < MAX_STARS {
-            stars.push(Star::new(size));
-        }
-
         World {
             player: Player::random(rng, size),
             particles: Vec::with_capacity(1000),
             bullets: vec![],
             enemies: vec![],
-            stars: stars,
+            stars: (0..MAX_STARS).map(|_| Star::new(size)).collect(),
             size: size
         }
     }
