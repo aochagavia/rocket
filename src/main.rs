@@ -15,30 +15,35 @@ mod game_state;
 mod geometry;
 mod models;
 mod util;
+mod priority_queue;
 
 use controllers::{CollisionsController, InputController, TimeController};
 use resources::Resources;
 use game_state::GameState;
 use geometry::Size;
 use drawing::color;
+use priority_queue::PriorityQueue;
 
 use ggez::conf;
 use ggez::graphics;
 use ggez::event::{self, Mod, Keycode};
 use ggez::{Context, ContextBuilder, GameResult};
 
-/// This struct contains the application's state.
+/// This struct contains the application's state
 pub struct ApplicationState {
-    // Keep track of window focus to play/pause the game.
+    // Keep track of window focus to play/pause the game
     has_focus: bool,
-    // Resources holds our loaded font.
+    // Resources holds our loaded font
     resources: Resources,
-    // Our game logic is controlled within the game_state.
+    // Our game logic is controlled within the game_state
     game_state: GameState,
-    // We control the game state with the passage of time.
+    // We control the game state with the passage of time
     time_controller: TimeController,
-    // We handle input events with the input_controller.
+    // We handle input events with the input_controller
     input_controller: InputController,
+    // A place to store scheduled events
+    scheduled_events: PriorityQueue
+
 }
 
 impl ApplicationState {
@@ -49,23 +54,31 @@ impl ApplicationState {
             game_state: game_state,
             time_controller: TimeController::new(),
             input_controller: InputController::new(),
+            scheduled_events: PriorityQueue::new()
         };
         Ok(app_state)
     }
 }
 
-// We implement `ggez::event::EventHandler` trait on our application state.
-// This is where we can listen for events.
+// We implement `ggez::event::EventHandler` trait on our application state - this is where we can
+// listen for input and other events
 impl event::EventHandler for ApplicationState {
-    // This is called each time the game loop updates
-    // In this function we update the state of the game
+    // This is called each time the game loop updates so we can update the game state
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
+        // Check if we have any events that are scheduled to run, and if so, run them now
+        if let Some(when) = self.scheduled_events.peek() {
+            let now = ggez::timer::get_time_since_start(ctx);
+            if when <= now { self.scheduled_events.pop().unwrap().1(self); }
+        }
+
+        // Update game state, and check for collisions
         if self.has_focus {
             let duration = ggez::timer::get_delta(ctx);
             let dt = duration.as_secs() as f64 + duration.subsec_nanos() as f64 * 1e-9;
-            self.time_controller.update_seconds(dt, self.input_controller.actions(), &mut self.game_state);
-            CollisionsController::handle_collisions(&mut self.game_state);
+            self.time_controller.update_seconds(dt, self.input_controller.actions(), &mut self.game_state, &self.resources);
+            CollisionsController::handle_collisions(self, ctx);
         }
+
         Ok(())
     }
 
@@ -76,6 +89,11 @@ impl event::EventHandler for ApplicationState {
 
     // Listen for keyboard events
     fn key_down_event(&mut self, _ctx: &mut Context, keycode: Keycode, keymod: Mod, _repeat: bool) {
+        // If we're displaying a message (waiting for user input) then hide it and reset the game
+        if let Some(_) = self.game_state.message {
+            self.game_state.message = None;
+            self.game_state.reset(&self.resources);
+        }
         self.input_controller.key_press(keycode, keymod);
     }
     fn key_up_event(&mut self, _ctx: &mut Context, keycode: Keycode, keymod: Mod, _repeat: bool) {
@@ -89,20 +107,20 @@ impl event::EventHandler for ApplicationState {
 }
 
 fn main() {
-    // Setup Rocket's Game State.
+    // Setup Rocket's Game State
     let game_size = Size::new(1024.0, 600.0);
     let game_state = GameState::new(game_size);
 
-    // Create configuration for ggez using its ContextBuilder.
+    // Create configuration for ggez using its ContextBuilder
     let cb = ContextBuilder::new("rocket", "ggez")
         .window_setup(conf::WindowSetup::default().title("Rocket!"))
         .window_mode(conf::WindowMode::default().dimensions(game_size.width as u32, game_size.height as u32));
 
-    // Create the rendering context and set the background color to black.
+    // Create the rendering context and set the background color to black
     let ctx = &mut cb.build().unwrap();
     graphics::set_background_color(ctx, color::BLACK);
 
-    // Load the application state and start the event loop.
+    // Load the application state and start the event loop
     let state = &mut ApplicationState::new(ctx, game_state).unwrap();
     if let Err(err) = event::run(ctx, state) {
         println!("Error encountered: {}", err);

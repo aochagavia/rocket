@@ -21,7 +21,7 @@ impl Vector {
 
     /// Returns a random `Vector` within the given bounds
     pub fn random<R: Rng>(rng: &mut R, bounds: Size) -> Vector {
-        Vector::new(Point::random(rng, bounds), rng.gen())
+        Vector::new(Point::random(rng, bounds), rng.gen::<f64>() * 2.0 * f64::consts::PI)
     }
 
     /// Consumes the vector and returns a new one with inverted direction
