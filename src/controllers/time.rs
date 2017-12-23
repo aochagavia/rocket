@@ -5,7 +5,7 @@ use Resources;
 use super::Actions;
 use game_state::GameState;
 use geometry::{Advance, Position, Point};
-use models::{Bullet, Enemy, Particle, Star, Vector};
+use models::{Bullet, Enemy, Particle, Vector};
 use util;
 
 // Constants related to time
@@ -18,7 +18,6 @@ const ENEMY_SPAWN_RATE: f64 = 1.0 / ENEMY_SPAWNS_PER_SECOND;
 const TRAIL_PARTICLES_PER_SECOND: f64 = 20.0;
 const TRAIL_PARTICLE_RATE: f64 = 1.0 / TRAIL_PARTICLES_PER_SECOND;
 
-
 // Constants related to movement
 // Speed is measured in pixels per second
 // Rotation speed is measured in radians per second
@@ -28,7 +27,6 @@ const ENEMY_SPEED: f64 = 100.0;
 const ROTATE_SPEED: f64 = 2.0 * f64::consts::PI;
 const STAR_BASE_SPEED: f64 = 50.0;
 
-const MAX_STARS: usize = 100;
 const PLAYER_GRACE_AREA: f64 = 200.0;
 
 /// Timers to handle creation of bullets, enemies and particles
@@ -169,17 +167,11 @@ impl TimeController {
         }
     }
 
-    // Slowly moves stars across screen, adding and removing them when necessary
+    // Advance stars, wrapping them around the view
     fn update_stars(&mut self, dt: f64, state: &mut GameState) {
-        // Advance stars, wrapping them around the view
         for star in &mut state.world.stars {
             let speed = star.speed;
             star.advance_wrapping(dt * STAR_BASE_SPEED * speed, state.world.size);
-        }
-
-        // Add stars up to MAX_STARS
-        while state.world.stars.len() < MAX_STARS {
-            state.world.stars.push(Star::new(state.world.size));
         }
     }
 }

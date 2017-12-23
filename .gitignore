@@ -3,3 +3,4 @@ target
 .idea
 
 /SDL2.dll
+.DS_Store

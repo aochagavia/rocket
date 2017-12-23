@@ -1,12 +1,14 @@
-use ggez::{audio, graphics, Context};
+use ggez::{audio, Context};
+use ggez::graphics::spritebatch::SpriteBatch;
+use ggez::graphics::{Font, Image};
 
 /// Additional resources needed for the game
 pub struct Resources {
-    pub font: graphics::Font,
+    pub font: Font,
 
     // Images
-    pub star_image: graphics::Image,
-    pub circle_image: graphics::Image,
+    pub star_sprite: SpriteBatch,
+    pub circle_sprite: SpriteBatch,
 
     // Sounds
     pub shot_sound: audio::Source,
@@ -27,10 +29,10 @@ impl Resources {
         };
         
         Resources {
-            font: graphics::Font::new(ctx, "/FiraMono-Bold.ttf", 14).unwrap(),
+            font: Font::new(ctx, "/FiraMono-Bold.ttf", 14).unwrap(),
 
-            star_image: graphics::Image::new(ctx, "/images/star.png").unwrap(),
-            circle_image: graphics::Image::new(ctx, "/images/circle.png").unwrap(),
+            star_sprite: SpriteBatch::new(Image::new(ctx, "/images/star.png").unwrap()),
+            circle_sprite: SpriteBatch::new(Image::new(ctx, "/images/circle.png").unwrap()),
 
             shot_sound:             new_with_volume(ctx, "/audio/shot.ogg", 0.2),
             boost_sound:            new_with_volume(ctx, "/audio/boost.ogg", 0.2),

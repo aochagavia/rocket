@@ -9,7 +9,6 @@ use models::World;
 pub struct Message {
     pub title: &'static str,
     pub subtitle: &'static str,
-    // pub should_show: bool
 }
 
 /// The Message to show when the game starts
