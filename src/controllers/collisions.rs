@@ -2,6 +2,7 @@ use std::time::Duration;
 use ggez::{self, Context};
 
 use ApplicationState;
+use Resources;
 use game_state::GameState;
 use geometry::{Collide, Position};
 use util;
@@ -12,18 +13,14 @@ pub struct CollisionsController;
 
 impl CollisionsController {
     pub fn handle_collisions(app: &mut ApplicationState, ctx: &mut Context) {
-        // Don't handle collisions if the player is dead
-        if app.game_state.world.player.is_dead { return; }
-
-        CollisionsController::handle_bullet_collisions(&mut app.game_state);
-        CollisionsController::handle_player_collisions(&mut app.game_state);
+        CollisionsController::handle_bullet_collisions(&mut app.game_state, &app.resources);
         
         // If the player died then we set a timeout (3 seconds) after which a game over message
         // will appear, and the user will be able to restart.
-        if app.game_state.world.player.is_dead {
-            fn handler(app: &mut ApplicationState) { app.game_state.game_over(); };
+        let player_died = CollisionsController::handle_player_collisions(&mut app.game_state, &app.resources);
+        if player_died {
             let when = ggez::timer::get_time_since_start(ctx) + Duration::from_secs(3);
-            app.scheduled_events.push(when, handler);
+            app.scheduled_events.push(when, |app| app.game_state.game_over());
         }
     }
 
@@ -31,7 +28,7 @@ impl CollisionsController {
     ///
     /// When an enemy is reached by a bullet, both the enemy and the bullet will be removed. 
     /// Additionally, the score of the player will be increased
-    fn handle_bullet_collisions(state: &mut GameState) {
+    fn handle_bullet_collisions(state: &mut GameState, resources: &Resources) {
         let old_enemy_count = state.world.enemies.len();
 
         // We introduce a scope to shorten the lifetime of the borrows below
@@ -51,6 +48,9 @@ impl CollisionsController {
                     {
                         util::make_explosion(particles, &position, 10);
                         enemies.remove(index);
+                        
+                        // Play enemy_destroyed_sound sound
+                        let _ = resources.enemy_destroyed_sound.play();
                         false
                     } else {
                     true
@@ -63,13 +63,19 @@ impl CollisionsController {
     }
 
     /// Handles collisions between the player and the enemies
-    fn handle_player_collisions(state: &mut GameState) {
-        if state.world.enemies.iter().any(|enemy| state.world.player.collides_with(enemy)) {
+    fn handle_player_collisions(state: &mut GameState, resources: &Resources) -> bool {
+        let player_alive = !state.world.player.is_dead;
+        if player_alive && state.world.enemies.iter().any(|enemy| state.world.player.collides_with(enemy)) {
             // Make an explosion where the player was
             let ppos = state.world.player.position();
-            util::make_explosion(&mut state.world.particles, &ppos, 8);
+            util::make_explosion(&mut state.world.particles, &ppos, 16);
             // Mark the player as dead (to stop drawing it on screen)
             state.world.player.is_dead = true;
+            // Play player_destroyed sound
+            let _ = resources.player_destroyed_sound.play();
+            return true;
         }
+        
+        false
     }
 }

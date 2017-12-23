@@ -75,7 +75,7 @@ impl event::EventHandler for ApplicationState {
         if self.has_focus {
             let duration = ggez::timer::get_delta(ctx);
             let dt = duration.as_secs() as f64 + duration.subsec_nanos() as f64 * 1e-9;
-            self.time_controller.update_seconds(dt, self.input_controller.actions(), &mut self.game_state);
+            self.time_controller.update_seconds(dt, self.input_controller.actions(), &mut self.game_state, &self.resources);
             CollisionsController::handle_collisions(self, ctx);
         }
 
@@ -90,9 +90,9 @@ impl event::EventHandler for ApplicationState {
     // Listen for keyboard events
     fn key_down_event(&mut self, _ctx: &mut Context, keycode: Keycode, keymod: Mod, _repeat: bool) {
         // If we're displaying a message (waiting for user input) then hide it and reset the game
-        if self.game_state.message.should_show {
-            self.game_state.message.should_show = false;
-            self.game_state.reset();
+        if let Some(_) = self.game_state.message {
+            self.game_state.message = None;
+            self.game_state.reset(&self.resources);
         }
         self.input_controller.key_press(keycode, keymod);
     }

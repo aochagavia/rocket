@@ -1,5 +1,6 @@
 use rand;
 
+use Resources;
 use geometry::{Position, Size};
 use models::World;
 
@@ -8,21 +9,19 @@ use models::World;
 pub struct Message {
     pub title: &'static str,
     pub subtitle: &'static str,
-    pub should_show: bool
+    // pub should_show: bool
 }
 
 /// The Message to show when the game starts
 const WELCOME_MESSAGE: Message = Message {
     title: "Welcome to Rocket!",
     subtitle: "Press any key to start",
-    should_show: true
 };
 
 /// The Message to show when the game is over
 const GAMEOVER_MESSAGE: Message = Message {
     title: "Game Over",
     subtitle: "Press any key to restart",
-    should_show: true
 };
 
 /// The data structure that contains the state of the game
@@ -32,7 +31,7 @@ pub struct GameState {
     /// The current difficulty - the enemies will speed up over time
     pub difficulty: f64,
     /// Information about the Message to draw on the screen
-    pub message: Message,
+    pub message: Option<Message>,
     /// The current score of the player
     pub score: u32,
 }
@@ -44,18 +43,18 @@ impl GameState {
         GameState {
             world: World::new(&mut rng, size),
             difficulty: 0.0,
-            message: WELCOME_MESSAGE,
+            message: Some(WELCOME_MESSAGE),
             score: 0,
         }
     }
 
     /// Called when the game is over - displays a message onscreen
     pub fn game_over(&mut self) {
-        self.message = GAMEOVER_MESSAGE;
+        self.message = Some(GAMEOVER_MESSAGE);
     }
 
     /// Reset our game-state
-    pub fn reset(&mut self) {
+    pub fn reset(&mut self, resources: &Resources) {
         let mut rng = rand::thread_rng();
 
         // Reset player
@@ -72,5 +71,8 @@ impl GameState {
         // Remove all enemies and bullets
         self.world.bullets.clear();
         self.world.enemies.clear();
+
+        // Play game_start sound
+        let _ = resources.game_start_sound.play();
     }
 }

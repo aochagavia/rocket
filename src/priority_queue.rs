@@ -61,11 +61,7 @@ impl PriorityQueue {
     }
 
     pub fn peek(&self) -> Option<Duration> {
-        if let Some(&ScheduledEvent(time, _handler)) = self.heap.peek() {
-            Some(time)
-        } else {
-            None
-        }
+        self.heap.peek().map(|&ScheduledEvent(time, _)| time)
     }
 
     pub fn push(&mut self, time: Duration, handler: fn(&mut ApplicationState)) {
@@ -73,10 +69,6 @@ impl PriorityQueue {
     }
 
     pub fn pop(&mut self) -> Option<(Duration, fn(&mut ApplicationState))> {
-        if let Some(ScheduledEvent(time, handler)) = self.heap.pop() {
-            Some((time, handler))
-        } else {
-            None
-        }
+        self.heap.pop().map(|ScheduledEvent(time, handler)| (time, handler))
     }
 }

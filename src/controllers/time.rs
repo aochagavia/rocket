@@ -1,6 +1,7 @@
 use std::f64;
 use rand::{self, ThreadRng};
 
+use Resources;
 use super::Actions;
 use game_state::GameState;
 use geometry::{Advance, Position, Point};
@@ -8,7 +9,7 @@ use models::{Bullet, Enemy, Particle, Star, Vector};
 use util;
 
 // Constants related to time
-const BULLETS_PER_SECOND: f64 = 100.0;
+const BULLETS_PER_SECOND: f64 = 30.0;
 const BULLET_RATE: f64 = 1.0 / BULLETS_PER_SECOND;
 
 const ENEMY_SPAWNS_PER_SECOND: f64 = 1.0;
@@ -54,14 +55,14 @@ impl TimeController {
     /// Updates the game
     ///
     /// `dt` is the amount of seconds that have passed since the last update
-    pub fn update_seconds(&mut self, dt: f64, actions: &Actions, state: &mut GameState) {
+    pub fn update_seconds(&mut self, dt: f64, actions: &Actions, state: &mut GameState, resources: &Resources) {
         self.current_time += dt;
         state.difficulty += dt / 100.0;
 
         self.update_player(dt, actions, state);
-        self.update_bullets(dt, actions, state);
+        self.update_bullets(dt, actions, state, resources);
         self.update_particles(dt, state);
-        self.update_enemies(dt, state);
+        self.update_enemies(dt, state, resources);
         self.update_stars(dt, state);
     }
 
@@ -79,12 +80,17 @@ impl TimeController {
     }
 
     // Adds, removes and updates the positions of bullets on screen
-    fn update_bullets(&mut self, dt: f64, actions: &Actions, state: &mut GameState) {
+    fn update_bullets(&mut self, dt: f64, actions: &Actions, state: &mut GameState, resources: &Resources) {
         // Add bullets
         if !state.world.player.is_dead && actions.shoot && self.current_time - self.last_shoot > BULLET_RATE {
             self.last_shoot = self.current_time;
             let vector = Vector::new(state.world.player.front(), state.world.player.direction());
             state.world.bullets.push(Bullet::new(vector));
+
+            // TODO: get bullets working in a pleasant way
+            // if resources.shot_sound.playing() { resources.shot_sound.stop(); }
+            let _ = resources.shot_sound.play();
+            
         }
 
         // Advance bullets
@@ -114,7 +120,7 @@ impl TimeController {
     }
 
     // Updates positions of enemies, and spawns new ones when necessary
-    fn update_enemies(&mut self, dt: f64, state: &mut GameState) {
+    fn update_enemies(&mut self, dt: f64, state: &mut GameState, resources: &Resources) {
         // Spawn enemies at random locations
         if self.current_time - self.last_spawned_enemy > ENEMY_SPAWN_RATE {
             self.last_spawned_enemy = self.current_time;
@@ -147,6 +153,9 @@ impl TimeController {
 
             let new_enemy = Enemy::new(enemy_pos);
             state.world.enemies.push(new_enemy);
+
+            // Play enemy_spawn sound
+            let _ = resources.enemy_spawn_sound.play();
         }
 
         // Move enemies in the player's direction if player is alive, otherwise let them drift in
@@ -162,15 +171,11 @@ impl TimeController {
 
     // Slowly moves stars across screen, adding and removing them when necessary
     fn update_stars(&mut self, dt: f64, state: &mut GameState) {
-        // Advance stars
+        // Advance stars, wrapping them around the view
         for star in &mut state.world.stars {
             let speed = star.speed;
-            star.update(dt * STAR_BASE_SPEED * speed);
+            star.advance_wrapping(dt * STAR_BASE_SPEED * speed, state.world.size);
         }
-
-        // Remove stars outside the viewport
-        let size = &state.world.size;
-        util::fast_retain(&mut state.world.stars, |s| size.contains(s.position()));
 
         // Add stars up to MAX_STARS
         while state.world.stars.len() < MAX_STARS {

@@ -1,6 +1,6 @@
 use std;
 use rand::{self, Rng};
-use geometry::{Advance, Size, Point};
+use geometry::{Size, Point};
 use super::Vector;
 
 /// Stars glide from right to left across the screen in the background
@@ -18,7 +18,7 @@ impl Star {
         let mut rng = rand::thread_rng();
 
         let point = Point {
-            x: rng.gen_range(150.0, bounds.width),
+            x: rng.gen_range(0.0, bounds.width),
             y: rng.gen_range(0.0, bounds.height)
         };
 
@@ -27,10 +27,5 @@ impl Star {
             speed: rng.gen_range(1.0, 3.0),
             size: rng.gen_range(1.0, 3.0)
         }
-    }
-
-    // Move the star across the background
-    pub fn update(&mut self, units: f64) {
-        self.advance(units);
     }
 }
