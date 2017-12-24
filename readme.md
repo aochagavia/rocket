@@ -1,8 +1,6 @@
 Rocket
 ======
 
-*Note: this project is no longer being maintained and pull requests will be ignored. Feel free to fork if you think something is missing.*
-
 > Rocket is a toy game written in Rust, using the [`ggez`](https://github.com/ggez/ggez) library. The code is thoroughly
 commented in order to help people to follow it easily.
 
