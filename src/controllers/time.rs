@@ -54,6 +54,11 @@ impl TimeController {
     ///
     /// `dt` is the amount of seconds that have passed since the last update
     pub fn update_seconds(&mut self, dt: f64, actions: &Actions, state: &mut GameState, resources: &Resources) {
+        // You can run `cargo run --release --features "debug"` in order to run the game in
+        // slow motion (assists in debugging rendering)
+        #[cfg(feature = "debug")]
+        let dt = dt * 0.1;
+
         self.current_time += dt;
         state.difficulty += dt / 100.0;
 

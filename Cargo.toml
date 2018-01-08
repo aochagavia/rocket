@@ -14,7 +14,8 @@ rand = "0.3.14"
 
 [dependencies.ggez]
 git = "https://github.com/ggez/ggez.git"
-rev = "b208c6c8b22e48ea2a7b4d7fe02bd88454330640"
+rev = "82066aaf2bd3813cb6cff94d07452b8b03b082f8"
 
 [features]
 default = []
+debug = []

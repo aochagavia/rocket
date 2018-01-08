@@ -25,7 +25,7 @@ impl Star {
         Star {
             vector: Vector::new(point, std::f64::consts::PI),
             speed: rng.gen_range(1.0, 3.0),
-            size: rng.gen_range(1.0, 3.0)
+            size: rng.gen_range(2.0, 5.0)
         }
     }
 }

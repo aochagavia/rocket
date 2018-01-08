@@ -37,7 +37,7 @@ impl CollisionsController {
             let enemies = &mut state.world.enemies;
             let particles = &mut state.world.particles;
 
-            // Note: this is O(n * m) where n = amount of bullets and n = amount of enemies
+            // Note: this is O(n * m) where n = amount of bullets and m = amount of enemies
             // This is pretty bad, but we don't care because n and m are small
             util::fast_retain(bullets, |bullet| {
                 // Remove the first enemy that collides with a bullet (if any)
@@ -50,6 +50,9 @@ impl CollisionsController {
                         enemies.remove(index);
                         
                         // Play enemy_destroyed_sound sound
+                        // TODO: these sounds (like all the others) are queued rather than played
+                        // atop of one another - this is a current limitation of ggez
+                        // See https://github.com/ggez/ggez/issues/208
                         let _ = resources.enemy_destroyed_sound.play();
                         false
                     } else {

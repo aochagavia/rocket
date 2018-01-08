@@ -9,6 +9,8 @@ use geometry::{Advance, Collide, Position, Size};
 use models::{Bullet, Player, World, PLAYER_POLYGON};
 use game_state::Message;
 
+const SPRITE_SIZE: f32 = 32.0;
+
 /// Renders the game to the screen
 pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<()> {
     // Clear everything
@@ -71,9 +73,7 @@ pub fn render_world(ctx: &mut Context, world: &World, resources: &mut Resources)
     
     // Draw any bullets as blue
     graphics::set_color(ctx, color::BLUE)?;
-    for bullet in &world.bullets {
-        render_bullet(ctx, bullet)?;
-    }
+    render_bullets(ctx, world, resources)?;
 
     // Now we draw the enemies as yellow
     graphics::set_color(ctx, color::YELLOW)?;
@@ -82,7 +82,7 @@ pub fn render_world(ctx: &mut Context, world: &World, resources: &mut Resources)
     // Finally draw the player as red
     if !world.player.is_dead {
         graphics::set_color(ctx, color::RED)?;
-        render_player(ctx, &world.player)?;
+        render_player(ctx, &world.player, resources)?;
     }
 
     Ok(())
@@ -94,7 +94,7 @@ fn render_stars(ctx: &mut Context, world: &World, resources: &mut Resources) -> 
     // Iterate through the stars list and draw them with a rotation based on their index in the
     // list - this isn't a truly random rotation, but it works visually
     for (i, star) in world.stars.iter().enumerate() {
-        let scale = 0.05 * (star.size as f32);
+        let scale = star.size as f32 / SPRITE_SIZE;
         resources.star_sprite.add(graphics::DrawParam {
             dest: Point2::new(star.x() as f32, star.y() as f32),
             rotation: (i as f32 / 100.0) * 2.0 * std::f32::consts::PI,
@@ -121,19 +121,29 @@ pub fn render_particles(ctx: &mut Context, world: &World, resources: &mut Resour
 }
 
 /// Renders a bullet
-pub fn render_bullet(ctx: &mut Context, bullet: &Bullet) -> GameResult<()> {
-    let pt = Point2::new(bullet.x() as f32, bullet.y() as f32);
-    graphics::circle(ctx, DrawMode::Fill, pt, bullet.radius() as f32, 2.0)
+pub fn render_bullets(ctx: &mut Context, world: &World, resources: &mut Resources) -> GameResult<()> {
+    resources.circle_sprite.clear();
+    for bullet in &world.bullets {
+        let scale = bullet.radius() as f32 / SPRITE_SIZE;
+        resources.circle_sprite.add(graphics::DrawParam {
+            dest: Point2::new(bullet.x() as f32, bullet.y() as f32),
+            offset: Point2::new(0.5, 0.5),
+            scale: Point2::new(scale, scale),
+            ..Default::default()
+        });
+    }
+    graphics::draw_ex(ctx, &resources.circle_sprite, graphics::DrawParam { ..Default::default() })
 }
 
 /// Renders an enemy
 pub fn render_enemy(ctx: &mut Context, world: &World, resources: &mut Resources) -> GameResult<()> {
     resources.circle_sprite.clear();
     for enemy in &world.enemies {
+        let scale = (enemy.radius() * 2.0) as f32 / SPRITE_SIZE;
         resources.circle_sprite.add(graphics::DrawParam {
             dest: Point2::new(enemy.x() as f32, enemy.y() as f32),
             offset: Point2::new(0.5, 0.5),
-            scale: Point2::new(0.65, 0.65),
+            scale: Point2::new(scale, scale),
             ..Default::default()
         });
     }
