@@ -6,7 +6,7 @@ use ApplicationState;
 use Resources;
 use drawing::color;
 use geometry::{Advance, Collide, Position, Size};
-use models::{Bullet, Player, World, PLAYER_POLYGON};
+use models::{Player, World, PowerupKind, PLAYER_POLYGON};
 use game_state::Message;
 
 const SPRITE_SIZE: f32 = 32.0;
@@ -25,7 +25,7 @@ pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<
     // Render the score
     let text = graphics::Text::new(ctx, &format!("Score: {}", app.game_state.score), &app.resources.font)?;
     let pt = Point2::new(8.0, 4.0);
-    graphics::set_color(ctx, color::VIOLET)?;
+    graphics::set_color(ctx, color::SCORE)?;
     graphics::draw(ctx, &text, pt, 0.0)?;
 
     // NOTE: for limiting FPS rate, see https://github.com/ggez/ggez/issues/171
@@ -64,25 +64,42 @@ fn render_message(ctx: &mut Context, app: &mut ApplicationState) -> GameResult<(
 /// Renders the world and everything in it
 pub fn render_world(ctx: &mut Context, world: &World, resources: &mut Resources) -> GameResult<()> {
     // Render stars in the background
-    graphics::set_color(ctx, color::GREY)?;
+    graphics::set_color(ctx, color::STAR)?;
     render_stars(ctx, world, resources)?;
 
     // Draws particles in violet
-    graphics::set_color(ctx, color::ORANGE)?;
+    graphics::set_color(ctx, color::PARTICLE)?;
     render_particles(ctx, world, resources)?;
     
     // Draw any bullets as blue
-    graphics::set_color(ctx, color::BLUE)?;
+    graphics::set_color(ctx, color::BULLET)?;
     render_bullets(ctx, world, resources)?;
 
     // Now we draw the enemies as yellow
-    graphics::set_color(ctx, color::YELLOW)?;
+    graphics::set_color(ctx, color::ENEMY)?;
     render_enemy(ctx, world, resources)?;
 
     // Finally draw the player as red
     if !world.player.is_dead {
-        graphics::set_color(ctx, color::RED)?;
         render_player(ctx, &world.player, resources)?;
+    }
+
+    // Draw powerups
+    graphics::set_color(ctx, color::POWERUP)?;
+    for powerup in &world.powerups {
+        let image = match powerup.kind {
+            PowerupKind::Shield => &resources.powerup_shield,
+            PowerupKind::TimeSlow => &resources.powerup_time_slow,
+            PowerupKind::TripleShot => &resources.powerup_triple_shot
+        };
+        let scale = (powerup.radius() as f32) / SPRITE_SIZE;
+        let params = graphics::DrawParam {
+            dest: Point2::new(powerup.x() as f32, powerup.y() as f32),
+            scale: Point2::new(scale, scale),
+            ..Default::default()
+        };
+
+        graphics::draw_ex(ctx, image, params)?;
     }
 
     Ok(())
@@ -150,14 +167,30 @@ pub fn render_enemy(ctx: &mut Context, world: &World, resources: &mut Resources)
     graphics::draw_ex(ctx, &resources.circle_sprite, graphics::DrawParam { ..Default::default() })
 }
 
-/// Render the player
-pub fn render_player(ctx: &mut Context, player: &Player) -> GameResult<()> {
+/// Renders the player
+pub fn render_player(ctx: &mut Context, player: &Player, resources: &Resources) -> GameResult<()> {
+    // Render shield if one is active
+    let pt = Point2::new(player.x() as f32, player.y() as f32);
+    if let Some(powerup) = player.powerup {
+        if powerup == PowerupKind::Shield {
+            let scale = ((player.radius() + 30.0) as f32) / SPRITE_SIZE;
+            let params = graphics::DrawParam {
+                dest: pt,
+                offset: Point2::new(0.5, 0.5),
+                scale: Point2::new(scale, scale),
+                ..Default::default()
+            };
+            graphics::set_color(ctx, color::SHEILD)?;
+            graphics::draw_ex(ctx, &resources.circle_image, params)?;
+        }
+    }
+
+    // Render the player
+    graphics::set_color(ctx, color::PLAYER)?;
     let p1 = Point2::new(PLAYER_POLYGON[0][0] as f32, PLAYER_POLYGON[0][1] as f32);
     let p2 = Point2::new(PLAYER_POLYGON[1][0] as f32, PLAYER_POLYGON[1][1] as f32);
     let p3 = Point2::new(PLAYER_POLYGON[2][0] as f32, PLAYER_POLYGON[2][1] as f32);
-
     let mesh = graphics::Mesh::new_polygon(ctx, DrawMode::Fill, &[p1, p2, p3])?;
-    let pt = Point2::new(player.x() as f32, player.y() as f32);
     let dir = player.direction() as f32;
     graphics::draw(ctx, &mesh, pt, dir)
 }

@@ -5,7 +5,7 @@ use Resources;
 use super::Actions;
 use game_state::GameState;
 use geometry::{Advance, Position, Point};
-use models::{Bullet, Enemy, Particle, Vector};
+use models::{Bullet, Powerup, PowerupKind, Enemy, Particle, Vector};
 use util;
 
 // Constants related to time
@@ -18,6 +18,9 @@ const ENEMY_SPAWN_RATE: f64 = 1.0 / ENEMY_SPAWNS_PER_SECOND;
 const TRAIL_PARTICLES_PER_SECOND: f64 = 20.0;
 const TRAIL_PARTICLE_RATE: f64 = 1.0 / TRAIL_PARTICLES_PER_SECOND;
 
+const POWERUP_SPAWNS_PER_SECOND: f64 = 0.034; // every ~30 seconds
+const POWERUP_SPAWN_RATE: f64 = 1.0 / POWERUP_SPAWNS_PER_SECOND;
+
 // Constants related to movement
 // Speed is measured in pixels per second
 // Rotation speed is measured in radians per second
@@ -27,7 +30,7 @@ const ENEMY_SPEED: f64 = 100.0;
 const ROTATE_SPEED: f64 = 2.0 * f64::consts::PI;
 const STAR_BASE_SPEED: f64 = 50.0;
 
-const PLAYER_GRACE_AREA: f64 = 200.0;
+pub const PLAYER_GRACE_AREA: f64 = 200.0;
 
 /// Timers to handle creation of bullets, enemies and particles
 pub struct TimeController {
@@ -36,7 +39,8 @@ pub struct TimeController {
     current_time: f64,
     last_tail_particle: f64,
     last_shoot: f64,
-    last_spawned_enemy: f64
+    last_spawned_enemy: f64,
+    last_spawned_powerup: f64
 }
 
 impl TimeController {
@@ -46,8 +50,18 @@ impl TimeController {
             current_time: 0.0,
             last_tail_particle: 0.0,
             last_shoot: 0.0,
-            last_spawned_enemy: 0.0
+            last_spawned_enemy: 0.0,
+            last_spawned_powerup: 0.0
         }
+    }
+
+    // Called when the game is reset
+    pub fn reset(&mut self) {
+        self.last_shoot = 0.0;
+        self.current_time = 0.0;
+        self.last_tail_particle = 0.0;
+        self.last_spawned_enemy = 0.0;
+        self.last_spawned_powerup = 0.0;
     }
 
     /// Updates the game
@@ -62,24 +76,39 @@ impl TimeController {
         self.current_time += dt;
         state.difficulty += dt / 100.0;
 
-        self.update_player(dt, actions, state);
+        // Check if we have the "TimeSlow" powerup
+        let mut time_slow = false;
+        if let Some(powerup) = state.world.player.powerup {
+            if powerup == PowerupKind::TimeSlow {
+                time_slow = true;
+            }
+        }
+
+        // Only modify player/powerups if player is alive
+        if !state.world.player.is_dead {
+            self.update_player(dt, actions, state);
+            self.update_powerups(dt, state);
+        }
+
         self.update_bullets(dt, actions, state, resources);
         self.update_particles(dt, state);
-        self.update_enemies(dt, state, resources);
-        self.update_stars(dt, state);
+        self.update_enemies(dt, state, resources, time_slow);
+        self.update_stars(dt, state, time_slow);
     }
 
     // Updates the position and rotation of the player
     fn update_player(&mut self, dt: f64, actions: &Actions, state: &mut GameState) {
-        if actions.rotate_left {
-            *state.world.player.direction_mut() += -ROTATE_SPEED * dt;
-        } else if actions.rotate_right {
-            *state.world.player.direction_mut() += ROTATE_SPEED * dt;
-        }
+        if !state.world.player.is_dead {
+            if actions.rotate_left {
+                *state.world.player.direction_mut() += -ROTATE_SPEED * dt;
+            } else if actions.rotate_right {
+                *state.world.player.direction_mut() += ROTATE_SPEED * dt;
+            }
 
-        // Set speed and advance the player with wrap around
-        let speed = if actions.boost { 2.0 * ADVANCE_SPEED } else { ADVANCE_SPEED };
-        state.world.player.advance_wrapping(dt * speed, state.world.size);
+            // Set speed and advance the player with wrap around
+            let speed = if actions.boost { 2.0 * ADVANCE_SPEED } else { ADVANCE_SPEED };
+            state.world.player.advance_wrapping(dt * speed, state.world.size);
+        }
     }
 
     // Adds, removes and updates the positions of bullets on screen
@@ -87,13 +116,29 @@ impl TimeController {
         // Add bullets
         if !state.world.player.is_dead && actions.shoot && self.current_time - self.last_shoot > BULLET_RATE {
             self.last_shoot = self.current_time;
-            let vector = Vector::new(state.world.player.front(), state.world.player.direction());
-            state.world.bullets.push(Bullet::new(vector));
 
-            // TODO: get bullets working in a pleasant way
-            // if resources.shot_sound.playing() { resources.shot_sound.stop(); }
+            // If the player has the TripleShot powerup, apply that here
+            let mut did_have_powerup = false;
+            if let Some(powerup) = state.world.player.powerup {
+                if powerup == PowerupKind::TripleShot {
+                    did_have_powerup = true;
+                    let pos = state.world.player.front();
+                    let dir = state.world.player.direction();
+                    state.world.bullets.extend_from_slice(&[
+                        Bullet::new(Vector::new(pos, dir - f64::consts::PI / 6.0)),
+                        Bullet::new(Vector::new(pos, dir)),
+                        Bullet::new(Vector::new(pos, dir + f64::consts::PI / 6.0)),
+                    ]);
+                }
+            }
+
+            // If there was no powerup, shoot normally
+            if !did_have_powerup {
+                let vector = Vector::new(state.world.player.front(), state.world.player.direction());
+                state.world.bullets.push(Bullet::new(vector));
+            }
+
             let _ = resources.shot_sound.play();
-            
         }
 
         // Advance bullets
@@ -104,6 +149,21 @@ impl TimeController {
         // Remove bullets outside the viewport
         let size = &state.world.size;
         util::fast_retain(&mut state.world.bullets, |b| size.contains(b.position()));
+    }
+
+    fn update_powerups(&mut self, dt: f64, state: &mut GameState) {
+        for powerup in &mut state.world.powerups {
+            powerup.update(dt);
+        }
+
+        // Remove any expired powerups
+        util::fast_retain(&mut state.world.powerups, |p| p.ttl > 0.0);
+
+        // Add new powerups
+        if self.current_time - self.last_spawned_powerup > POWERUP_SPAWN_RATE {
+            self.last_spawned_powerup = self.current_time;
+            state.world.powerups.push(Powerup::random(&mut self.rng, state.world.size));
+        }
     }
 
     // Updates or removes particles on screen, adds particles behind player
@@ -123,7 +183,7 @@ impl TimeController {
     }
 
     // Updates positions of enemies, and spawns new ones when necessary
-    fn update_enemies(&mut self, dt: f64, state: &mut GameState, resources: &Resources) {
+    fn update_enemies(&mut self, dt: f64, state: &mut GameState, resources: &Resources, time_slow: bool) {
         // Spawn enemies at random locations
         if self.current_time - self.last_spawned_enemy > ENEMY_SPAWN_RATE {
             self.last_spawned_enemy = self.current_time;
@@ -165,7 +225,8 @@ impl TimeController {
         // the direction they're facing
         for enemy in &mut state.world.enemies {
             if !state.world.player.is_dead {
-                enemy.update(dt * ENEMY_SPEED + state.difficulty, state.world.player.position());
+                let base_speed = if time_slow { ENEMY_SPEED - 75.0 } else { ENEMY_SPEED };
+                enemy.update(dt * base_speed + state.difficulty, state.world.player.position());
             } else {
                 enemy.advance(dt * ENEMY_SPEED);
             }
@@ -173,10 +234,11 @@ impl TimeController {
     }
 
     // Advance stars, wrapping them around the view
-    fn update_stars(&mut self, dt: f64, state: &mut GameState) {
+    fn update_stars(&mut self, dt: f64, state: &mut GameState, time_slow: bool) {
         for star in &mut state.world.stars {
             let speed = star.speed;
-            star.advance_wrapping(dt * STAR_BASE_SPEED * speed, state.world.size);
+            let base_speed = if time_slow { 20.0 } else { STAR_BASE_SPEED };
+            star.advance_wrapping(dt * base_speed * speed, state.world.size);
         }
     }
 }

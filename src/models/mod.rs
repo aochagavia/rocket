@@ -2,6 +2,7 @@
 #[macro_use]
 mod vector;
 
+mod powerup;
 mod bullet;
 mod enemy;
 mod particle;
@@ -9,6 +10,7 @@ mod player;
 mod world;
 mod star;
 
+pub use self::powerup::{Powerup, PowerupKind};
 pub use self::bullet::Bullet;
 pub use self::enemy::Enemy;
 pub use self::particle::Particle;
