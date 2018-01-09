@@ -67,9 +67,10 @@ impl GameState {
         // Reset difficulty
         self.difficulty = 0.0;
 
-        // Remove all enemies and bullets
+        // Remove all enemies, bullets and powerups
         self.world.bullets.clear();
         self.world.enemies.clear();
+        self.world.powerups.clear();
 
         // Play game_start sound
         let _ = resources.game_start_sound.play();
