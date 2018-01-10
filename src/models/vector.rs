@@ -37,8 +37,8 @@ macro_rules! derive_position_direction {
     ($t:ty) => {
         impl ::geometry::Position for $t {
             fn x(&self) -> f64 { self.vector.position.x }
-            fn x_mut(&mut self) -> &mut f64 { &mut self.vector.position.x }
             fn y(&self) -> f64 { self.vector.position.y }
+            fn x_mut(&mut self) -> &mut f64 { &mut self.vector.position.x }
             fn y_mut(&mut self) -> &mut f64 { &mut self.vector.position.y }
         }
 

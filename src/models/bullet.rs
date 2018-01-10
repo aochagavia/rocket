@@ -4,6 +4,7 @@ use geometry::{Advance, Collide};
 /// Bullets are spawned when the player shoots
 ///
 /// When an enemy is reached by a bullet, it will explode
+#[derive(Clone)]
 pub struct Bullet {
     vector: Vector
 }

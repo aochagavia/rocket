@@ -93,6 +93,7 @@ impl event::EventHandler for ApplicationState {
         if let Some(_) = self.game_state.message {
             self.game_state.message = None;
             self.game_state.reset(&self.resources);
+            self.time_controller.reset();
         }
         self.input_controller.key_press(keycode, keymod);
     }
