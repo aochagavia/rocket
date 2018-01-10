@@ -18,7 +18,7 @@ const ENEMY_SPAWN_RATE: f64 = 1.0 / ENEMY_SPAWNS_PER_SECOND;
 const TRAIL_PARTICLES_PER_SECOND: f64 = 20.0;
 const TRAIL_PARTICLE_RATE: f64 = 1.0 / TRAIL_PARTICLES_PER_SECOND;
 
-const POWERUP_SPAWNS_PER_SECOND: f64 = 0.034; // every ~30 seconds
+const POWERUP_SPAWNS_PER_SECOND: f64 = 1.0 / 30.0; // every ~30 seconds
 const POWERUP_SPAWN_RATE: f64 = 1.0 / POWERUP_SPAWNS_PER_SECOND;
 
 // Constants related to movement
@@ -77,10 +77,7 @@ impl TimeController {
         state.difficulty += dt / 100.0;
 
         // Check if we have the "TimeSlow" powerup
-        let mut time_slow = false;
-        if let Some(PowerupKind::TimeSlow) = state.world.player.powerup {
-            time_slow = true;
-        }
+        let time_slow = state.world.player.powerup == Some(PowerupKind::TimeSlow);
 
         // Only modify player/powerups if player is alive
         if !state.world.player.is_dead {

@@ -10,9 +10,9 @@ where F: FnMut(&T) -> bool {
     while i < vec.len() {
         if !f(&vec[i]) {
             vec.swap_remove(i);
+        } else {
+            i += 1;
         }
-
-        i += 1;
     }
 }
 
@@ -25,4 +25,11 @@ pub fn make_explosion(particles: &mut Vec<Particle>, position: &Point, intensity
             particles.push(Particle::new(Vector::new(position.clone(), rotation), ttl));
         }
     }
+}
+
+#[test]
+fn test_fast_retain() {
+    let mut xs = vec![42; 100];
+    fast_retain(&mut xs, |&x| x < 42);
+    assert_eq!(xs.len(), 0);
 }
