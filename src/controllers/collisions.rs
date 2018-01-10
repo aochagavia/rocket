@@ -107,21 +107,15 @@ impl CollisionsController {
 
         if !player.is_dead && state.world.enemies.iter().any(|enemy| player.collides_with(enemy)) {
             // Remove shield powerup from player, also killing any enemies within close range
-            let mut had_shield = false;
-            if let Some(powerup) = player.powerup {
-                if powerup == PowerupKind::Shield {
-                    had_shield = true;
-                    player.powerup = None;
+            if let Some(PowerupKind::Shield) = player.powerup {
+                player.powerup = None;
 
-                    let enemies = &mut state.world.enemies;
-                    let particles = &mut state.world.particles;
-                    CollisionsController::remove_surrounding_enemies(enemies, particles, player.position());
-                    // Play enemy destroyed sound
-                    let _ = resources.enemy_destroyed_sound.play();
-                }
-            }
-
-            if !had_shield {
+                let enemies = &mut state.world.enemies;
+                let particles = &mut state.world.particles;
+                CollisionsController::remove_surrounding_enemies(enemies, particles, player.position());
+                // Play enemy destroyed sound
+                let _ = resources.enemy_destroyed_sound.play();
+            } else {
                 // Make an explosion where the player was
                 let ppos = player.position();
                 util::make_explosion(&mut state.world.particles, &ppos, 16);
@@ -141,9 +135,9 @@ impl CollisionsController {
             let enemy_pos = enemy.position();
             if enemy_pos.intersect_circle(&point, PLAYER_GRACE_AREA) {
                 util::make_explosion(particles, &enemy_pos, 10);
-                return false;
+                false
             } else {
-                return true;
+                true
             }
         });
     }

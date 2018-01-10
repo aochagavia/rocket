@@ -78,10 +78,8 @@ impl TimeController {
 
         // Check if we have the "TimeSlow" powerup
         let mut time_slow = false;
-        if let Some(powerup) = state.world.player.powerup {
-            if powerup == PowerupKind::TimeSlow {
-                time_slow = true;
-            }
+        if let Some(PowerupKind::TimeSlow) = state.world.player.powerup {
+            time_slow = true;
         }
 
         // Only modify player/powerups if player is alive
@@ -117,11 +115,9 @@ impl TimeController {
         if !state.world.player.is_dead && actions.shoot && self.current_time - self.last_shoot > BULLET_RATE {
             self.last_shoot = self.current_time;
 
-            // If the player has the TripleShot powerup, apply that here
-            let mut did_have_powerup = false;
-            if let Some(powerup) = state.world.player.powerup {
-                if powerup == PowerupKind::TripleShot {
-                    did_have_powerup = true;
+            match state.world.player.powerup {
+                // If the player has the TripleShot powerup, apply that here
+                Some(PowerupKind::TripleShot) => {
                     let pos = state.world.player.front();
                     let dir = state.world.player.direction();
                     state.world.bullets.extend_from_slice(&[
@@ -130,12 +126,11 @@ impl TimeController {
                         Bullet::new(Vector::new(pos, dir + f64::consts::PI / 6.0)),
                     ]);
                 }
-            }
-
-            // If there was no powerup, shoot normally
-            if !did_have_powerup {
-                let vector = Vector::new(state.world.player.front(), state.world.player.direction());
-                state.world.bullets.push(Bullet::new(vector));
+                // If there was no powerup, shoot normally
+                _ => {
+                    let vector = Vector::new(state.world.player.front(), state.world.player.direction());
+                    state.world.bullets.push(Bullet::new(vector));
+                }
             }
 
             let _ = resources.shot_sound.play();
