@@ -1,8 +1,8 @@
 use rand::Rng;
 
 use geometry::{Point, Size};
-use super::{Vector, PowerupKind};
-use geometry::{Advance, Collide, Position};
+use super::PowerupKind;
+use geometry::{Advance, Collide, Vector, Position};
 
 /// The `Player` is the rocket controlled by the user
 #[derive(Default)]
@@ -15,7 +15,7 @@ pub struct Player {
 derive_position_direction!(Player);
 
 /// The player is represented as the polygon below
-pub const POLYGON: &'static [[f64; 2]] = &[
+pub const POLYGON: &'static [[f32; 2]] = &[
     [-10.0, -8.0],
     [10.0, 0.0],
     [-10.0, 8.0]
@@ -40,5 +40,5 @@ impl Player {
 }
 
 impl Collide for Player {
-    fn radius(&self) -> f64 { 6.0 }
+    fn radius(&self) -> f32 { 6.0 }
 }

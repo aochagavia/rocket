@@ -7,12 +7,13 @@ extern crate ggez;
 extern crate itertools_num;
 extern crate rand;
 
+#[macro_use]
+mod geometry;
 mod controllers;
 mod resources;
 mod view;
 mod drawing;
 mod game_state;
-mod geometry;
 mod models;
 mod util;
 mod priority_queue;
@@ -74,7 +75,7 @@ impl event::EventHandler for ApplicationState {
         // Update game state, and check for collisions
         if self.has_focus {
             let duration = ggez::timer::get_delta(ctx);
-            let dt = duration.as_secs() as f64 + duration.subsec_nanos() as f64 * 1e-9;
+            let dt = duration.as_secs() as f32 + duration.subsec_nanos() as f32 * 1e-9;
             self.time_controller.update_seconds(dt, self.input_controller.actions(), &mut self.game_state, &self.resources);
             CollisionsController::handle_collisions(self, ctx);
         }
