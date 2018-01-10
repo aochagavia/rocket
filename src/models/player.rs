@@ -2,6 +2,8 @@ use rand::Rng;
 
 use geometry::{Point, Size};
 use super::PowerupKind;
+use super::Resource;
+use super::ResourceKind;
 use geometry::{Advance, Collide, Vector, Position};
 
 /// The `Player` is the rocket controlled by the user
@@ -9,7 +11,8 @@ use geometry::{Advance, Collide, Vector, Position};
 pub struct Player {
     pub vector: Vector,
     pub is_dead: bool,
-    pub powerup: Option<PowerupKind>
+    pub powerup: Option<PowerupKind>,
+    pub resource: Resource
 }
 
 derive_position_direction!(Player);
@@ -27,7 +30,8 @@ impl Player {
         Player {
             vector: Vector::random(rng, bounds),
             is_dead: true,
-            powerup: None
+            powerup: None,
+            resource: Resource::new(ResourceKind::Heat, 0) 
         }
     }
 
