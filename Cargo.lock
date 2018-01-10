@@ -345,8 +345,8 @@ dependencies = [
 
 [[package]]
 name = "ggez"
-version = "0.4.0-rc.0"
-source = "git+https://github.com/ggez/ggez.git?rev=b208c6c8b22e48ea2a7b4d7fe02bd88454330640#b208c6c8b22e48ea2a7b4d7fe02bd88454330640"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "app_dirs 1.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "euclid 0.15.6 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -838,7 +838,7 @@ name = "rocket"
 version = "1.0.0"
 dependencies = [
  "clippy 0.0.118 (registry+https://github.com/rust-lang/crates.io-index)",
- "ggez 0.4.0-rc.0 (git+https://github.com/ggez/ggez.git?rev=b208c6c8b22e48ea2a7b4d7fe02bd88454330640)",
+ "ggez 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "itertools-num 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.3.18 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -1182,7 +1182,7 @@ dependencies = [
 "checksum gfx_device_gl 0.14.6 (registry+https://github.com/rust-lang/crates.io-index)" = "5f45e315f63439d0b1e2210a6a386a65fb0ed7ade4fc2bae57ad34d18073d8c1"
 "checksum gfx_gl 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "daa001fc5c5d4bc78e0543f04ca3ef123e78fa79cfd7a27179cafddb90251540"
 "checksum gfx_window_sdl 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c12f7d73027fe2ee0fcb7f4717611259343e7093a7d28abd93409bf9d183555a"
-"checksum ggez 0.4.0-rc.0 (git+https://github.com/ggez/ggez.git?rev=b208c6c8b22e48ea2a7b4d7fe02bd88454330640)" = "<none>"
+"checksum ggez 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "8a633ea8d1f85659617e484bf28c32ba21c2fc0817f32de01b2540e153e0bd4c"
 "checksum gif 0.9.2 (registry+https://github.com/rust-lang/crates.io-index)" = "e2e41945ba23db3bf51b24756d73d81acb4f28d85c3dccc32c6fae904438c25f"
 "checksum gl_generator 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "04e3e0220a68b8875b5a311fe67ee3b76d3d9b719a92277aff0ec5bb5e7b0ec1"
 "checksum heapsize 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)" = "54fab2624374e5137ae4df13bf32b0b269cb804df42d13a51221bbd431d1a237"

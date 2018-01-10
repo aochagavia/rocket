@@ -1,7 +1,7 @@
 use rand::Rng;
 
 use geometry::Size;
-use models::{Bullet, Enemy, Particle, Player, Star};
+use models::{Bullet, Powerup, Enemy, Particle, Player, Star};
 
 const MAX_STARS: usize = 100;
 
@@ -9,6 +9,7 @@ const MAX_STARS: usize = 100;
 pub struct World {
     pub player: Player,
     pub particles: Vec<Particle>,
+    pub powerups: Vec<Powerup>,
     pub bullets: Vec<Bullet>,
     pub enemies: Vec<Enemy>,
     pub stars: Vec<Star>,
@@ -21,6 +22,7 @@ impl World {
         World {
             player: Player::random(rng, size),
             particles: Vec::with_capacity(1000),
+            powerups: vec![],
             bullets: vec![],
             enemies: vec![],
             stars: (0..MAX_STARS).map(|_| Star::new(size)).collect(),

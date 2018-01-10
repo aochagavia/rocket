@@ -1,9 +1,9 @@
-use super::Vector;
-use geometry::{Advance, Collide};
+use geometry::{Advance, Collide, Vector};
 
 /// Bullets are spawned when the player shoots
 ///
 /// When an enemy is reached by a bullet, it will explode
+#[derive(Clone)]
 pub struct Bullet {
     vector: Vector
 }
@@ -17,11 +17,11 @@ impl Bullet {
     }
 
     /// Update the bullet's position
-    pub fn update(&mut self, units: f64) {
+    pub fn update(&mut self, units: f32) {
         self.advance(units);
     }
 }
 
 impl Collide for Bullet {
-    fn radius(&self) -> f64 { 3.0 }
+    fn radius(&self) -> f32 { 3.0 }
 }
