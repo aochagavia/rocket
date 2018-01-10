@@ -28,7 +28,7 @@ pub struct GameState {
     /// The world contains everything that needs to be drawn
     pub world: World,
     /// The current difficulty - the enemies will speed up over time
-    pub difficulty: f64,
+    pub difficulty: f32,
     /// Information about the Message to draw on the screen
     pub message: Option<Message>,
     /// The current score of the player

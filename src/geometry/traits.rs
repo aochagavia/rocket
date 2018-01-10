@@ -1,22 +1,22 @@
 //! Traits used by the models
 
-use std::f64;
+use std::f32;
 
 use super::{Point, Size};
 
 /// A trait for objects that occupy a position in space
 pub trait Position {
     /// Returns the x coordinate of the object
-    fn x(&self) -> f64;
+    fn x(&self) -> f32;
 
     /// Returns a mutable reference to the x coordinate
-    fn x_mut(&mut self) -> &mut f64;
+    fn x_mut(&mut self) -> &mut f32;
 
     /// Returns the y coordinate of the object
-    fn y(&self) -> f64;
+    fn y(&self) -> f32;
 
     /// Returns a mutable reference to the y coordinate
-    fn y_mut(&mut self) -> &mut f64;
+    fn y_mut(&mut self) -> &mut f32;
 
     /// Returns the position of the object
     fn position(&self) -> Point {
@@ -30,10 +30,10 @@ pub trait Advance: Position {
     ///
     /// Note: 0.0 points to the right and a positive number means a clockwise
     /// rotation
-    fn direction(&self) -> f64;
+    fn direction(&self) -> f32;
 
     /// Returns a mutable reference to the direction of the object
-    fn direction_mut(&mut self) -> &mut f64;
+    fn direction_mut(&mut self) -> &mut f32;
 
     /// Changes the direction of the vector to point to the given target
     fn point_to(&mut self, target: Point) {
@@ -42,22 +42,22 @@ pub trait Advance: Position {
         *self.direction_mut() = if target.x > self.x() {
             m.atan()
         } else {
-            m.atan() + f64::consts::PI
+            m.atan() + f32::consts::PI
         };
     }
 
     /// Advances the object in the given amount of units, according to its direction
-    fn advance(&mut self, units: f64) {
+    fn advance(&mut self, units: f32) {
         *self.x_mut() += self.direction().cos() * units;
         *self.y_mut() += self.direction().sin() * units;
     }
 
     /// Similar to `Advance::advance`, but the final position will be wrapped
     /// around the given bounds
-    fn advance_wrapping(&mut self, units: f64, bounds: Size) {
+    fn advance_wrapping(&mut self, units: f32, bounds: Size) {
         self.advance(units);
 
-        fn wrap(k: &mut f64, bound: f64) {
+        fn wrap(k: &mut f32, bound: f32) {
             if *k < 0.0 {
                 *k += bound;
             } else if *k >= bound {
@@ -75,10 +75,10 @@ pub trait Advance: Position {
 /// For collision purposes, all objects are treated as circles
 pub trait Collide: Position {
     /// Returns the radius of the object
-    fn radius(&self) -> f64;
+    fn radius(&self) -> f32;
 
     /// Returns the diameter of the objects
-    fn diameter(&self) -> f64 {
+    fn diameter(&self) -> f32 {
         self.radius() * 2.0
     }
 

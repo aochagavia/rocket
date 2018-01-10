@@ -1,8 +1,8 @@
 use rand::Rng;
 use geometry::{Position, Collide, Point, Size};
 
-const POWERUP_TTL: f64 = 10.0;
-const POWERUP_SIZE: f64 = 20.0;
+const POWERUP_TTL: f32 = 10.0;
+const POWERUP_SIZE: f32 = 20.0;
 
 /// This is an enum of the different powerup types
 #[derive(PartialEq, Clone, Copy)]
@@ -32,7 +32,7 @@ impl Default for PowerupKind {
 
 /// This is the struct containing information about a powerup
 pub struct Powerup {
-    pub ttl: f64,
+    pub ttl: f32,
     pub kind: PowerupKind,
     pub color: u8,
     pub position: Point
@@ -52,17 +52,17 @@ impl Powerup {
         Powerup::new(PowerupKind::random(rng), Point::random(rng, bounds))
     }
 
-    pub fn update(&mut self, elapsed_time: f64) {
+    pub fn update(&mut self, elapsed_time: f32) {
         self.ttl -= elapsed_time;
         self.color = if self.color < u8::max_value() { self.color + 1 } else { 0 }
     }
 }
 
 impl Position for Powerup {
-    fn x(&self) -> f64 { self.position.x }
-    fn y(&self) -> f64 { self.position.y }
-    fn x_mut(&mut self) -> &mut f64 { &mut self.position.x }
-    fn y_mut(&mut self) -> &mut f64 { &mut self.position.y }
+    fn x(&self) -> f32 { self.position.x }
+    fn y(&self) -> f32 { self.position.y }
+    fn x_mut(&mut self) -> &mut f32 { &mut self.position.x }
+    fn y_mut(&mut self) -> &mut f32 { &mut self.position.y }
 
     fn position(&self) -> Point {
         Point::new(self.x(), self.y())
@@ -70,5 +70,5 @@ impl Position for Powerup {
 }
 
 impl Collide for Powerup {
-    fn radius(&self) -> f64 { POWERUP_SIZE * (self.ttl / POWERUP_TTL) }
+    fn radius(&self) -> f32 { POWERUP_SIZE * (self.ttl / POWERUP_TTL) }
 }

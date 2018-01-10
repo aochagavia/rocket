@@ -42,8 +42,8 @@ fn render_message(ctx: &mut Context, app: &mut ApplicationState) -> GameResult<(
         let Message { title, subtitle } = *message;
         let Size { width, height } = app.game_state.world.size;
 
-        let w = width as f32 / 2.0;
-        let h = height as f32 / 2.0;
+        let w = width / 2.0;
+        let h = height / 2.0;
 
         let mut draw_text = |text: &str, color: graphics::Color, is_title: bool| {
             let drawable = graphics::Text::new(ctx, text, &app.resources.font).unwrap();
@@ -92,9 +92,9 @@ pub fn render_world(ctx: &mut Context, world: &World, resources: &mut Resources)
             PowerupKind::TimeSlow => &resources.powerup_time_slow,
             PowerupKind::TripleShot => &resources.powerup_triple_shot
         };
-        let scale = (powerup.radius() as f32) / SPRITE_SIZE;
+        let scale = powerup.radius() / SPRITE_SIZE;
         let params = graphics::DrawParam {
-            dest: Point2::new(powerup.x() as f32, powerup.y() as f32),
+            dest: Point2::new(powerup.x(), powerup.y()),
             scale: Point2::new(scale, scale),
             ..Default::default()
         };
@@ -111,9 +111,9 @@ fn render_stars(ctx: &mut Context, world: &World, resources: &mut Resources) -> 
     // Iterate through the stars list and draw them with a rotation based on their index in the
     // list - this isn't a truly random rotation, but it works visually
     for (i, star) in world.stars.iter().enumerate() {
-        let scale = star.size as f32 / SPRITE_SIZE;
+        let scale = star.size / SPRITE_SIZE;
         resources.star_sprite.add(graphics::DrawParam {
-            dest: Point2::new(star.x() as f32, star.y() as f32),
+            dest: Point2::new(star.x(), star.y()),
             rotation: (i as f32 / 100.0) * 2.0 * std::f32::consts::PI,
             scale: Point2::new(scale, scale),
             .. Default::default()
@@ -126,9 +126,9 @@ fn render_stars(ctx: &mut Context, world: &World, resources: &mut Resources) -> 
 pub fn render_particles(ctx: &mut Context, world: &World, resources: &mut Resources) -> GameResult<()> {
     resources.circle_sprite.clear();
     for particle in &world.particles {
-        let scale = (0.4 * particle.ttl) as f32;
+        let scale = 0.4 * particle.ttl;
         resources.circle_sprite.add(graphics::DrawParam {
-            dest: Point2::new(particle.x() as f32, particle.y() as f32),
+            dest: Point2::new(particle.x(), particle.y()),
             offset: Point2::new(0.5, 0.5),
             scale: Point2::new(scale, scale),
             ..Default::default()
@@ -141,9 +141,9 @@ pub fn render_particles(ctx: &mut Context, world: &World, resources: &mut Resour
 pub fn render_bullets(ctx: &mut Context, world: &World, resources: &mut Resources) -> GameResult<()> {
     resources.circle_sprite.clear();
     for bullet in &world.bullets {
-        let scale = bullet.radius() as f32 / SPRITE_SIZE;
+        let scale = bullet.radius() / SPRITE_SIZE;
         resources.circle_sprite.add(graphics::DrawParam {
-            dest: Point2::new(bullet.x() as f32, bullet.y() as f32),
+            dest: Point2::new(bullet.x(), bullet.y()),
             offset: Point2::new(0.5, 0.5),
             scale: Point2::new(scale, scale),
             ..Default::default()
@@ -156,9 +156,9 @@ pub fn render_bullets(ctx: &mut Context, world: &World, resources: &mut Resource
 pub fn render_enemy(ctx: &mut Context, world: &World, resources: &mut Resources) -> GameResult<()> {
     resources.circle_sprite.clear();
     for enemy in &world.enemies {
-        let scale = (enemy.radius() * 2.0) as f32 / SPRITE_SIZE;
+        let scale = enemy.radius() * 2.0 / SPRITE_SIZE;
         resources.circle_sprite.add(graphics::DrawParam {
-            dest: Point2::new(enemy.x() as f32, enemy.y() as f32),
+            dest: Point2::new(enemy.x(), enemy.y()),
             offset: Point2::new(0.5, 0.5),
             scale: Point2::new(scale, scale),
             ..Default::default()
@@ -170,10 +170,10 @@ pub fn render_enemy(ctx: &mut Context, world: &World, resources: &mut Resources)
 /// Renders the player
 pub fn render_player(ctx: &mut Context, player: &Player, resources: &Resources) -> GameResult<()> {
     // Render shield if one is active
-    let pt = Point2::new(player.x() as f32, player.y() as f32);
+    let pt = Point2::new(player.x(), player.y());
     if let Some(powerup) = player.powerup {
         if powerup == PowerupKind::Shield {
-            let scale = ((player.radius() + 30.0) as f32) / SPRITE_SIZE;
+            let scale = (player.radius() + 30.0) / SPRITE_SIZE;
             let params = graphics::DrawParam {
                 dest: pt,
                 offset: Point2::new(0.5, 0.5),
@@ -187,10 +187,10 @@ pub fn render_player(ctx: &mut Context, player: &Player, resources: &Resources) 
 
     // Render the player
     graphics::set_color(ctx, color::PLAYER)?;
-    let p1 = Point2::new(PLAYER_POLYGON[0][0] as f32, PLAYER_POLYGON[0][1] as f32);
-    let p2 = Point2::new(PLAYER_POLYGON[1][0] as f32, PLAYER_POLYGON[1][1] as f32);
-    let p3 = Point2::new(PLAYER_POLYGON[2][0] as f32, PLAYER_POLYGON[2][1] as f32);
+    let p1 = Point2::new(PLAYER_POLYGON[0][0], PLAYER_POLYGON[0][1]);
+    let p2 = Point2::new(PLAYER_POLYGON[1][0], PLAYER_POLYGON[1][1]);
+    let p3 = Point2::new(PLAYER_POLYGON[2][0], PLAYER_POLYGON[2][1]);
     let mesh = graphics::Mesh::new_polygon(ctx, DrawMode::Fill, &[p1, p2, p3])?;
-    let dir = player.direction() as f32;
+    let dir = player.direction();
     graphics::draw(ctx, &mesh, pt, dir)
 }

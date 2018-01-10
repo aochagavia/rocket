@@ -1,6 +1,5 @@
 use geometry::Point;
-use super::Vector;
-use geometry::{Advance, Collide};
+use geometry::{Advance, Collide, Vector};
 
 /// Enemies follow the player in order to cause a collision and let him explode
 pub struct Enemy {
@@ -16,7 +15,7 @@ impl Enemy {
     }
 
     /// Update the enemy
-    pub fn update(&mut self, speed: f64, player_position: Point) {
+    pub fn update(&mut self, speed: f32, player_position: Point) {
         // Point to the player
         self.point_to(player_position);
         self.advance(speed);
@@ -24,5 +23,5 @@ impl Enemy {
 }
 
 impl Collide for Enemy {
-    fn radius(&self) -> f64 { 10.0 }
+    fn radius(&self) -> f32 { 10.0 }
 }
