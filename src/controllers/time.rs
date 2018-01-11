@@ -103,14 +103,18 @@ impl TimeController {
             // Set speed and advance the player with wrap around
             let speed = if actions.boost { 2.0 * ADVANCE_SPEED } else { ADVANCE_SPEED };
             state.world.player.advance_wrapping(dt * speed, state.world.size);
+
+            // Update resource
+            state.world.player.resource.update();
         }
     }
 
     // Adds, removes and updates the positions of bullets on screen
     fn update_bullets(&mut self, dt: f32, actions: &Actions, state: &mut GameState, resources: &Resources) {
         // Add bullets
-        if !state.world.player.is_dead && actions.shoot && self.current_time - self.last_shoot > BULLET_RATE {
+        if !state.world.player.is_dead && actions.shoot && self.current_time - self.last_shoot > BULLET_RATE && state.world.player.resource.is_available() {
             self.last_shoot = self.current_time;
+            state.world.player.resource.spend();
 
             match state.world.player.powerup {
                 // If the player has the TripleShot powerup, apply that here

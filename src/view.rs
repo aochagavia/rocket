@@ -28,6 +28,13 @@ pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<
     graphics::set_color(ctx, color::SCORE)?;
     graphics::draw(ctx, &text, pt, 0.0)?;
 
+    // Render the resource
+    let text = graphics::Text::new(ctx, &format!("Heat: {} / {}", app.game_state.world.player.resource.status(), app.game_state.world.player.resource.capacity()), &app.resources.font)?;
+    let pt = Point2::new(8.0, 50.0);
+    graphics::set_color(ctx, color::SCORE)?;
+    graphics::draw(ctx, &text, pt, 0.0)?;
+
+
     // NOTE: for limiting FPS rate, see https://github.com/ggez/ggez/issues/171
     // If you want to log the current FPS, uncomment the next line
     // println!("{}", ggez::timer::get_fps(ctx));
@@ -101,6 +108,10 @@ pub fn render_world(ctx: &mut Context, world: &World, resources: &mut Resources)
 
         graphics::draw_ex(ctx, image, params)?;
     }
+    
+    // Draw resource
+    graphics::set_color(ctx, color::STAR)?;
+
 
     Ok(())
 }

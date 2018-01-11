@@ -2,8 +2,7 @@ use rand::Rng;
 
 use geometry::{Point, Size};
 use super::PowerupKind;
-use super::Resource;
-use super::ResourceKind;
+use super::{Resource, Heat};
 use geometry::{Advance, Collide, Vector, Position};
 
 /// The `Player` is the rocket controlled by the user
@@ -31,7 +30,7 @@ impl Player {
             vector: Vector::random(rng, bounds),
             is_dead: true,
             powerup: None,
-            resource: Resource::new(ResourceKind::Heat, 0) 
+            resource: Resource::Heat( Heat::new() )
         }
     }
 
