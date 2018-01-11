@@ -108,10 +108,6 @@ pub fn render_world(ctx: &mut Context, world: &World, resources: &mut Resources)
 
         graphics::draw_ex(ctx, image, params)?;
     }
-    
-    // Draw resource
-    graphics::set_color(ctx, color::STAR)?;
-
 
     Ok(())
 }
