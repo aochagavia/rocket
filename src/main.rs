@@ -7,6 +7,8 @@ extern crate ggez;
 extern crate itertools_num;
 extern crate rand;
 
+// Note: we need to load `geometry` first so the macro is available for
+// the modules that come afterwards
 #[macro_use]
 mod geometry;
 mod controllers;

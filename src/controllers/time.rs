@@ -1,4 +1,4 @@
-use std::f32;
+use std::{f32, mem};
 use rand::{self, ThreadRng};
 
 use Resources;
@@ -32,15 +32,46 @@ const STAR_BASE_SPEED: f32 = 50.0;
 
 pub const PLAYER_GRACE_AREA: f32 = 200.0;
 
-/// Timers to handle creation of bullets, enemies and particles
+/// A `Timer` is used to trigger events in specified intervals
+///
+/// Each time the `update` function is called, the timer will check whether
+/// the interval has elapsed. If that is the case, the provided action will
+/// be triggered. Otherwise, it will be ignored.
+struct Timer {
+    last_triggered: f32,
+    interval: f32
+}
+
+impl Timer {
+    fn new(interval: f32) -> Timer {
+        Timer {
+            last_triggered: 0.0,
+            interval
+        }
+    }
+
+    fn update<F>(&mut self, current_time: f32, mut action: F)
+    where F: FnMut() {
+        if current_time - self.last_triggered > self.interval {
+            self.last_triggered = current_time;
+            action();
+        }
+    }
+}
+
 pub struct TimeController {
     /// A random number generator
     rng: ThreadRng,
+    /// The current time, in seconds
     current_time: f32,
-    last_tail_particle: f32,
-    last_shoot: f32,
-    last_spawned_enemy: f32,
-    last_spawned_powerup: f32
+    /// A timer to trigger creation of trail particles
+    trail_timer: Timer,
+    /// A timer to trigger creation of bullets
+    shoot_timer: Timer,
+    /// A timer to spawn enemies
+    enemy_timer: Timer,
+    /// A timer to spawn powerups
+    powerup_timer: Timer
 }
 
 impl TimeController {
@@ -48,20 +79,16 @@ impl TimeController {
         TimeController {
             rng: rand::thread_rng(),
             current_time: 0.0,
-            last_tail_particle: 0.0,
-            last_shoot: 0.0,
-            last_spawned_enemy: 0.0,
-            last_spawned_powerup: 0.0
+            trail_timer: Timer::new(TRAIL_PARTICLE_RATE),
+            shoot_timer: Timer::new(BULLET_RATE),
+            enemy_timer: Timer::new(ENEMY_SPAWN_RATE),
+            powerup_timer: Timer::new(POWERUP_SPAWN_RATE),
         }
     }
 
     // Called when the game is reset
     pub fn reset(&mut self) {
-        self.last_shoot = 0.0;
-        self.current_time = 0.0;
-        self.last_tail_particle = 0.0;
-        self.last_spawned_enemy = 0.0;
-        self.last_spawned_powerup = 0.0;
+        mem::replace(self, TimeController::new());
     }
 
     /// Updates the game
@@ -112,29 +139,28 @@ impl TimeController {
     // Adds, removes and updates the positions of bullets on screen
     fn update_bullets(&mut self, dt: f32, actions: &Actions, state: &mut GameState, resources: &Resources) {
         // Add bullets
-        if !state.world.player.is_dead && actions.shoot && self.current_time - self.last_shoot > BULLET_RATE && state.world.player.resource.is_available() {
-            self.last_shoot = self.current_time;
-            state.world.player.resource.spend();
-
-            match state.world.player.powerup {
-                // If the player has the TripleShot powerup, apply that here
-                Some(PowerupKind::TripleShot) => {
-                    let pos = state.world.player.front();
-                    let dir = state.world.player.direction();
-                    state.world.bullets.extend_from_slice(&[
-                        Bullet::new(Vector::new(pos, dir - f32::consts::PI / 6.0)),
-                        Bullet::new(Vector::new(pos, dir)),
-                        Bullet::new(Vector::new(pos, dir + f32::consts::PI / 6.0)),
-                    ]);
+        if !state.world.player.is_dead && actions.shoot && state.world.player.resource.is_available(){
+            self.shoot_timer.update(self.current_time, || {
+                match state.world.player.powerup {
+                    // If the player has the TripleShot powerup, apply that here
+                    Some(PowerupKind::TripleShot) => {
+                        let pos = state.world.player.front();
+                        let dir = state.world.player.direction();
+                        state.world.bullets.extend_from_slice(&[
+                            Bullet::new(Vector::new(pos, dir - f32::consts::PI / 6.0)),
+                            Bullet::new(Vector::new(pos, dir)),
+                            Bullet::new(Vector::new(pos, dir + f32::consts::PI / 6.0)),
+                        ]);
+                    }
+                    // If there was no powerup, shoot normally
+                    _ => {
+                        let vector = Vector::new(state.world.player.front(), state.world.player.direction());
+                        state.world.bullets.push(Bullet::new(vector));
+                    } 
                 }
-                // If there was no powerup, shoot normally
-                _ => {
-                    let vector = Vector::new(state.world.player.front(), state.world.player.direction());
-                    state.world.bullets.push(Bullet::new(vector));
-                }
-            }
-
-            let _ = resources.shot_sound.play();
+                state.world.player.resource.spend(); 
+                let _ = resources.shot_sound.play();
+            });
         }
 
         // Advance bullets
@@ -156,10 +182,10 @@ impl TimeController {
         util::fast_retain(&mut state.world.powerups, |p| p.ttl > 0.0);
 
         // Add new powerups
-        if self.current_time - self.last_spawned_powerup > POWERUP_SPAWN_RATE {
-            self.last_spawned_powerup = self.current_time;
-            state.world.powerups.push(Powerup::random(&mut self.rng, state.world.size));
-        }
+        let rng = &mut self.rng;
+        self.powerup_timer.update(self.current_time, || {
+            state.world.powerups.push(Powerup::random(rng, state.world.size));
+        });
     }
 
     // Updates or removes particles on screen, adds particles behind player
@@ -172,24 +198,24 @@ impl TimeController {
         util::fast_retain(&mut state.world.particles, |p| p.ttl > 0.0);
 
         // Add new particles at the player's position, to leave a trail
-        if !state.world.player.is_dead && self.current_time - self.last_tail_particle > TRAIL_PARTICLE_RATE {
-            self.last_tail_particle = self.current_time;
-            state.world.particles.push(Particle::new(state.world.player.vector.clone().invert(), 0.5));
+        if !state.world.player.is_dead {
+            self.trail_timer.update(self.current_time, || {
+                state.world.particles.push(Particle::new(state.world.player.vector.clone().invert(), 0.5));
+            });
         }
     }
 
     // Updates positions of enemies, and spawns new ones when necessary
     fn update_enemies(&mut self, dt: f32, state: &mut GameState, resources: &Resources, time_slow: bool) {
         // Spawn enemies at random locations
-        if self.current_time - self.last_spawned_enemy > ENEMY_SPAWN_RATE {
-            self.last_spawned_enemy = self.current_time;
-
+        let rng = &mut self.rng;
+        self.enemy_timer.update(self.current_time, || {
             let player_pos: &Vector = &state.world.player.vector;
             let mut enemy_pos;
             // We loop here, just in case the new enemy random position is exactly equal
             // to the players current position, this would break our calculations below
             loop {
-                enemy_pos = Vector::random(&mut self.rng, state.world.size);
+                enemy_pos = Vector::random(rng, state.world.size);
                 if enemy_pos.position != player_pos.position {
                     break;
                 }
@@ -215,7 +241,7 @@ impl TimeController {
 
             // Play enemy_spawn sound
             let _ = resources.enemy_spawn_sound.play();
-        }
+        });
 
         // Move enemies in the player's direction if player is alive, otherwise let them drift in
         // the direction they're facing
