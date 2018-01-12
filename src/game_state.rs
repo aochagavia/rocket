@@ -60,6 +60,7 @@ impl GameState {
         self.world.player.is_dead = false;
         *self.world.player.x_mut() = self.world.size.random_x(&mut rng);
         *self.world.player.y_mut() = self.world.size.random_y(&mut rng);
+        self.world.player.gun.reset();
 
         // Reset score
         self.score = 0;

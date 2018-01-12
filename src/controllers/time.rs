@@ -132,14 +132,14 @@ impl TimeController {
             state.world.player.advance_wrapping(dt * speed, state.world.size);
 
             // Update resource
-            state.world.player.resource.update();
+            state.world.player.gun.cool_down();
         }
     }
 
     // Adds, removes and updates the positions of bullets on screen
     fn update_bullets(&mut self, dt: f32, actions: &Actions, state: &mut GameState, resources: &Resources) {
         // Add bullets
-        if !state.world.player.is_dead && actions.shoot && state.world.player.resource.is_available(){
+        if !state.world.player.is_dead && actions.shoot && state.world.player.gun.is_available(){
             self.shoot_timer.update(self.current_time, || {
                 match state.world.player.powerup {
                     // If the player has the TripleShot powerup, apply that here
@@ -158,7 +158,7 @@ impl TimeController {
                         state.world.bullets.push(Bullet::new(vector));
                     } 
                 }
-                state.world.player.resource.spend(); 
+                state.world.player.gun.heat_up(); 
                 let _ = resources.shot_sound.play();
             });
         }
