@@ -29,7 +29,7 @@ pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<
     graphics::draw(ctx, &text, pt, 0.0)?;
 
     // Render the gun heat
-    let text = graphics::Text::new(ctx, &format!("Heat: {} / {}", app.game_state.world.player.gun.temperature, app.game_state.world.player.gun.maximum_capacity), &app.resources.font)?;
+    let text = graphics::Text::new(ctx, &format!("Heat: {} / {}", app.game_state.world.player.gun.temperature, app.game_state.world.player.gun.maximum_temperature), &app.resources.font)?;
     let pt = Point2::new(8.0, 50.0);
     graphics::set_color(ctx, color::SCORE)?;
     graphics::draw(ctx, &text, pt, 0.0)?;

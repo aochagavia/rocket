@@ -132,7 +132,7 @@ impl TimeController {
             state.world.player.advance_wrapping(dt * speed, state.world.size);
 
             // Update resource
-            state.world.player.gun.cool_down();
+            state.world.player.gun.cool_down(dt);
         }
     }
 
