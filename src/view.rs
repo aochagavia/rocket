@@ -10,6 +10,7 @@ use models::{Player, World, PowerupKind, PLAYER_POLYGON};
 use game_state::Message;
 
 const SPRITE_SIZE: f32 = 32.0;
+const GUN_HEAT_STATUS_WIDTH: f32 = 100.0;
 
 /// Renders the game to the screen
 pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<()> {
@@ -28,11 +29,20 @@ pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<
     graphics::set_color(ctx, color::SCORE)?;
     graphics::draw(ctx, &text, pt, 0.0)?;
 
-    // Render the gun heat
-    let text = graphics::Text::new(ctx, &format!("Heat: {} / {}", app.game_state.world.player.gun.temperature, app.game_state.world.player.gun.maximum_temperature), &app.resources.font)?;
-    let pt = Point2::new(8.0, 50.0);
-    graphics::set_color(ctx, color::SCORE)?;
-    graphics::draw(ctx, &text, pt, 0.0)?;
+    // Render the gun's heat status
+    let gun = &app.game_state.world.player.gun;
+    if !gun.is_available() {
+        graphics::set_color(ctx, color::RED)?;
+    }
+
+    let Size { width, height } = app.game_state.world.size;
+    let rect = graphics::Rect {
+        x: width - GUN_HEAT_STATUS_WIDTH - 20.0,
+        y: height - 40.0,
+        w: GUN_HEAT_STATUS_WIDTH * gun.temperature,
+        h: 20.0
+    };
+    graphics::rectangle(ctx, DrawMode::Fill, rect)?;
 
     // NOTE: for limiting FPS rate, see https://github.com/ggez/ggez/issues/171
     // If you want to log the current FPS, uncomment the next line
