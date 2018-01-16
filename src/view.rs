@@ -29,7 +29,7 @@ pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<
     graphics::set_color(ctx, color::SCORE)?;
     graphics::draw(ctx, &text, pt, 0.0)?;
 
-    // Render the gun's heat status
+    // Render the gun's heat status in the bottom right of the screen
     let gun = &app.game_state.world.player.gun;
     if !gun.is_available() {
         graphics::set_color(ctx, color::RED)?;

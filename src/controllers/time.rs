@@ -131,7 +131,7 @@ impl TimeController {
             let speed = if actions.boost { 2.0 * ADVANCE_SPEED } else { ADVANCE_SPEED };
             state.world.player.advance_wrapping(dt * speed, state.world.size);
 
-            // Update resource
+            // Cool down the player's gun
             state.world.player.gun.cool_down(dt);
         }
     }
