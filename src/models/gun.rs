@@ -6,22 +6,12 @@ const OVERHEAT_COOL_DOWN_RATE: f32 = 0.2;
 
 /// This is the player's gun: it slowly overheats with every shot so that the player can't just 
 /// spam shooting and ruin the gameplay
+#[derive(Default)]
 pub struct Gun {
     /// The current temperature of the gun - a percentage between 0 and 1
     pub temperature: f32,
     /// Whether or not the gun has overheated
     overheated: bool,
-}
-
-/// We implement the Default trait for Gun because the Player struct has the Default trait, and so
-/// all of its fields require it oo
-impl Default for Gun {
-    fn default() -> Gun { 
-        Gun {
-            temperature: 0.0,
-            overheated: false
-        }
-     }
 }
 
 impl Gun {
