@@ -1,6 +1,6 @@
 const MAX_TEMP: f32 = 1.0;
 const MIN_TEMP: f32 = 0.0;
-const HEAT_PER_SHOT: f32 = 0.05;
+const HEAT_PER_SHOT: f32 = 0.025;
 const NATURAL_COOL_DOWN_RATE: f32 = 0.2;
 const OVERHEAT_COOL_DOWN_RATE: f32 = 0.4;
 
