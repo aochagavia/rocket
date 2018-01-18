@@ -153,6 +153,7 @@ impl TimeController {
                             Bullet::new(Vector::new(pos, dir)),
                             Bullet::new(Vector::new(pos, dir + f32::consts::PI / 6.0)),
                         ]);
+                        let _ = resources.shot_sound.play();
                     }
                     // If there was no powerup, shoot normally
                     _ => {
@@ -160,10 +161,10 @@ impl TimeController {
                             let vector = Vector::new(state.world.player.front(), state.world.player.direction());
                             state.world.bullets.push(Bullet::new(vector));
                             state.world.player.gun.heat_up();
+                            let _ = resources.shot_sound.play();
                         }
                     } 
                 }
-                let _ = resources.shot_sound.play();
             });
         }
 
