@@ -50,6 +50,7 @@ pub struct ApplicationState {
 }
 
 impl ApplicationState {
+    /// Simply creates a new application state
     fn new(ctx: &mut Context, game_state: GameState) -> GameResult<ApplicationState> {
         let app_state = ApplicationState {
             has_focus: true,
@@ -60,6 +61,21 @@ impl ApplicationState {
             scheduled_events: PriorityQueue::new()
         };
         Ok(app_state)
+    }
+
+    /// This will be called when the game needs to be reset
+    fn reset(&mut self) {
+        // Empty scheduled events
+        while let Some(_) = self.scheduled_events.pop() {}
+
+        // Reset time controller
+        self.time_controller.reset();
+
+        // Reset game state
+        self.game_state.reset();
+
+        // Play game start sound
+        let _ = self.resources.game_start_sound.play();
     }
 }
 
@@ -94,9 +110,7 @@ impl event::EventHandler for ApplicationState {
     fn key_down_event(&mut self, _ctx: &mut Context, keycode: Keycode, keymod: Mod, _repeat: bool) {
         // If we're displaying a message (waiting for user input) then hide it and reset the game
         if let Some(_) = self.game_state.message {
-            self.game_state.message = None;
-            self.game_state.reset(&self.resources);
-            self.time_controller.reset();
+            self.reset();
         }
         self.input_controller.key_press(keycode, keymod);
     }

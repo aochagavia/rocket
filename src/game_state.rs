@@ -1,6 +1,5 @@
 use rand;
 
-use Resources;
 use geometry::{Position, Size};
 use models::World;
 
@@ -53,11 +52,12 @@ impl GameState {
     }
 
     /// Reset our game-state
-    pub fn reset(&mut self, resources: &Resources) {
+    pub fn reset(&mut self) {
         let mut rng = rand::thread_rng();
 
         // Reset player
         self.world.player.is_dead = false;
+        self.world.player.powerup = None;
         *self.world.player.x_mut() = self.world.size.random_x(&mut rng);
         *self.world.player.y_mut() = self.world.size.random_y(&mut rng);
         self.world.player.gun.reset();
@@ -68,12 +68,12 @@ impl GameState {
         // Reset difficulty
         self.difficulty = 0.0;
 
+        // Reset message
+        self.message = None;
+
         // Remove all enemies, bullets and powerups
         self.world.bullets.clear();
         self.world.enemies.clear();
         self.world.powerups.clear();
-
-        // Play game_start sound
-        let _ = resources.game_start_sound.play();
     }
 }
