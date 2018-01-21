@@ -1,5 +1,5 @@
 use std;
-use ggez::graphics::{self, DrawMode, Point2};
+use ggez::graphics::{self, DrawMode, Point2, Rect, Color};
 use ggez::{Context, GameResult};
 
 use ApplicationState;
@@ -10,6 +10,8 @@ use models::{Player, World, PowerupKind, PLAYER_POLYGON};
 use game_state::Message;
 
 const SPRITE_SIZE: f32 = 32.0;
+const GUN_HEAT_STATUS_WIDTH: f32 = 100.0;
+const GUN_HEAT_STATUS_HEIGHT: f32 = 20.0;
 
 /// Renders the game to the screen
 pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<()> {
@@ -27,6 +29,26 @@ pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<
     let pt = Point2::new(8.0, 4.0);
     graphics::set_color(ctx, color::SCORE)?;
     graphics::draw(ctx, &text, pt, 0.0)?;
+
+    // Render the gun's heat status in the bottom right of the screen
+    let gun = &app.game_state.world.player.gun;
+    if !gun.is_available() {
+        graphics::set_color(ctx, color::RED)?;
+    } else {
+        graphics::set_color(ctx, Color {
+            r: 1.0 * gun.temperature,
+            g: 0.5 - gun.temperature / 2.0,
+            b: 1.0 - gun.temperature,
+            a: 1.0
+        })?;
+    }
+
+    let Size { width, height } = app.game_state.world.size;
+    let x = width - GUN_HEAT_STATUS_WIDTH - 20.0;
+    let y = height - 40.0;
+    let rect = Rect { x: x, y: y, w: GUN_HEAT_STATUS_WIDTH * gun.temperature, h: GUN_HEAT_STATUS_HEIGHT };
+    graphics::rectangle(ctx, DrawMode::Fill, rect)?;
+    graphics::rectangle(ctx, DrawMode::Line(1.0), Rect { x: x, y: y, w: GUN_HEAT_STATUS_WIDTH, h: GUN_HEAT_STATUS_HEIGHT })?;
 
     // NOTE: for limiting FPS rate, see https://github.com/ggez/ggez/issues/171
     // If you want to log the current FPS, uncomment the next line

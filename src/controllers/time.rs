@@ -130,12 +130,17 @@ impl TimeController {
             // Set speed and advance the player with wrap around
             let speed = if actions.boost { 2.0 * ADVANCE_SPEED } else { ADVANCE_SPEED };
             state.world.player.advance_wrapping(dt * speed, state.world.size);
+
+            // Cool down the player's gun
+            state.world.player.gun.cool_down(dt);
         }
     }
 
     // Adds, removes and updates the positions of bullets on screen
     fn update_bullets(&mut self, dt: f32, actions: &Actions, state: &mut GameState, resources: &Resources) {
-        // Add bullets
+        // Add bullets - usually when the player shoots the gun heats up, if it has overheated the
+        // play can no longer shoot - unless they have the tripleshot powerup, which will work
+        // regardless of the gun's state
         if !state.world.player.is_dead && actions.shoot {
             self.shoot_timer.update(self.current_time, || {
                 match state.world.player.powerup {
@@ -148,15 +153,18 @@ impl TimeController {
                             Bullet::new(Vector::new(pos, dir)),
                             Bullet::new(Vector::new(pos, dir + f32::consts::PI / 6.0)),
                         ]);
+                        let _ = resources.shot_sound.play();
                     }
                     // If there was no powerup, shoot normally
                     _ => {
-                        let vector = Vector::new(state.world.player.front(), state.world.player.direction());
-                        state.world.bullets.push(Bullet::new(vector));
-                    }
+                        if state.world.player.gun.is_available() {
+                            let vector = Vector::new(state.world.player.front(), state.world.player.direction());
+                            state.world.bullets.push(Bullet::new(vector));
+                            state.world.player.gun.heat_up();
+                            let _ = resources.shot_sound.play();
+                        }
+                    } 
                 }
-
-                let _ = resources.shot_sound.play();
             });
         }
 
