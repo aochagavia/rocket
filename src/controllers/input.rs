@@ -1,8 +1,8 @@
-use ggez::event::{Mod, Keycode};
+use ggez::event::{Keycode, Mod};
 
 #[derive(Default)]
 pub struct InputController {
-    actions: Actions
+    actions: Actions,
 }
 
 /// Active actions (toggled by user input)
@@ -11,7 +11,7 @@ pub struct Actions {
     pub rotate_left: bool,
     pub rotate_right: bool,
     pub boost: bool,
-    pub shoot: bool
+    pub shoot: bool,
 }
 
 impl InputController {

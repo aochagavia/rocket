@@ -18,8 +18,8 @@ impl Gun {
     }
 
     /// This is called every tick and slowly cools the gun down
-    pub fn cool_down(&mut self, dt: f32){
-        if self.overheated{
+    pub fn cool_down(&mut self, dt: f32) {
+        if self.overheated {
             self.overheat_cool_down(dt);
         } else {
             self.natural_cool_down(dt);
@@ -27,7 +27,7 @@ impl Gun {
     }
 
     /// Whenever the gun is fired it heats up
-    pub fn heat_up(&mut self){
+    pub fn heat_up(&mut self) {
         self.temperature = f32::min(1.0, self.temperature + HEAT_PER_SHOT);
         if self.temperature == 1.0 {
             self.overheated = true;
@@ -40,18 +40,18 @@ impl Gun {
     }
 
     /// Reset the gun's state back to its defaults
-    pub fn reset(&mut self){
+    pub fn reset(&mut self) {
         self.temperature = 0.0;
         self.overheated = false;
     }
 
     /// Cool down the gun naturally
-    fn natural_cool_down(&mut self, dt: f32){
+    fn natural_cool_down(&mut self, dt: f32) {
         self.temperature = f32::max(0.0, self.temperature - NATURAL_COOL_DOWN_RATE * dt);
     }
 
     /// The gun cools down faster if it has overheated
-    fn overheat_cool_down(&mut self, dt: f32){
+    fn overheat_cool_down(&mut self, dt: f32) {
         self.temperature = f32::max(0.0, self.temperature - OVERHEAT_COOL_DOWN_RATE * dt);
         if self.temperature == 0.0 {
             self.overheated = false;

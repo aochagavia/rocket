@@ -7,7 +7,7 @@ use geometry::{Advance, Vector};
 /// player or an enemy is killed
 pub struct Particle {
     pub vector: Vector,
-    pub ttl: f32
+    pub ttl: f32,
 }
 
 derive_position_direction!(Particle);
@@ -15,7 +15,10 @@ derive_position_direction!(Particle);
 impl Particle {
     /// Create a particle with the given vector and time to live in seconds
     pub fn new(vector: Vector, ttl: f32) -> Particle {
-        Particle { vector: vector, ttl: ttl }
+        Particle {
+            vector: vector,
+            ttl: ttl,
+        }
     }
 
     /// Update the particle

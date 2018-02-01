@@ -1,11 +1,11 @@
-use std::{f32, mem};
+use std::{mem, f32};
 use rand::{self, ThreadRng};
 
 use Resources;
 use super::Actions;
 use game_state::GameState;
-use geometry::{Advance, Position, Point, Vector};
-use models::{Bullet, Powerup, PowerupKind, Enemy, Particle};
+use geometry::{Advance, Point, Position, Vector};
+use models::{Bullet, Enemy, Particle, Powerup, PowerupKind};
 use util;
 
 // Constants related to time
@@ -39,19 +39,21 @@ pub const PLAYER_GRACE_AREA: f32 = 200.0;
 /// be triggered. Otherwise, it will be ignored.
 struct Timer {
     last_triggered: f32,
-    interval: f32
+    interval: f32,
 }
 
 impl Timer {
     fn new(interval: f32) -> Timer {
         Timer {
             last_triggered: 0.0,
-            interval
+            interval,
         }
     }
 
     fn update<F>(&mut self, current_time: f32, mut action: F)
-    where F: FnMut() {
+    where
+        F: FnMut(),
+    {
         if current_time - self.last_triggered > self.interval {
             self.last_triggered = current_time;
             action();
@@ -71,7 +73,7 @@ pub struct TimeController {
     /// A timer to spawn enemies
     enemy_timer: Timer,
     /// A timer to spawn powerups
-    powerup_timer: Timer
+    powerup_timer: Timer,
 }
 
 impl TimeController {
@@ -94,7 +96,13 @@ impl TimeController {
     /// Updates the game
     ///
     /// `dt` is the amount of seconds that have passed since the last update
-    pub fn update_seconds(&mut self, dt: f32, actions: &Actions, state: &mut GameState, resources: &Resources) {
+    pub fn update_seconds(
+        &mut self,
+        dt: f32,
+        actions: &Actions,
+        state: &mut GameState,
+        resources: &Resources,
+    ) {
         // You can run `cargo run --release --features "debug"` in order to run the game in
         // slow motion (assists in debugging rendering)
         #[cfg(feature = "debug")]
@@ -128,8 +136,15 @@ impl TimeController {
             }
 
             // Set speed and advance the player with wrap around
-            let speed = if actions.boost { 2.0 * ADVANCE_SPEED } else { ADVANCE_SPEED };
-            state.world.player.advance_wrapping(dt * speed, state.world.size);
+            let speed = if actions.boost {
+                2.0 * ADVANCE_SPEED
+            } else {
+                ADVANCE_SPEED
+            };
+            state
+                .world
+                .player
+                .advance_wrapping(dt * speed, state.world.size);
 
             // Cool down the player's gun
             state.world.player.gun.cool_down(dt);
@@ -137,7 +152,13 @@ impl TimeController {
     }
 
     // Adds, removes and updates the positions of bullets on screen
-    fn update_bullets(&mut self, dt: f32, actions: &Actions, state: &mut GameState, resources: &Resources) {
+    fn update_bullets(
+        &mut self,
+        dt: f32,
+        actions: &Actions,
+        state: &mut GameState,
+        resources: &Resources,
+    ) {
         // Add bullets - usually when the player shoots the gun heats up, if it has overheated the
         // play can no longer shoot - unless they have the tripleshot powerup, which will work
         // regardless of the gun's state
@@ -158,12 +179,15 @@ impl TimeController {
                     // If there was no powerup, shoot normally
                     _ => {
                         if state.world.player.gun.is_available() {
-                            let vector = Vector::new(state.world.player.front(), state.world.player.direction());
+                            let vector = Vector::new(
+                                state.world.player.front(),
+                                state.world.player.direction(),
+                            );
                             state.world.bullets.push(Bullet::new(vector));
                             state.world.player.gun.heat_up();
                             let _ = resources.shot_sound.play();
                         }
-                    } 
+                    }
                 }
             });
         }
@@ -189,7 +213,10 @@ impl TimeController {
         // Add new powerups
         let rng = &mut self.rng;
         self.powerup_timer.update(self.current_time, || {
-            state.world.powerups.push(Powerup::random(rng, state.world.size));
+            state
+                .world
+                .powerups
+                .push(Powerup::random(rng, state.world.size));
         });
     }
 
@@ -205,13 +232,22 @@ impl TimeController {
         // Add new particles at the player's position, to leave a trail
         if !state.world.player.is_dead {
             self.trail_timer.update(self.current_time, || {
-                state.world.particles.push(Particle::new(state.world.player.vector.clone().invert(), 0.5));
+                state.world.particles.push(Particle::new(
+                    state.world.player.vector.clone().invert(),
+                    0.5,
+                ));
             });
         }
     }
 
     // Updates positions of enemies, and spawns new ones when necessary
-    fn update_enemies(&mut self, dt: f32, state: &mut GameState, resources: &Resources, time_slow: bool) {
+    fn update_enemies(
+        &mut self,
+        dt: f32,
+        state: &mut GameState,
+        resources: &Resources,
+        time_slow: bool,
+    ) {
         // Spawn enemies at random locations
         let rng = &mut self.rng;
         self.enemy_timer.update(self.current_time, || {
@@ -228,7 +264,10 @@ impl TimeController {
 
             // Check if the newly spawned enemy is inside the player's grace area,
             // if so, we push its spawn point to the edge of the area
-            if enemy_pos.position.intersect_circle(&player_pos.position, PLAYER_GRACE_AREA) {
+            if enemy_pos
+                .position
+                .intersect_circle(&player_pos.position, PLAYER_GRACE_AREA)
+            {
                 // Treat the player as the centre of a circle with radius PLAYER_GRACE_AREA
                 let Point { x: cx, y: cy } = player_pos.position;
                 let dp: Point = enemy_pos.position - player_pos.position;
@@ -237,7 +276,7 @@ impl TimeController {
                 // Use that to place the enemy on the edge of the circle surrounding the player
                 enemy_pos.position = Point {
                     x: cx + PLAYER_GRACE_AREA * angle.cos(),
-                    y: cy + PLAYER_GRACE_AREA * angle.sin()
+                    y: cy + PLAYER_GRACE_AREA * angle.sin(),
                 };
             }
 
@@ -252,8 +291,15 @@ impl TimeController {
         // the direction they're facing
         for enemy in &mut state.world.enemies {
             if !state.world.player.is_dead {
-                let base_speed = if time_slow { ENEMY_SPEED - 75.0 } else { ENEMY_SPEED };
-                enemy.update(dt * base_speed + state.difficulty, state.world.player.position());
+                let base_speed = if time_slow {
+                    ENEMY_SPEED - 75.0
+                } else {
+                    ENEMY_SPEED
+                };
+                enemy.update(
+                    dt * base_speed + state.difficulty,
+                    state.world.player.position(),
+                );
             } else {
                 enemy.advance(dt * ENEMY_SPEED);
             }

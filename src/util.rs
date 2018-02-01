@@ -1,11 +1,13 @@
-use geometry::{Vector, Point};
+use geometry::{Point, Vector};
 use models::Particle;
 
 /// Optimized version of `Vec::retain`
 ///
 /// We achieve better performance by renouncing to keep the original order of the `Vec`
 pub fn fast_retain<T, F>(vec: &mut Vec<T>, mut f: F)
-where F: FnMut(&T) -> bool {
+where
+    F: FnMut(&T) -> bool,
+{
     let mut i = 0;
     while i < vec.len() {
         if !f(&vec[i]) {

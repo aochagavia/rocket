@@ -50,13 +50,13 @@ impl Ord for ScheduledEvent {
 /// we can have a min-heap without having to worry about the ScheduledEvent structure elsewhere in
 /// our code
 pub struct PriorityQueue {
-    heap: BinaryHeap<ScheduledEvent>
+    heap: BinaryHeap<ScheduledEvent>,
 }
 
 impl PriorityQueue {
     pub fn new() -> PriorityQueue {
         PriorityQueue {
-            heap: BinaryHeap::new()
+            heap: BinaryHeap::new(),
         }
     }
 
@@ -69,6 +69,8 @@ impl PriorityQueue {
     }
 
     pub fn pop(&mut self) -> Option<(Duration, fn(&mut ApplicationState))> {
-        self.heap.pop().map(|ScheduledEvent(time, handler)| (time, handler))
+        self.heap
+            .pop()
+            .map(|ScheduledEvent(time, handler)| (time, handler))
     }
 }

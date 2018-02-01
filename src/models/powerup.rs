@@ -1,5 +1,5 @@
 use rand::Rng;
-use geometry::{Position, Collide, Point, Size};
+use geometry::{Collide, Point, Position, Size};
 
 const POWERUP_TTL: f32 = 10.0;
 const POWERUP_SIZE: f32 = 20.0;
@@ -20,14 +20,16 @@ impl PowerupKind {
         let choices = [
             PowerupKind::Shield,
             PowerupKind::TimeSlow,
-            PowerupKind::TripleShot
+            PowerupKind::TripleShot,
         ];
         *rng.choose(&choices).unwrap()
     }
 }
 
 impl Default for PowerupKind {
-    fn default() -> PowerupKind { PowerupKind::TripleShot }
+    fn default() -> PowerupKind {
+        PowerupKind::TripleShot
+    }
 }
 
 /// This is the struct containing information about a powerup
@@ -35,7 +37,7 @@ pub struct Powerup {
     pub ttl: f32,
     pub kind: PowerupKind,
     pub color: u8,
-    pub position: Point
+    pub position: Point,
 }
 
 impl Powerup {
@@ -44,7 +46,7 @@ impl Powerup {
             ttl: POWERUP_TTL,
             kind: kind,
             color: 0,
-            position: position
+            position: position,
         }
     }
 
@@ -54,15 +56,27 @@ impl Powerup {
 
     pub fn update(&mut self, elapsed_time: f32) {
         self.ttl -= elapsed_time;
-        self.color = if self.color < u8::max_value() { self.color + 1 } else { 0 }
+        self.color = if self.color < u8::max_value() {
+            self.color + 1
+        } else {
+            0
+        }
     }
 }
 
 impl Position for Powerup {
-    fn x(&self) -> f32 { self.position.x }
-    fn y(&self) -> f32 { self.position.y }
-    fn x_mut(&mut self) -> &mut f32 { &mut self.position.x }
-    fn y_mut(&mut self) -> &mut f32 { &mut self.position.y }
+    fn x(&self) -> f32 {
+        self.position.x
+    }
+    fn y(&self) -> f32 {
+        self.position.y
+    }
+    fn x_mut(&mut self) -> &mut f32 {
+        &mut self.position.x
+    }
+    fn y_mut(&mut self) -> &mut f32 {
+        &mut self.position.y
+    }
 
     fn position(&self) -> Point {
         Point::new(self.x(), self.y())
@@ -70,5 +84,7 @@ impl Position for Powerup {
 }
 
 impl Collide for Powerup {
-    fn radius(&self) -> f32 { POWERUP_SIZE * (self.ttl / POWERUP_TTL) }
+    fn radius(&self) -> f32 {
+        POWERUP_SIZE * (self.ttl / POWERUP_TTL)
+    }
 }

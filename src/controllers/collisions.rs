@@ -4,7 +4,7 @@ use ggez::{self, Context};
 use {ApplicationState, Resources};
 use super::PLAYER_GRACE_AREA;
 use game_state::GameState;
-use geometry::{Collide, Position, Point};
+use geometry::{Collide, Point, Position};
 use models::{Enemy, Particle, PowerupKind};
 use util;
 
@@ -16,26 +16,31 @@ pub struct CollisionsController;
 impl CollisionsController {
     pub fn handle_collisions(app: &mut ApplicationState, ctx: &mut Context) {
         CollisionsController::handle_bullet_collisions(&mut app.game_state, &app.resources);
-        
+
         // Powerups only last 5 seconds, so set a timer to reset it
-        let got_powerup = CollisionsController::handle_powerup_collisions(&mut app.game_state, &app.resources);
+        let got_powerup =
+            CollisionsController::handle_powerup_collisions(&mut app.game_state, &app.resources);
         if got_powerup {
-            let when = ggez::timer::get_time_since_start(ctx) + Duration::from_secs(POWERUP_DURATION);
-            app.scheduled_events.push(when, |app| app.game_state.world.player.powerup = None);
+            let when =
+                ggez::timer::get_time_since_start(ctx) + Duration::from_secs(POWERUP_DURATION);
+            app.scheduled_events
+                .push(when, |app| app.game_state.world.player.powerup = None);
         }
-        
+
         // If the player died then we set a timeout (3 seconds) after which a game over message
         // will appear, and the user will be able to restart.
-        let player_died = CollisionsController::handle_player_collisions(&mut app.game_state, &app.resources);
+        let player_died =
+            CollisionsController::handle_player_collisions(&mut app.game_state, &app.resources);
         if player_died {
             let when = ggez::timer::get_time_since_start(ctx) + Duration::from_secs(3);
-            app.scheduled_events.push(when, |app| app.game_state.game_over());
+            app.scheduled_events
+                .push(when, |app| app.game_state.game_over());
         }
     }
 
     /// Handles collisions between the bullets and the enemies
     ///
-    /// When an enemy is reached by a bullet, both the enemy and the bullet will be removed. 
+    /// When an enemy is reached by a bullet, both the enemy and the bullet will be removed.
     /// Additionally, the score of the player will be increased
     fn handle_bullet_collisions(state: &mut GameState, resources: &Resources) {
         let old_enemy_count = state.world.enemies.len();
@@ -51,20 +56,22 @@ impl CollisionsController {
             util::fast_retain(bullets, |bullet| {
                 // Remove the first enemy that collides with a bullet (if any)
                 // Add an explosion on its place
-                if let Some((index, position)) = enemies.iter().enumerate()
+                if let Some((index, position)) = enemies
+                    .iter()
+                    .enumerate()
                     .find(|&(_, enemy)| enemy.collides_with(bullet))
                     .map(|(index, enemy)| (index, enemy.position()))
-                    {
-                        util::make_explosion(particles, &position, 10);
-                        enemies.remove(index);
-                        
-                        // Play enemy_destroyed_sound sound
-                        // TODO: these sounds (like all the others) are queued rather than played
-                        // atop of one another - this is a current limitation of ggez
-                        // See https://github.com/ggez/ggez/issues/208
-                        let _ = resources.enemy_destroyed_sound.play();
-                        false
-                    } else {
+                {
+                    util::make_explosion(particles, &position, 10);
+                    enemies.remove(index);
+
+                    // Play enemy_destroyed_sound sound
+                    // TODO: these sounds (like all the others) are queued rather than played
+                    // atop of one another - this is a current limitation of ggez
+                    // See https://github.com/ggez/ggez/issues/208
+                    let _ = resources.enemy_destroyed_sound.play();
+                    false
+                } else {
                     true
                 }
             });
@@ -81,12 +88,14 @@ impl CollisionsController {
         let powerups = &mut state.world.powerups;
 
         if !player.is_dead {
-            if let Some((index, kind)) = powerups.iter().enumerate()
+            if let Some((index, kind)) = powerups
+                .iter()
+                .enumerate()
                 .find(|&(_, powerup)| powerup.collides_with(player))
-                .map(|(index, powerup)| (index, powerup.kind)) {
-                
+                .map(|(index, powerup)| (index, powerup.kind))
+            {
                 gained_powerup = true;
-                
+
                 // Set player's powerup kind to the powerup we just picked up
                 player.powerup = Some(kind);
                 powerups.remove(index);
@@ -105,14 +114,24 @@ impl CollisionsController {
         let mut player_died = false;
         let player = &mut state.world.player;
 
-        if !player.is_dead && state.world.enemies.iter().any(|enemy| player.collides_with(enemy)) {
+        if !player.is_dead
+            && state
+                .world
+                .enemies
+                .iter()
+                .any(|enemy| player.collides_with(enemy))
+        {
             // Remove shield powerup from player, also killing any enemies within close range
             if let Some(PowerupKind::Shield) = player.powerup {
                 player.powerup = None;
 
                 let enemies = &mut state.world.enemies;
                 let particles = &mut state.world.particles;
-                CollisionsController::remove_surrounding_enemies(enemies, particles, player.position());
+                CollisionsController::remove_surrounding_enemies(
+                    enemies,
+                    particles,
+                    player.position(),
+                );
                 // Play enemy destroyed sound
                 let _ = resources.enemy_destroyed_sound.play();
             } else {
@@ -130,7 +149,11 @@ impl CollisionsController {
         return player_died;
     }
 
-    fn remove_surrounding_enemies(enemies: &mut Vec<Enemy>, particles: &mut Vec<Particle>, point: Point) {
+    fn remove_surrounding_enemies(
+        enemies: &mut Vec<Enemy>,
+        particles: &mut Vec<Particle>,
+        point: Point,
+    ) {
         util::fast_retain(enemies, |enemy| {
             let enemy_pos = enemy.position();
             if enemy_pos.intersect_circle(&point, PLAYER_GRACE_AREA) {

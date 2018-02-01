@@ -1,7 +1,7 @@
 //! A 2D toy game written in Rust, using the ggez library.
 #![deny(missing_docs)]
-#![cfg_attr(feature="clippy", feature(plugin))]
-#![cfg_attr(feature="clippy", plugin(clippy))]
+#![cfg_attr(feature = "clippy", feature(plugin))]
+#![cfg_attr(feature = "clippy", plugin(clippy))]
 
 extern crate ggez;
 extern crate itertools_num;
@@ -29,7 +29,7 @@ use priority_queue::PriorityQueue;
 
 use ggez::conf;
 use ggez::graphics;
-use ggez::event::{self, Mod, Keycode};
+use ggez::event::{self, Keycode, Mod};
 use ggez::{Context, ContextBuilder, GameResult};
 
 /// This struct contains the application's state
@@ -45,8 +45,7 @@ pub struct ApplicationState {
     // We handle input events with the input_controller
     input_controller: InputController,
     // A place to store scheduled events
-    scheduled_events: PriorityQueue
-
+    scheduled_events: PriorityQueue,
 }
 
 impl ApplicationState {
@@ -58,7 +57,7 @@ impl ApplicationState {
             game_state: game_state,
             time_controller: TimeController::new(),
             input_controller: InputController::new(),
-            scheduled_events: PriorityQueue::new()
+            scheduled_events: PriorityQueue::new(),
         };
         Ok(app_state)
     }
@@ -87,14 +86,21 @@ impl event::EventHandler for ApplicationState {
         // Check if we have any events that are scheduled to run, and if so, run them now
         if let Some(when) = self.scheduled_events.peek() {
             let now = ggez::timer::get_time_since_start(ctx);
-            if when <= now { self.scheduled_events.pop().unwrap().1(self); }
+            if when <= now {
+                self.scheduled_events.pop().unwrap().1(self);
+            }
         }
 
         // Update game state, and check for collisions
         if self.has_focus {
             let duration = ggez::timer::get_delta(ctx);
             let dt = duration.as_secs() as f32 + duration.subsec_nanos() as f32 * 1e-9;
-            self.time_controller.update_seconds(dt, self.input_controller.actions(), &mut self.game_state, &self.resources);
+            self.time_controller.update_seconds(
+                dt,
+                self.input_controller.actions(),
+                &mut self.game_state,
+                &self.resources,
+            );
             CollisionsController::handle_collisions(self, ctx);
         }
 
@@ -132,7 +138,9 @@ fn main() {
     // Create configuration for ggez using its ContextBuilder
     let cb = ContextBuilder::new("rocket", "ggez")
         .window_setup(conf::WindowSetup::default().title("Rocket!"))
-        .window_mode(conf::WindowMode::default().dimensions(game_size.width as u32, game_size.height as u32));
+        .window_mode(
+            conf::WindowMode::default().dimensions(game_size.width as u32, game_size.height as u32),
+        );
 
     // Create the rendering context and set the background color to black
     let ctx = &mut cb.build().unwrap();

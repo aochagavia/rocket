@@ -1,12 +1,12 @@
 use std;
-use ggez::graphics::{self, DrawMode, Point2, Rect, Color};
+use ggez::graphics::{self, Color, DrawMode, Point2, Rect};
 use ggez::{Context, GameResult};
 
 use ApplicationState;
 use Resources;
 use drawing::color;
 use geometry::{Advance, Collide, Position, Size};
-use models::{Player, World, PowerupKind, PLAYER_POLYGON};
+use models::{Player, PowerupKind, World, PLAYER_POLYGON};
 use game_state::Message;
 
 const SPRITE_SIZE: f32 = 32.0;
@@ -25,7 +25,11 @@ pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<
     render_message(ctx, app)?;
 
     // Render the score
-    let text = graphics::Text::new(ctx, &format!("Score: {}", app.game_state.score), &app.resources.font)?;
+    let text = graphics::Text::new(
+        ctx,
+        &format!("Score: {}", app.game_state.score),
+        &app.resources.font,
+    )?;
     let pt = Point2::new(8.0, 4.0);
     graphics::set_color(ctx, color::SCORE)?;
     graphics::draw(ctx, &text, pt, 0.0)?;
@@ -35,20 +39,37 @@ pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<
     if !gun.is_available() {
         graphics::set_color(ctx, color::RED)?;
     } else {
-        graphics::set_color(ctx, Color {
-            r: 1.0 * gun.temperature,
-            g: 0.5 - gun.temperature / 2.0,
-            b: 1.0 - gun.temperature,
-            a: 1.0
-        })?;
+        graphics::set_color(
+            ctx,
+            Color {
+                r: 1.0 * gun.temperature,
+                g: 0.5 - gun.temperature / 2.0,
+                b: 1.0 - gun.temperature,
+                a: 1.0,
+            },
+        )?;
     }
 
     let Size { width, height } = app.game_state.world.size;
     let x = width - GUN_HEAT_STATUS_WIDTH - 20.0;
     let y = height - 40.0;
-    let rect = Rect { x: x, y: y, w: GUN_HEAT_STATUS_WIDTH * gun.temperature, h: GUN_HEAT_STATUS_HEIGHT };
+    let rect = Rect {
+        x: x,
+        y: y,
+        w: GUN_HEAT_STATUS_WIDTH * gun.temperature,
+        h: GUN_HEAT_STATUS_HEIGHT,
+    };
     graphics::rectangle(ctx, DrawMode::Fill, rect)?;
-    graphics::rectangle(ctx, DrawMode::Line(1.0), Rect { x: x, y: y, w: GUN_HEAT_STATUS_WIDTH, h: GUN_HEAT_STATUS_HEIGHT })?;
+    graphics::rectangle(
+        ctx,
+        DrawMode::Line(1.0),
+        Rect {
+            x: x,
+            y: y,
+            w: GUN_HEAT_STATUS_WIDTH,
+            h: GUN_HEAT_STATUS_HEIGHT,
+        },
+    )?;
 
     // NOTE: for limiting FPS rate, see https://github.com/ggez/ggez/issues/171
     // If you want to log the current FPS, uncomment the next line
@@ -70,7 +91,11 @@ fn render_message(ctx: &mut Context, app: &mut ApplicationState) -> GameResult<(
         let mut draw_text = |text: &str, color: graphics::Color, is_title: bool| {
             let drawable = graphics::Text::new(ctx, text, &app.resources.font).unwrap();
             let width = w - (drawable.width() as f32 / 2.0);
-            let height = if is_title { h - drawable.height() as f32 } else { h };
+            let height = if is_title {
+                h - drawable.height() as f32
+            } else {
+                h
+            };
             let point = Point2::new(width, height);
             graphics::set_color(ctx, color).unwrap();
             graphics::draw(ctx, &drawable, point, 0.0).unwrap();
@@ -92,7 +117,7 @@ pub fn render_world(ctx: &mut Context, world: &World, resources: &mut Resources)
     // Draws particles in violet
     graphics::set_color(ctx, color::PARTICLE)?;
     render_particles(ctx, world, resources)?;
-    
+
     // Draw any bullets as blue
     graphics::set_color(ctx, color::BULLET)?;
     render_bullets(ctx, world, resources)?;
@@ -112,7 +137,7 @@ pub fn render_world(ctx: &mut Context, world: &World, resources: &mut Resources)
         let image = match powerup.kind {
             PowerupKind::Shield => &resources.powerup_shield,
             PowerupKind::TimeSlow => &resources.powerup_time_slow,
-            PowerupKind::TripleShot => &resources.powerup_triple_shot
+            PowerupKind::TripleShot => &resources.powerup_triple_shot,
         };
         let scale = powerup.radius() / SPRITE_SIZE;
         let params = graphics::DrawParam {
@@ -138,14 +163,24 @@ fn render_stars(ctx: &mut Context, world: &World, resources: &mut Resources) -> 
             dest: Point2::new(star.x(), star.y()),
             rotation: (i as f32 / 100.0) * 2.0 * std::f32::consts::PI,
             scale: Point2::new(scale, scale),
-            .. Default::default()
+            ..Default::default()
         });
     }
-    graphics::draw_ex(ctx, &resources.star_sprite, graphics::DrawParam { ..Default::default() })
+    graphics::draw_ex(
+        ctx,
+        &resources.star_sprite,
+        graphics::DrawParam {
+            ..Default::default()
+        },
+    )
 }
 
 /// Renders all the particles
-pub fn render_particles(ctx: &mut Context, world: &World, resources: &mut Resources) -> GameResult<()> {
+pub fn render_particles(
+    ctx: &mut Context,
+    world: &World,
+    resources: &mut Resources,
+) -> GameResult<()> {
     resources.circle_sprite.clear();
     for particle in &world.particles {
         let scale = 0.4 * particle.ttl;
@@ -156,11 +191,21 @@ pub fn render_particles(ctx: &mut Context, world: &World, resources: &mut Resour
             ..Default::default()
         });
     }
-    graphics::draw_ex(ctx, &resources.circle_sprite, graphics::DrawParam { ..Default::default() })
+    graphics::draw_ex(
+        ctx,
+        &resources.circle_sprite,
+        graphics::DrawParam {
+            ..Default::default()
+        },
+    )
 }
 
 /// Renders a bullet
-pub fn render_bullets(ctx: &mut Context, world: &World, resources: &mut Resources) -> GameResult<()> {
+pub fn render_bullets(
+    ctx: &mut Context,
+    world: &World,
+    resources: &mut Resources,
+) -> GameResult<()> {
     resources.circle_sprite.clear();
     for bullet in &world.bullets {
         let scale = bullet.radius() / SPRITE_SIZE;
@@ -171,7 +216,13 @@ pub fn render_bullets(ctx: &mut Context, world: &World, resources: &mut Resource
             ..Default::default()
         });
     }
-    graphics::draw_ex(ctx, &resources.circle_sprite, graphics::DrawParam { ..Default::default() })
+    graphics::draw_ex(
+        ctx,
+        &resources.circle_sprite,
+        graphics::DrawParam {
+            ..Default::default()
+        },
+    )
 }
 
 /// Renders an enemy
@@ -186,7 +237,13 @@ pub fn render_enemy(ctx: &mut Context, world: &World, resources: &mut Resources)
             ..Default::default()
         });
     }
-    graphics::draw_ex(ctx, &resources.circle_sprite, graphics::DrawParam { ..Default::default() })
+    graphics::draw_ex(
+        ctx,
+        &resources.circle_sprite,
+        graphics::DrawParam {
+            ..Default::default()
+        },
+    )
 }
 
 /// Renders the player

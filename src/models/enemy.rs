@@ -3,7 +3,7 @@ use geometry::{Advance, Collide, Vector};
 
 /// Enemies follow the player in order to cause a collision and let him explode
 pub struct Enemy {
-    vector: Vector
+    vector: Vector,
 }
 
 derive_position_direction!(Enemy);
@@ -23,5 +23,7 @@ impl Enemy {
 }
 
 impl Collide for Enemy {
-    fn radius(&self) -> f32 { 10.0 }
+    fn radius(&self) -> f32 {
+        10.0
+    }
 }

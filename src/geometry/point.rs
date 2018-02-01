@@ -2,13 +2,13 @@ use rand::Rng;
 
 use super::Size;
 
-use std::ops::{Add, Sub, Mul, Div};
+use std::ops::{Add, Div, Mul, Sub};
 
 /// A `Point` represents a position in space
 #[derive(Clone, Default, Copy)]
 pub struct Point {
     pub x: f32,
-    pub y: f32
+    pub y: f32,
 }
 
 impl Point {
@@ -21,14 +21,13 @@ impl Point {
     pub fn random<R: Rng>(rng: &mut R, bounds: Size) -> Point {
         Point {
             x: rng.gen_range(0.0, bounds.width),
-            y: rng.gen_range(0.0, bounds.height)
+            y: rng.gen_range(0.0, bounds.height),
         }
     }
 
     /// Returns the squared distance from this point to the given one
     pub fn squared_distance_to(&self, target: &Point) -> f32 {
-        (self.x - target.x) * (self.x - target.x)
-            + (self.y - target.y) * (self.y - target.y)
+        (self.x - target.x) * (self.x - target.x) + (self.y - target.y) * (self.y - target.y)
     }
 
     /// Rotates the point through the origin in the given angle (radians)
@@ -50,14 +49,13 @@ impl Point {
 
     /// Checks if this point is contained in a circle
     pub fn intersect_circle(self, center: &Point, radius: f32) -> bool {
-        (self.x - center.x).powi(2) +
-            (self.y - center.y).powi(2) < radius.powi(2)
+        (self.x - center.x).powi(2) + (self.y - center.y).powi(2) < radius.powi(2)
     }
 }
 
 /// Implements '==' for Point, as well as its inverse '!='
 impl PartialEq for Point {
-    fn eq (&self, _rhs: &Self) -> bool {
+    fn eq(&self, _rhs: &Self) -> bool {
         (self.x == _rhs.x) && (self.y == _rhs.y)
     }
 }

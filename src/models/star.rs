@@ -1,12 +1,12 @@
 use std;
 use rand::{self, Rng};
-use geometry::{Size, Point, Vector};
+use geometry::{Point, Size, Vector};
 
 /// Stars glide from right to left across the screen in the background
 pub struct Star {
     vector: Vector,
     pub speed: f32,
-    pub size: f32
+    pub size: f32,
 }
 
 derive_position_direction!(Star);
@@ -18,13 +18,13 @@ impl Star {
 
         let point = Point {
             x: rng.gen_range(0.0, bounds.width),
-            y: rng.gen_range(0.0, bounds.height)
+            y: rng.gen_range(0.0, bounds.height),
         };
 
         Star {
             vector: Vector::new(point, std::f32::consts::PI),
             speed: rng.gen_range(1.0, 3.0),
-            size: rng.gen_range(2.0, 5.0)
+            size: rng.gen_range(2.0, 5.0),
         }
     }
 }

@@ -45,12 +45,12 @@ impl Resources {
             star_sprite: SpriteBatch::new(Image::new(ctx, "/images/star.png").unwrap()),
             circle_sprite: SpriteBatch::new(circle_image),
 
-            shot_sound:             new_with_volume(ctx, "/audio/shot.ogg", 0.2),
-            boost_sound:            new_with_volume(ctx, "/audio/boost.ogg", 0.2),
-            powerup_sound:          new_with_volume(ctx, "/audio/powerup.ogg", 1.0),
-            game_start_sound:       new_with_volume(ctx, "/audio/game_start.ogg", 1.0),
-            enemy_spawn_sound:      new_with_volume(ctx, "/audio/enemy_spawn.ogg", 0.4),
-            enemy_destroyed_sound:  new_with_volume(ctx, "/audio/enemy_destroyed.ogg", 1.0),
+            shot_sound: new_with_volume(ctx, "/audio/shot.ogg", 0.2),
+            boost_sound: new_with_volume(ctx, "/audio/boost.ogg", 0.2),
+            powerup_sound: new_with_volume(ctx, "/audio/powerup.ogg", 1.0),
+            game_start_sound: new_with_volume(ctx, "/audio/game_start.ogg", 1.0),
+            enemy_spawn_sound: new_with_volume(ctx, "/audio/enemy_spawn.ogg", 0.4),
+            enemy_destroyed_sound: new_with_volume(ctx, "/audio/enemy_destroyed.ogg", 1.0),
             player_destroyed_sound: new_with_volume(ctx, "/audio/player_destroyed.ogg", 1.0),
         }
     }
