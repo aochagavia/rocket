@@ -1,12 +1,21 @@
+mod event;
+mod event_queue;
+mod timer;
+
 use std::{mem, f32};
+use std::time::Duration;
 use rand::{self, ThreadRng};
 
-use Resources;
-use super::Actions;
+use controllers::input::Actions;
 use game_state::GameState;
 use geometry::{Advance, Point, Position, Vector};
 use models::{Bullet, Enemy, Particle, Powerup, PowerupKind};
+use resources::Resources;
 use util;
+
+use self::timer::Timer;
+pub use self::event::Event;
+use self::event_queue::EventQueue;
 
 // Constants related to time
 const BULLETS_PER_SECOND: f32 = 30.0;
@@ -18,7 +27,7 @@ const ENEMY_SPAWN_RATE: f32 = 1.0 / ENEMY_SPAWNS_PER_SECOND;
 const TRAIL_PARTICLES_PER_SECOND: f32 = 20.0;
 const TRAIL_PARTICLE_RATE: f32 = 1.0 / TRAIL_PARTICLES_PER_SECOND;
 
-const POWERUP_SPAWNS_PER_SECOND: f32 = 1.0 / 30.0; // every ~30 seconds
+const POWERUP_SPAWNS_PER_SECOND: f32 = 1.0 / 10.0; // every ~10 seconds
 const POWERUP_SPAWN_RATE: f32 = 1.0 / POWERUP_SPAWNS_PER_SECOND;
 
 // Constants related to movement
@@ -32,40 +41,11 @@ const STAR_BASE_SPEED: f32 = 50.0;
 
 pub const PLAYER_GRACE_AREA: f32 = 200.0;
 
-/// A `Timer` is used to trigger events in specified intervals
-///
-/// Each time the `update` function is called, the timer will check whether
-/// the interval has elapsed. If that is the case, the provided action will
-/// be triggered. Otherwise, it will be ignored.
-struct Timer {
-    last_triggered: f32,
-    interval: f32,
-}
-
-impl Timer {
-    fn new(interval: f32) -> Timer {
-        Timer {
-            last_triggered: 0.0,
-            interval,
-        }
-    }
-
-    fn update<F>(&mut self, current_time: f32, mut action: F)
-    where
-        F: FnMut(),
-    {
-        if current_time - self.last_triggered > self.interval {
-            self.last_triggered = current_time;
-            action();
-        }
-    }
-}
-
 pub struct TimeController {
     /// A random number generator
     rng: ThreadRng,
-    /// The current time, in seconds
-    current_time: f32,
+    /// The duration of the current game, since the last restart
+    current_time: Duration,
     /// A timer to trigger creation of trail particles
     trail_timer: Timer,
     /// A timer to trigger creation of bullets
@@ -74,17 +54,20 @@ pub struct TimeController {
     enemy_timer: Timer,
     /// A timer to spawn powerups
     powerup_timer: Timer,
+    /// Scheduled events that should happen in the future
+    scheduled_events: EventQueue,
 }
 
 impl TimeController {
     pub fn new() -> TimeController {
         TimeController {
             rng: rand::thread_rng(),
-            current_time: 0.0,
-            trail_timer: Timer::new(TRAIL_PARTICLE_RATE),
-            shoot_timer: Timer::new(BULLET_RATE),
-            enemy_timer: Timer::new(ENEMY_SPAWN_RATE),
-            powerup_timer: Timer::new(POWERUP_SPAWN_RATE),
+            current_time: Duration::from_secs(0),
+            trail_timer: Timer::from_seconds(TRAIL_PARTICLE_RATE),
+            shoot_timer: Timer::from_seconds(BULLET_RATE),
+            enemy_timer: Timer::from_seconds(ENEMY_SPAWN_RATE),
+            powerup_timer: Timer::from_seconds(POWERUP_SPAWN_RATE),
+            scheduled_events: EventQueue::new(),
         }
     }
 
@@ -93,23 +76,31 @@ impl TimeController {
         mem::replace(self, TimeController::new());
     }
 
+    pub fn schedule_event(&mut self, offset: Duration, event: Event) {
+        self.scheduled_events.push(self.current_time + offset, event);
+    }
+
     /// Updates the game
     ///
     /// `dt` is the amount of seconds that have passed since the last update
     pub fn update_seconds(
         &mut self,
-        dt: f32,
+        dt: Duration,
         actions: &Actions,
         state: &mut GameState,
         resources: &Resources,
     ) {
-        // You can run `cargo run --release --features "debug"` in order to run the game in
-        // slow motion (assists in debugging rendering)
-        #[cfg(feature = "debug")]
-        let dt = dt * 0.1;
-
         self.current_time += dt;
+
+        let dt = util::duration_to_seconds(dt);
         state.difficulty += dt / 100.0;
+
+        // Check if we have any events that are scheduled to run, and if so, run them now
+        if let Some(when) = self.scheduled_events.peek() {
+            if when <= self.current_time {
+                self.scheduled_events.pop().unwrap().handle(state);
+            }
+        }
 
         // Check if we have the "TimeSlow" powerup
         let time_slow = state.world.player.powerup == Some(PowerupKind::TimeSlow);

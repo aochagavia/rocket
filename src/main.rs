@@ -18,14 +18,12 @@ mod drawing;
 mod game_state;
 mod models;
 mod util;
-mod priority_queue;
 
 use controllers::{CollisionsController, InputController, TimeController};
 use resources::Resources;
 use game_state::GameState;
 use geometry::Size;
 use drawing::color;
-use priority_queue::PriorityQueue;
 
 use ggez::conf;
 use ggez::graphics;
@@ -36,7 +34,7 @@ use ggez::{Context, ContextBuilder, GameResult};
 pub struct ApplicationState {
     // Keep track of window focus to play/pause the game
     has_focus: bool,
-    // Resources holds our loaded font
+    // Resources holds our loaded font, images and sounds
     resources: Resources,
     // Our game logic is controlled within the game_state
     game_state: GameState,
@@ -44,8 +42,6 @@ pub struct ApplicationState {
     time_controller: TimeController,
     // We handle input events with the input_controller
     input_controller: InputController,
-    // A place to store scheduled events
-    scheduled_events: PriorityQueue,
 }
 
 impl ApplicationState {
@@ -57,16 +53,12 @@ impl ApplicationState {
             game_state: game_state,
             time_controller: TimeController::new(),
             input_controller: InputController::new(),
-            scheduled_events: PriorityQueue::new(),
         };
         Ok(app_state)
     }
 
     /// This will be called when the game needs to be reset
     fn reset(&mut self) {
-        // Empty scheduled events
-        while let Some(_) = self.scheduled_events.pop() {}
-
         // Reset time controller
         self.time_controller.reset();
 
@@ -83,25 +75,16 @@ impl ApplicationState {
 impl event::EventHandler for ApplicationState {
     // This is called each time the game loop updates so we can update the game state
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
-        // Check if we have any events that are scheduled to run, and if so, run them now
-        if let Some(when) = self.scheduled_events.peek() {
-            let now = ggez::timer::get_time_since_start(ctx);
-            if when <= now {
-                self.scheduled_events.pop().unwrap().1(self);
-            }
-        }
-
         // Update game state, and check for collisions
         if self.has_focus {
             let duration = ggez::timer::get_delta(ctx);
-            let dt = duration.as_secs() as f32 + duration.subsec_nanos() as f32 * 1e-9;
             self.time_controller.update_seconds(
-                dt,
+                duration,
                 self.input_controller.actions(),
                 &mut self.game_state,
                 &self.resources,
             );
-            CollisionsController::handle_collisions(self, ctx);
+            CollisionsController::handle_collisions(self);
         }
 
         Ok(())

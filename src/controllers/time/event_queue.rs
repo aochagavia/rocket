@@ -3,14 +3,14 @@ use std::time::Duration;
 use std::cmp::Ordering;
 use std::fmt;
 
-use ApplicationState;
+use controllers::time::Event;
 
 // This is a Priority Queue. Rust's native implementation of a BinaryHeap is a max-heap - we want to
 // use a min-heap, so we have to define a min-ordering for a custom type which is just a wrapper for
-// (Duration, fn(&mut ApplicationState)
+// (Duration, Event)
 
-/// A ScheduledEvent is a tuple of a `Duration` (time) and `fn(&mut ApplicationState)` (handler)
-struct ScheduledEvent(Duration, fn(&mut ApplicationState));
+/// A ScheduledEvent is a tuple of a `Duration` (time) and `Event` (handler)
+struct ScheduledEvent(Duration, Event);
 
 // Implement the Debug trait so we can log it
 impl fmt::Debug for ScheduledEvent {
@@ -46,16 +46,16 @@ impl Ord for ScheduledEvent {
     }
 }
 
-/// Our PriorityQueue. In reality it's just a thin wrapper around a BinaryHeap, but we wrap it so
+/// Our EventQueue. In reality it's just a thin wrapper around a BinaryHeap, but we wrap it so
 /// we can have a min-heap without having to worry about the ScheduledEvent structure elsewhere in
 /// our code
-pub struct PriorityQueue {
+pub struct EventQueue {
     heap: BinaryHeap<ScheduledEvent>,
 }
 
-impl PriorityQueue {
-    pub fn new() -> PriorityQueue {
-        PriorityQueue {
+impl EventQueue {
+    pub fn new() -> EventQueue {
+        EventQueue {
             heap: BinaryHeap::new(),
         }
     }
@@ -64,13 +64,13 @@ impl PriorityQueue {
         self.heap.peek().map(|&ScheduledEvent(time, _)| time)
     }
 
-    pub fn push(&mut self, time: Duration, handler: fn(&mut ApplicationState)) {
-        self.heap.push(ScheduledEvent(time, handler));
+    pub fn push(&mut self, time: Duration, event: Event) {
+        self.heap.push(ScheduledEvent(time, event));
     }
 
-    pub fn pop(&mut self) -> Option<(Duration, fn(&mut ApplicationState))> {
+    pub fn pop(&mut self) -> Option<Event> {
         self.heap
             .pop()
-            .map(|ScheduledEvent(time, handler)| (time, handler))
+            .map(|ScheduledEvent(_, event)| event)
     }
 }

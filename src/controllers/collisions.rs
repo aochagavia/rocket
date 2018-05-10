@@ -1,8 +1,8 @@
 use std::time::Duration;
-use ggez::{self, Context};
 
 use {ApplicationState, Resources};
-use super::PLAYER_GRACE_AREA;
+use controllers::PLAYER_GRACE_AREA;
+use controllers::time::Event;
 use game_state::GameState;
 use geometry::{Collide, Point, Position};
 use models::{Enemy, Particle, PowerupKind};
@@ -14,27 +14,26 @@ const POWERUP_DURATION: u64 = 10;
 pub struct CollisionsController;
 
 impl CollisionsController {
-    pub fn handle_collisions(app: &mut ApplicationState, ctx: &mut Context) {
+    pub fn handle_collisions(app: &mut ApplicationState) {
         CollisionsController::handle_bullet_collisions(&mut app.game_state, &app.resources);
 
-        // Powerups only last 5 seconds, so set a timer to reset it
         let got_powerup =
             CollisionsController::handle_powerup_collisions(&mut app.game_state, &app.resources);
         if got_powerup {
-            let when =
-                ggez::timer::get_time_since_start(ctx) + Duration::from_secs(POWERUP_DURATION);
-            app.scheduled_events
-                .push(when, |app| app.game_state.world.player.powerup = None);
+            // Powerups run out after `POWERUP_DURATION` seconds
+            let offset = Duration::from_secs(POWERUP_DURATION);
+            app.time_controller
+                .schedule_event(offset, Event::RemovePowerup);
         }
 
-        // If the player died then we set a timeout (3 seconds) after which a game over message
+        // If the player died then we set a timeout after which a game over message
         // will appear, and the user will be able to restart.
         let player_died =
             CollisionsController::handle_player_collisions(&mut app.game_state, &app.resources);
         if player_died {
-            let when = ggez::timer::get_time_since_start(ctx) + Duration::from_secs(3);
-            app.scheduled_events
-                .push(when, |app| app.game_state.game_over());
+            let offset = Duration::from_secs(2);
+            app.time_controller
+                .schedule_event(offset, Event::ShowGameOverScreen);
         }
     }
 
