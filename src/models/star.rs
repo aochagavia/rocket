@@ -1,5 +1,5 @@
 use std;
-use rand::{self, Rng};
+use rand::Rng;
 use geometry::{Point, Size, Vector};
 
 /// Stars glide from right to left across the screen in the background
@@ -13,9 +13,7 @@ derive_position_direction!(Star);
 
 impl Star {
     // Create a new star at a random point, with a random speed and size
-    pub fn new(bounds: Size) -> Star {
-        let mut rng = rand::thread_rng();
-
+    pub fn new(bounds: Size, rng: &mut impl Rng) -> Star {
         let point = Point {
             x: rng.gen_range(0.0, bounds.width),
             y: rng.gen_range(0.0, bounds.height),

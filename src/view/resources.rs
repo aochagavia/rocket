@@ -16,7 +16,6 @@ pub struct Resources {
 
     // Sounds
     pub(in view) shot_sound: audio::Source,
-    pub(in view) boost_sound: audio::Source,
     pub(in view) powerup_sound: audio::Source,
     pub(in view) game_start_sound: audio::Source,
     pub(in view) enemy_spawn_sound: audio::Source,
@@ -46,7 +45,6 @@ impl Resources {
             circle_sprite: SpriteBatch::new(circle_image),
 
             shot_sound: new_with_volume(ctx, "/audio/shot.ogg", 0.2),
-            boost_sound: new_with_volume(ctx, "/audio/boost.ogg", 0.2),
             powerup_sound: new_with_volume(ctx, "/audio/powerup.ogg", 1.0),
             game_start_sound: new_with_volume(ctx, "/audio/game_start.ogg", 1.0),
             enemy_spawn_sound: new_with_volume(ctx, "/audio/enemy_spawn.ogg", 0.4),

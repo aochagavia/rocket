@@ -25,7 +25,7 @@ impl World {
             powerups: vec![],
             bullets: vec![],
             enemies: vec![],
-            stars: (0..MAX_STARS).map(|_| Star::new(size)).collect(),
+            stars: (0..MAX_STARS).map(|_| Star::new(size, rng)).collect(),
             size: size,
         }
     }

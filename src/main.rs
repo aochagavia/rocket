@@ -19,13 +19,14 @@ mod game_state;
 mod models;
 mod util;
 
+use ggez::event::{self, Keycode, Mod};
+use ggez::{Context, GameResult};
+use rand::ThreadRng;
+
 use controllers::{CollisionsController, Event, InputController, TimeController};
 use game_state::GameState;
 use geometry::Size;
 use view::Resources;
-
-use ggez::event::{self, Keycode, Mod};
-use ggez::{Context, GameResult};
 
 /// This struct contains the application's state
 pub struct ApplicationState {
@@ -39,20 +40,25 @@ pub struct ApplicationState {
     time_controller: TimeController,
     // The input controller keeps track of the actions that are triggered by the player
     input_controller: InputController,
-    // FIXME: add docs
+    // The event buffer keeps track of events that trigger sounds, so we can separate
+    // sound playing from the game logic
     event_buffer: Vec<Event>,
+    // A source of randomness
+    rng: ThreadRng,
 }
 
 impl ApplicationState {
     /// Simply creates a new application state
-    fn new(ctx: &mut Context, game_state: GameState) -> GameResult<ApplicationState> {
+    fn new(ctx: &mut Context, game_size: Size) -> GameResult<ApplicationState> {
+        let mut rng = rand::thread_rng();
         let app_state = ApplicationState {
             has_focus: true,
             resources: Resources::new(ctx),
-            game_state: game_state,
+            game_state: GameState::new(game_size, &mut rng),
             time_controller: TimeController::new(),
             input_controller: InputController::new(),
             event_buffer: Vec::new(),
+            rng,
         };
         Ok(app_state)
     }
@@ -63,7 +69,7 @@ impl ApplicationState {
         self.time_controller.reset();
 
         // Reset game state
-        self.game_state.reset();
+        self.game_state.reset(&mut self.rng);
 
         self.event_buffer.push(Event::GameStart);
     }
@@ -118,15 +124,12 @@ impl event::EventHandler for ApplicationState {
 }
 
 fn main() {
-    // Setup Rocket's Game State
-    let game_size = Size::new(1024.0, 600.0);
-    let game_state = GameState::new(game_size);
-
     // Create the rendering context and set the background color to black
+    let game_size = Size::new(1024.0, 600.0);
     let ctx = &mut view::init_rendering_ctx(game_size).unwrap();
 
     // Load the application state and start the event loop
-    let state = &mut ApplicationState::new(ctx, game_state).unwrap();
+    let state = &mut ApplicationState::new(ctx, game_size).unwrap();
     if let Err(err) = event::run(ctx, state) {
         println!("Error encountered: {}", err);
     } else {

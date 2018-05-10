@@ -1,4 +1,4 @@
-use rand;
+use rand::Rng;
 
 use geometry::{Position, Size};
 use models::World;
@@ -36,10 +36,9 @@ pub struct GameState {
 
 impl GameState {
     /// Returns a new `GameState` containing a `World` of the given `Size`
-    pub fn new(size: Size) -> GameState {
-        let mut rng = rand::thread_rng();
+    pub fn new(size: Size, rng: &mut impl Rng) -> GameState {
         GameState {
-            world: World::new(&mut rng, size),
+            world: World::new(rng, size),
             difficulty: 0.0,
             message: Some(WELCOME_MESSAGE),
             score: 0,
@@ -52,14 +51,12 @@ impl GameState {
     }
 
     /// Reset our game-state
-    pub fn reset(&mut self) {
-        let mut rng = rand::thread_rng();
-
+    pub fn reset(&mut self, rng: &mut impl Rng) {
         // Reset player
         self.world.player.is_dead = false;
         self.world.player.powerup = None;
-        *self.world.player.x_mut() = self.world.size.random_x(&mut rng);
-        *self.world.player.y_mut() = self.world.size.random_y(&mut rng);
+        *self.world.player.x_mut() = self.world.size.random_x(rng);
+        *self.world.player.y_mut() = self.world.size.random_y(rng);
         self.world.player.gun.reset();
 
         // Reset score
