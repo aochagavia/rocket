@@ -36,11 +36,11 @@ pub struct ApplicationState {
     has_focus: bool,
     // Resources holds our loaded font, images and sounds
     resources: Resources,
-    // Our game logic is controlled within the game_state
+    // The game state contains all information needed to run the game
     game_state: GameState,
-    // We control the game state with the passage of time
+    // The time controller modifies the game state as time passes
     time_controller: TimeController,
-    // We handle input events with the input_controller
+    // The input controller keeps track of the actions that are triggered by the player
     input_controller: InputController,
 }
 
