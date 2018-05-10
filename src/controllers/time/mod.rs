@@ -1,5 +1,5 @@
-mod event;
-mod event_queue;
+mod timeout;
+mod timeout_queue;
 mod timer;
 
 use std::{mem, f32};
@@ -7,15 +7,15 @@ use std::time::Duration;
 use rand::{self, ThreadRng};
 
 use controllers::input::Actions;
+use controllers::Event;
 use game_state::GameState;
 use geometry::{Advance, Point, Position, Vector};
 use models::{Bullet, Enemy, Particle, Powerup, PowerupKind};
-use resources::Resources;
 use util;
 
 use self::timer::Timer;
-pub use self::event::Event;
-use self::event_queue::EventQueue;
+pub use self::timeout::Timeout;
+use self::timeout_queue::TimeoutQueue;
 
 // Constants related to time
 const BULLETS_PER_SECOND: f32 = 30.0;
@@ -55,7 +55,7 @@ pub struct TimeController {
     /// A timer to spawn powerups
     powerup_timer: Timer,
     /// Scheduled events that should happen in the future
-    scheduled_events: EventQueue,
+    scheduled_timeouts: TimeoutQueue,
 }
 
 impl TimeController {
@@ -67,7 +67,7 @@ impl TimeController {
             shoot_timer: Timer::from_seconds(BULLET_RATE),
             enemy_timer: Timer::from_seconds(ENEMY_SPAWN_RATE),
             powerup_timer: Timer::from_seconds(POWERUP_SPAWN_RATE),
-            scheduled_events: EventQueue::new(),
+            scheduled_timeouts: TimeoutQueue::new(),
         }
     }
 
@@ -76,8 +76,8 @@ impl TimeController {
         mem::replace(self, TimeController::new());
     }
 
-    pub fn schedule_event(&mut self, offset: Duration, event: Event) {
-        self.scheduled_events.push(self.current_time + offset, event);
+    pub fn schedule_timeout(&mut self, offset: Duration, timeout: Timeout) {
+        self.scheduled_timeouts.push(self.current_time + offset, timeout);
     }
 
     /// Updates the game
@@ -88,7 +88,7 @@ impl TimeController {
         dt: Duration,
         actions: &Actions,
         state: &mut GameState,
-        resources: &Resources,
+        events: &mut Vec<Event>,
     ) {
         self.current_time += dt;
 
@@ -96,9 +96,9 @@ impl TimeController {
         state.difficulty += dt / 100.0;
 
         // Check if we have any events that are scheduled to run, and if so, run them now
-        if let Some(when) = self.scheduled_events.peek() {
+        if let Some(when) = self.scheduled_timeouts.peek() {
             if when <= self.current_time {
-                self.scheduled_events.pop().unwrap().handle(state);
+                self.scheduled_timeouts.pop().unwrap().handle(state);
             }
         }
 
@@ -111,9 +111,9 @@ impl TimeController {
             self.update_powerups(dt, state);
         }
 
-        self.update_bullets(dt, actions, state, resources);
+        self.update_bullets(dt, actions, state, events);
         self.update_particles(dt, state);
-        self.update_enemies(dt, state, resources, time_slow);
+        self.update_enemies(dt, state, events, time_slow);
         self.update_stars(dt, state, time_slow);
     }
 
@@ -148,10 +148,10 @@ impl TimeController {
         dt: f32,
         actions: &Actions,
         state: &mut GameState,
-        resources: &Resources,
+        events: &mut Vec<Event>,
     ) {
         // Add bullets - usually when the player shoots the gun heats up, if it has overheated the
-        // play can no longer shoot - unless they have the tripleshot powerup, which will work
+        // player can no longer shoot - unless they have the tripleshot powerup, which will work
         // regardless of the gun's state
         if !state.world.player.is_dead && actions.shoot {
             self.shoot_timer.update(self.current_time, || {
@@ -165,18 +165,17 @@ impl TimeController {
                             Bullet::new(Vector::new(pos, dir)),
                             Bullet::new(Vector::new(pos, dir + f32::consts::PI / 6.0)),
                         ]);
-                        let _ = resources.shot_sound.play();
+                        events.push(Event::ShotFired);
                     }
                     // If there was no powerup, shoot normally
                     _ => {
                         if state.world.player.gun.is_available() {
-                            let vector = Vector::new(
-                                state.world.player.front(),
-                                state.world.player.direction(),
-                            );
-                            state.world.bullets.push(Bullet::new(vector));
+                            let pos = state.world.player.front();
+                            let dir = state.world.player.direction();
+                            state.world.bullets.push(Bullet::new(Vector::new(pos, dir)));
                             state.world.player.gun.heat_up();
-                            let _ = resources.shot_sound.play();
+
+                            events.push(Event::ShotFired);
                         }
                     }
                 }
@@ -236,7 +235,7 @@ impl TimeController {
         &mut self,
         dt: f32,
         state: &mut GameState,
-        resources: &Resources,
+        events: &mut Vec<Event>,
         time_slow: bool,
     ) {
         // Spawn enemies at random locations
@@ -273,9 +272,7 @@ impl TimeController {
 
             let new_enemy = Enemy::new(enemy_pos);
             state.world.enemies.push(new_enemy);
-
-            // Play enemy_spawn sound
-            let _ = resources.enemy_spawn_sound.play();
+            events.push(Event::EnemySpawned);
         });
 
         // Move enemies in the player's direction if player is alive, otherwise let them drift in
@@ -300,9 +297,8 @@ impl TimeController {
     // Advance stars, wrapping them around the view
     fn update_stars(&mut self, dt: f32, state: &mut GameState, time_slow: bool) {
         for star in &mut state.world.stars {
-            let speed = star.speed;
             let base_speed = if time_slow { 20.0 } else { STAR_BASE_SPEED };
-            star.advance_wrapping(dt * base_speed * speed, state.world.size);
+            star.advance_wrapping(dt * base_speed * star.speed, state.world.size);
         }
     }
 }

@@ -4,24 +4,24 @@ use ggez::graphics::{Font, Image};
 
 /// Additional resources needed for the game
 pub struct Resources {
-    pub font: Font,
+    pub(in view) font: Font,
 
     // Images
-    pub powerup_shield: Image,
-    pub powerup_time_slow: Image,
-    pub powerup_triple_shot: Image,
-    pub circle_image: Image,
-    pub star_sprite: SpriteBatch,
-    pub circle_sprite: SpriteBatch,
+    pub(in view) powerup_shield: Image,
+    pub(in view) powerup_time_slow: Image,
+    pub(in view) powerup_triple_shot: Image,
+    pub(in view) circle_image: Image,
+    pub(in view) star_sprite: SpriteBatch,
+    pub(in view) circle_sprite: SpriteBatch,
 
     // Sounds
-    pub shot_sound: audio::Source,
-    pub boost_sound: audio::Source,
-    pub powerup_sound: audio::Source,
-    pub game_start_sound: audio::Source,
-    pub enemy_spawn_sound: audio::Source,
-    pub enemy_destroyed_sound: audio::Source,
-    pub player_destroyed_sound: audio::Source,
+    pub(in view) shot_sound: audio::Source,
+    pub(in view) boost_sound: audio::Source,
+    pub(in view) powerup_sound: audio::Source,
+    pub(in view) game_start_sound: audio::Source,
+    pub(in view) enemy_spawn_sound: audio::Source,
+    pub(in view) enemy_destroyed_sound: audio::Source,
+    pub(in view) player_destroyed_sound: audio::Source,
 }
 
 impl Resources {

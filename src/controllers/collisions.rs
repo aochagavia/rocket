@@ -1,8 +1,7 @@
 use std::time::Duration;
 
-use {ApplicationState, Resources};
-use controllers::PLAYER_GRACE_AREA;
-use controllers::time::Event;
+use controllers::{Event, PLAYER_GRACE_AREA};
+use controllers::time::{TimeController, Timeout};
 use game_state::GameState;
 use geometry::{Collide, Point, Position};
 use models::{Enemy, Particle, PowerupKind};
@@ -14,26 +13,26 @@ const POWERUP_DURATION: u64 = 10;
 pub struct CollisionsController;
 
 impl CollisionsController {
-    pub fn handle_collisions(app: &mut ApplicationState) {
-        CollisionsController::handle_bullet_collisions(&mut app.game_state, &app.resources);
+    pub fn handle_collisions(state: &mut GameState, time_controller: &mut TimeController, events: &mut Vec<Event>) {
+        CollisionsController::handle_bullet_collisions(state, events);
 
         let got_powerup =
-            CollisionsController::handle_powerup_collisions(&mut app.game_state, &app.resources);
+            CollisionsController::handle_powerup_collisions(state, events);
         if got_powerup {
             // Powerups run out after `POWERUP_DURATION` seconds
             let offset = Duration::from_secs(POWERUP_DURATION);
-            app.time_controller
-                .schedule_event(offset, Event::RemovePowerup);
+            time_controller
+                .schedule_timeout(offset, Timeout::RemovePowerup);
         }
 
         // If the player died then we set a timeout after which a game over message
         // will appear, and the user will be able to restart.
         let player_died =
-            CollisionsController::handle_player_collisions(&mut app.game_state, &app.resources);
+            CollisionsController::handle_player_collisions(state, events);
         if player_died {
             let offset = Duration::from_secs(2);
-            app.time_controller
-                .schedule_event(offset, Event::ShowGameOverScreen);
+            time_controller
+                .schedule_timeout(offset, Timeout::ShowGameOverScreen);
         }
     }
 
@@ -41,7 +40,7 @@ impl CollisionsController {
     ///
     /// When an enemy is reached by a bullet, both the enemy and the bullet will be removed.
     /// Additionally, the score of the player will be increased
-    fn handle_bullet_collisions(state: &mut GameState, resources: &Resources) {
+    fn handle_bullet_collisions(state: &mut GameState, events: &mut Vec<Event>) {
         let old_enemy_count = state.world.enemies.len();
 
         // We introduce a scope to shorten the lifetime of the borrows below
@@ -61,14 +60,16 @@ impl CollisionsController {
                     .find(|&(_, enemy)| enemy.collides_with(bullet))
                     .map(|(index, enemy)| (index, enemy.position()))
                 {
-                    util::make_explosion(particles, &position, 10);
                     enemies.remove(index);
+                    events.push(Event::EnemyDestroyed);
+                    util::make_explosion(particles, &position, 10);
 
                     // Play enemy_destroyed_sound sound
                     // TODO: these sounds (like all the others) are queued rather than played
                     // atop of one another - this is a current limitation of ggez
                     // See https://github.com/ggez/ggez/issues/208
-                    let _ = resources.enemy_destroyed_sound.play();
+                    // let _ = resources.enemy_destroyed_sound.play();
+                    events.push(Event::EnemyDestroyed);
                     false
                 } else {
                     true
@@ -81,7 +82,7 @@ impl CollisionsController {
     }
 
     /// Handles collisions between the player and powerups
-    fn handle_powerup_collisions(state: &mut GameState, resources: &Resources) -> bool {
+    fn handle_powerup_collisions(state: &mut GameState, events: &mut Vec<Event>) -> bool {
         let mut gained_powerup = false;
         let player = &mut state.world.player;
         let powerups = &mut state.world.powerups;
@@ -99,8 +100,7 @@ impl CollisionsController {
                 player.powerup = Some(kind);
                 powerups.remove(index);
 
-                // Play the powerup sound
-                let _ = resources.powerup_sound.play();
+                events.push(Event::PowerupGained);
             }
         }
 
@@ -109,7 +109,7 @@ impl CollisionsController {
 
     /// Handles collisions between the player and the enemies
     /// This function will return true if the player died
-    fn handle_player_collisions(state: &mut GameState, resources: &Resources) -> bool {
+    fn handle_player_collisions(state: &mut GameState, events: &mut Vec<Event>) -> bool {
         let mut player_died = false;
         let player = &mut state.world.player;
 
@@ -131,8 +131,7 @@ impl CollisionsController {
                     particles,
                     player.position(),
                 );
-                // Play enemy destroyed sound
-                let _ = resources.enemy_destroyed_sound.play();
+                events.push(Event::EnemyDestroyed);
             } else {
                 // Make an explosion where the player was
                 let ppos = player.position();
@@ -140,8 +139,7 @@ impl CollisionsController {
                 // Mark the player as dead (to stop drawing it on screen)
                 player_died = true;
                 player.is_dead = true;
-                // Play player_destroyed sound
-                let _ = resources.player_destroyed_sound.play();
+                events.push(Event::PlayerDestroyed);
             }
         }
 

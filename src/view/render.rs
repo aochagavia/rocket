@@ -1,17 +1,29 @@
 use std;
 use ggez::graphics::{self, Color, DrawMode, Point2, Rect};
-use ggez::{Context, GameResult};
+use ggez::{conf, Context, ContextBuilder, GameResult};
 
 use ApplicationState;
-use Resources;
-use drawing::color;
+use game_state::Message;
 use geometry::{Advance, Collide, Position, Size};
 use models::{Player, PowerupKind, World, PLAYER_POLYGON};
-use game_state::Message;
+use view::drawing::color;
+use view::Resources;
 
 const SPRITE_SIZE: f32 = 32.0;
 const GUN_HEAT_STATUS_WIDTH: f32 = 100.0;
 const GUN_HEAT_STATUS_HEIGHT: f32 = 20.0;
+
+pub fn init_rendering_ctx(game_size: Size) -> GameResult<Context> {
+    let cb = ContextBuilder::new("rocket", "ggez")
+        .window_setup(conf::WindowSetup::default().title("Rocket!"))
+        .window_mode(
+            conf::WindowMode::default().dimensions(game_size.width as u32, game_size.height as u32),
+        );
+
+    let mut ctx = cb.build()?;
+    graphics::set_background_color(&mut ctx, color::BLACK);
+    Ok(ctx)
+}
 
 /// Renders the game to the screen
 pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<()> {

@@ -3,6 +3,8 @@
 #![cfg_attr(feature = "clippy", feature(plugin))]
 #![cfg_attr(feature = "clippy", plugin(clippy))]
 
+#![feature(nll)]
+
 extern crate ggez;
 extern crate itertools_num;
 extern crate rand;
@@ -12,23 +14,18 @@ extern crate rand;
 #[macro_use]
 mod geometry;
 mod controllers;
-mod resources;
 mod view;
-mod drawing;
 mod game_state;
 mod models;
 mod util;
 
-use controllers::{CollisionsController, InputController, TimeController};
-use resources::Resources;
+use controllers::{CollisionsController, Event, InputController, TimeController};
 use game_state::GameState;
 use geometry::Size;
-use drawing::color;
+use view::Resources;
 
-use ggez::conf;
-use ggez::graphics;
 use ggez::event::{self, Keycode, Mod};
-use ggez::{Context, ContextBuilder, GameResult};
+use ggez::{Context, GameResult};
 
 /// This struct contains the application's state
 pub struct ApplicationState {
@@ -42,6 +39,8 @@ pub struct ApplicationState {
     time_controller: TimeController,
     // The input controller keeps track of the actions that are triggered by the player
     input_controller: InputController,
+    // FIXME: add docs
+    event_buffer: Vec<Event>,
 }
 
 impl ApplicationState {
@@ -53,6 +52,7 @@ impl ApplicationState {
             game_state: game_state,
             time_controller: TimeController::new(),
             input_controller: InputController::new(),
+            event_buffer: Vec::new(),
         };
         Ok(app_state)
     }
@@ -65,8 +65,7 @@ impl ApplicationState {
         // Reset game state
         self.game_state.reset();
 
-        // Play game start sound
-        let _ = self.resources.game_start_sound.play();
+        self.event_buffer.push(Event::GameStart);
     }
 }
 
@@ -75,23 +74,28 @@ impl ApplicationState {
 impl event::EventHandler for ApplicationState {
     // This is called each time the game loop updates so we can update the game state
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
-        // Update game state, and check for collisions
-        if self.has_focus {
-            let duration = ggez::timer::get_delta(ctx);
-            self.time_controller.update_seconds(
-                duration,
-                self.input_controller.actions(),
-                &mut self.game_state,
-                &self.resources,
-            );
-            CollisionsController::handle_collisions(self);
+        // Pause the game if the window has no focus
+        if !self.has_focus {
+            return Ok(())
         }
+
+        // Update game state, and check for collisions
+        let duration = ggez::timer::get_delta(ctx);
+        self.time_controller.update_seconds(
+            duration,
+            self.input_controller.actions(),
+            &mut self.game_state,
+            &mut self.event_buffer,
+        );
+
+        CollisionsController::handle_collisions(&mut self.game_state, &mut self.time_controller, &mut self.event_buffer);
 
         Ok(())
     }
 
     // This is called when ggez wants us to draw our game
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
+        view::play_sounds(&mut self.event_buffer, &mut self.resources)?;
         view::render_game(self, ctx)
     }
 
@@ -118,16 +122,8 @@ fn main() {
     let game_size = Size::new(1024.0, 600.0);
     let game_state = GameState::new(game_size);
 
-    // Create configuration for ggez using its ContextBuilder
-    let cb = ContextBuilder::new("rocket", "ggez")
-        .window_setup(conf::WindowSetup::default().title("Rocket!"))
-        .window_mode(
-            conf::WindowMode::default().dimensions(game_size.width as u32, game_size.height as u32),
-        );
-
     // Create the rendering context and set the background color to black
-    let ctx = &mut cb.build().unwrap();
-    graphics::set_background_color(ctx, color::BLACK);
+    let ctx = &mut view::init_rendering_ctx(game_size).unwrap();
 
     // Load the application state and start the event loop
     let state = &mut ApplicationState::new(ctx, game_state).unwrap();
