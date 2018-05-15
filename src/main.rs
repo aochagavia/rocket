@@ -92,6 +92,7 @@ impl event::EventHandler for ApplicationState {
             self.input_controller.actions(),
             &mut self.game_state,
             &mut self.event_buffer,
+            &mut self.rng
         );
 
         CollisionsController::handle_collisions(&mut self.game_state, &mut self.time_controller, &mut self.event_buffer);

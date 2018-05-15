@@ -4,7 +4,7 @@ mod timer;
 
 use std::{mem, f32};
 use std::time::Duration;
-use rand::{self, ThreadRng};
+use rand::Rng;
 
 use controllers::input::Actions;
 use controllers::Event;
@@ -42,8 +42,6 @@ const STAR_BASE_SPEED: f32 = 50.0;
 pub const PLAYER_GRACE_AREA: f32 = 200.0;
 
 pub struct TimeController {
-    /// A random number generator
-    rng: ThreadRng,
     /// The duration of the current game, since the last restart
     current_time: Duration,
     /// A timer to trigger creation of trail particles
@@ -61,7 +59,6 @@ pub struct TimeController {
 impl TimeController {
     pub fn new() -> TimeController {
         TimeController {
-            rng: rand::thread_rng(),
             current_time: Duration::from_secs(0),
             trail_timer: Timer::from_seconds(TRAIL_PARTICLE_RATE),
             shoot_timer: Timer::from_seconds(BULLET_RATE),
@@ -83,12 +80,13 @@ impl TimeController {
     /// Updates the game
     ///
     /// `dt` is the amount of seconds that have passed since the last update
-    pub fn update_seconds(
+    pub fn update_seconds<R: Rng>(
         &mut self,
         dt: Duration,
         actions: &Actions,
         state: &mut GameState,
         events: &mut Vec<Event>,
+        rng: &mut R
     ) {
         self.current_time += dt;
 
@@ -108,12 +106,12 @@ impl TimeController {
         // Only modify player/powerups if player is alive
         if !state.world.player.is_dead {
             self.update_player(dt, actions, state);
-            self.update_powerups(dt, state);
+            self.update_powerups(dt, state, rng);
         }
 
         self.update_bullets(dt, actions, state, events);
         self.update_particles(dt, state);
-        self.update_enemies(dt, state, events, time_slow);
+        self.update_enemies(dt, state, events, time_slow, rng);
         self.update_stars(dt, state, time_slow);
     }
 
@@ -192,7 +190,7 @@ impl TimeController {
         util::fast_retain(&mut state.world.bullets, |b| size.contains(b.position()));
     }
 
-    fn update_powerups(&mut self, dt: f32, state: &mut GameState) {
+    fn update_powerups<R: Rng>(&mut self, dt: f32, state: &mut GameState, rng: &mut R) {
         for powerup in &mut state.world.powerups {
             powerup.update(dt);
         }
@@ -201,7 +199,6 @@ impl TimeController {
         util::fast_retain(&mut state.world.powerups, |p| p.ttl > 0.0);
 
         // Add new powerups
-        let rng = &mut self.rng;
         self.powerup_timer.update(self.current_time, || {
             state
                 .world
@@ -231,15 +228,15 @@ impl TimeController {
     }
 
     // Updates positions of enemies, and spawns new ones when necessary
-    fn update_enemies(
+    fn update_enemies<R: Rng>(
         &mut self,
         dt: f32,
         state: &mut GameState,
         events: &mut Vec<Event>,
         time_slow: bool,
+        rng: &mut R
     ) {
         // Spawn enemies at random locations
-        let rng = &mut self.rng;
         self.enemy_timer.update(self.current_time, || {
             let player_pos: &Vector = &state.world.player.vector;
             let mut enemy_pos;
