@@ -1,8 +1,13 @@
-use ggez::event::{Keycode, Mod};
-
 #[derive(Default)]
 pub struct InputController {
     actions: Actions,
+}
+
+pub enum Action {
+    RotateLeft,
+    RotateRight,
+    Boost,
+    Shoot
 }
 
 /// Active actions (toggled by user input)
@@ -25,24 +30,23 @@ impl InputController {
         &self.actions
     }
 
-    /// Processes a key press
-    pub fn key_press(&mut self, keycode: Keycode, _keymod: Mod) {
-        self.handle_key(keycode, true);
+    /// Enable a player action
+    pub fn start_action(&mut self, action: Action) {
+        self.handle_action(action, true);
     }
 
-    /// Processes a key release
-    pub fn key_release(&mut self, keycode: Keycode, _keymod: Mod) {
-        self.handle_key(keycode, false);
+    /// Disable a player action
+    pub fn stop_action(&mut self, action: Action) {
+        self.handle_action(action, false);
     }
 
-    /// Handles a key press or release
-    fn handle_key(&mut self, keycode: Keycode, pressed: bool) {
-        match keycode {
-            Keycode::Left => self.actions.rotate_left = pressed,
-            Keycode::Right => self.actions.rotate_right = pressed,
-            Keycode::Up => self.actions.boost = pressed,
-            Keycode::Space => self.actions.shoot = pressed,
-            _ => (),
+    /// Enable or disable a player action
+    fn handle_action(&mut self, action: Action, enabled: bool) {
+        match action {
+            Action::RotateLeft => self.actions.rotate_left = enabled,
+            Action::RotateRight => self.actions.rotate_right = enabled,
+            Action::Boost => self.actions.boost = enabled,
+            Action::Shoot => self.actions.shoot = enabled,
         }
     }
 }

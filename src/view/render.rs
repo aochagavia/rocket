@@ -2,8 +2,7 @@ use std;
 use ggez::graphics::{self, Color, DrawMode, Point2, Rect};
 use ggez::{conf, Context, ContextBuilder, GameResult};
 
-use ApplicationState;
-use game_state::Message;
+use game_state::{GameState, Message};
 use geometry::{Advance, Collide, Position, Size};
 use models::{Player, PowerupKind, World, PLAYER_POLYGON};
 use view::drawing::color;
@@ -26,28 +25,28 @@ pub fn init_rendering_ctx(game_size: Size) -> GameResult<Context> {
 }
 
 /// Renders the game to the screen
-pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<()> {
+pub fn render_game(game_state: &mut GameState, resources: &mut Resources, ctx: &mut Context) -> GameResult<()> {
     // Clear everything
     graphics::clear(ctx);
 
     // Render the world
-    render_world(ctx, &app.game_state.world, &mut app.resources)?;
+    render_world(ctx, &game_state.world, resources)?;
 
     // Render a message if there is one set
-    render_message(ctx, app)?;
+    render_message(ctx, game_state, resources)?;
 
     // Render the score
     let text = graphics::Text::new(
         ctx,
-        &format!("Score: {}", app.game_state.score),
-        &app.resources.font,
+        &format!("Score: {}", game_state.score),
+        &resources.font,
     )?;
     let pt = Point2::new(8.0, 4.0);
     graphics::set_color(ctx, color::SCORE)?;
     graphics::draw(ctx, &text, pt, 0.0)?;
 
     // Render the gun's heat status in the bottom right of the screen
-    let gun = &app.game_state.world.player.gun;
+    let gun = &game_state.world.player.gun;
     if !gun.is_available() {
         graphics::set_color(ctx, color::RED)?;
     } else {
@@ -62,7 +61,7 @@ pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<
         )?;
     }
 
-    let Size { width, height } = app.game_state.world.size;
+    let Size { width, height } = game_state.world.size;
     let x = width - GUN_HEAT_STATUS_WIDTH - 20.0;
     let y = height - 40.0;
     let rect = Rect {
@@ -92,16 +91,16 @@ pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<
 }
 
 /// Renders the Message struct contained in the game's state to the middle of the screen
-fn render_message(ctx: &mut Context, app: &mut ApplicationState) -> GameResult<()> {
-    if let Some(ref message) = app.game_state.message {
+fn render_message(ctx: &mut Context, game_state: &mut GameState, resources: &mut Resources) -> GameResult<()> {
+    if let Some(ref message) = game_state.message {
         let Message { title, subtitle } = *message;
-        let Size { width, height } = app.game_state.world.size;
+        let Size { width, height } = game_state.world.size;
 
         let w = width / 2.0;
         let h = height / 2.0;
 
         let mut draw_text = |text: &str, color: graphics::Color, is_title: bool| {
-            let drawable = graphics::Text::new(ctx, text, &app.resources.font).unwrap();
+            let drawable = graphics::Text::new(ctx, text, &resources.font).unwrap();
             let width = w - (drawable.width() as f32 / 2.0);
             let height = if is_title {
                 h - drawable.height() as f32

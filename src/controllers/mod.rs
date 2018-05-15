@@ -3,7 +3,7 @@
 //! There are three main controllers: collisions, input and time
 
 mod collisions;
-mod input;
+pub mod input;
 mod time;
 
 pub use self::collisions::CollisionsController;
