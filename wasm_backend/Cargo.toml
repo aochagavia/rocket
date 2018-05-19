@@ -1,0 +1,13 @@
+[package]
+name = "wasm_backend"
+version = "0.1.0"
+authors = ["Adolfo Ochagavía <aochagavia92@gmail.com>"]
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+itertools-num = "0.1.1"
+rand = "0.4.2"
+rocket = { path = ".." }
+pcg_rand = "0.8.0"
