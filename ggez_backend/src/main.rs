@@ -1,12 +1,17 @@
-use ggez::{self, Context, GameResult};
-use ggez::event::{self, Keycode, Mod};
-use rand::{self, ThreadRng};
+extern crate ggez;
+extern crate rand;
+extern crate rocket;
 
-use controllers::{CollisionsController, Event, InputController, TimeController};
-use controllers::input::Action;
-use game_state::GameState;
-use geometry::Size;
-use view::{self, Resources};
+mod view;
+
+use ggez::{Context, GameResult};
+use ggez::event::{self, Keycode, Mod};
+use rand::ThreadRng;
+use rocket::controllers::{CollisionsController, Event, InputController, TimeController};
+use rocket::game_state::GameState;
+use rocket::geometry::Size;
+
+use view::Resources;
 
 pub fn main() {
     // Create the rendering context and set the background color to black
@@ -81,7 +86,7 @@ impl event::EventHandler for ApplicationState {
 
         // Update game state, and check for collisions
         let duration = ggez::timer::get_delta(ctx);
-        self.time_controller.update_seconds(
+        self.time_controller.update(
             duration,
             self.input_controller.actions(),
             &mut self.game_state,
@@ -106,11 +111,11 @@ impl event::EventHandler for ApplicationState {
         if let Some(_) = self.game_state.message {
             self.reset();
         }
-        keycode_to_action(keycode).map(|action| self.input_controller.start_action(action));
+        handle_key(&mut self.input_controller, keycode, true);
     }
 
     fn key_up_event(&mut self, _ctx: &mut Context, keycode: Keycode, _: Mod, _: bool) {
-        keycode_to_action(keycode).map(|action| self.input_controller.stop_action(action));
+        handle_key(&mut self.input_controller, keycode, false);
     }
 
     // Listen for window focus to pause the game's execution
@@ -119,12 +124,13 @@ impl event::EventHandler for ApplicationState {
     }
 }
 
-fn keycode_to_action(keycode: Keycode) -> Option<Action> {
+/// Handle key press or release
+fn handle_key(input: &mut InputController, keycode: Keycode, enabled: bool) {
     match keycode {
-        Keycode::Left => Some(Action::RotateLeft),
-        Keycode::Right => Some(Action::RotateRight),
-        Keycode::Up => Some(Action::Boost),
-        Keycode::Space => Some(Action::Shoot),
-        _ => None
+        Keycode::Left => input.actions.rotate_left = enabled,
+        Keycode::Right => input.actions.rotate_right = enabled,
+        Keycode::Up => input.actions.boost = enabled,
+        Keycode::Space => input.actions.shoot = enabled,
+        _ => ()
     }
 }

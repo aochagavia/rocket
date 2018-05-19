@@ -1,0 +1,9 @@
+[package]
+name = "ggez_backend"
+version = "0.1.0"
+authors = ["Adolfo Ochagavía <aochagavia92@gmail.com>"]
+
+[dependencies]
+ggez = "0.4"
+rand = "0.3.14"
+rocket = { path = ".." }

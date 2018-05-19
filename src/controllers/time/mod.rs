@@ -79,14 +79,14 @@ impl TimeController {
 
     /// Updates the game
     ///
-    /// `dt` is the amount of seconds that have passed since the last update
-    pub fn update_seconds<R: Rng>(
+    /// `dt` is the amount of time that has passed since the last update
+    pub fn update(
         &mut self,
         dt: Duration,
         actions: &Actions,
         state: &mut GameState,
         events: &mut Vec<Event>,
-        rng: &mut R
+        rng: &mut impl Rng
     ) {
         self.current_time += dt;
 
@@ -190,7 +190,7 @@ impl TimeController {
         util::fast_retain(&mut state.world.bullets, |b| size.contains(b.position()));
     }
 
-    fn update_powerups<R: Rng>(&mut self, dt: f32, state: &mut GameState, rng: &mut R) {
+    fn update_powerups(&mut self, dt: f32, state: &mut GameState, rng: &mut impl Rng) {
         for powerup in &mut state.world.powerups {
             powerup.update(dt);
         }
@@ -228,13 +228,13 @@ impl TimeController {
     }
 
     // Updates positions of enemies, and spawns new ones when necessary
-    fn update_enemies<R: Rng>(
+    fn update_enemies(
         &mut self,
         dt: f32,
         state: &mut GameState,
         events: &mut Vec<Event>,
         time_slow: bool,
-        rng: &mut R
+        rng: &mut impl Rng
     ) {
         // Spawn enemies at random locations
         self.enemy_timer.update(self.current_time, || {

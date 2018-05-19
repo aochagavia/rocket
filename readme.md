@@ -14,7 +14,7 @@ You can find more screenshots in the [screenshots] directory.
 
 ## How to play
 
-As you can see in the screenshots below, you are the red rocket and have to save the world from
+As you can see in the screenshots, you are the red rocket and have to save the world from
 the yellow invaders. To do so, you can use the following controls:
 
 Keyboard                | Action
@@ -29,6 +29,7 @@ Keyboard                | Action
 Unless you are using Windows, you'll need to install SDL2 on your system. There are detailed instructions [here](https://github.com/Rust-SDL2/rust-sdl2). And as always, it is a real pleasure to work with Cargo. You only need the following:
 
 ```
+cd ggez_backend
 cargo run --release
 ```
 

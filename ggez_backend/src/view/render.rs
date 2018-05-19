@@ -1,10 +1,10 @@
 use std;
 use ggez::graphics::{self, Color, DrawMode, Point2, Rect};
 use ggez::{conf, Context, ContextBuilder, GameResult};
+use rocket::game_state::{GameState, Message};
+use rocket::geometry::{Advance, Collide, Position, Size};
+use rocket::models::{Player, PowerupKind, World, PLAYER_POLYGON};
 
-use game_state::{GameState, Message};
-use geometry::{Advance, Collide, Position, Size};
-use models::{Player, PowerupKind, World, PLAYER_POLYGON};
 use view::drawing::color;
 use view::Resources;
 

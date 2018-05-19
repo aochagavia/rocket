@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 use std::io;
 
 fn main() {
-    let res_dir_source = Path::new(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("resources/");
+    let res_dir_source = Path::new(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("../resources/");
     let res_dir_target = Path::new(&env::var("OUT_DIR").unwrap()).join("../../../resources/");
 
     //copies all resource files to "target/NAME/resources". Prints out any errors if failed.
