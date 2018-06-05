@@ -11,17 +11,22 @@ use rand::SeedableRng;
 
 use rocket::game_state::GameState;
 use rocket::geometry::{Advance, Position, Size};
-use rocket::controllers::{Actions, Event, TimeController, CollisionsController};
+use rocket::controllers::{Event, InputController, TimeController, CollisionsController};
 
 thread_local! {
     static DATA: RefCell<GameData> = RefCell::new(new_game_data(1024.0, 600.0));
 }
 
 struct GameData {
+    /// The game state contains all information needed to run the game
     state: GameState,
-    actions: Actions,
+    /// The input controller keeps track of active player actions
+    input_controller: InputController,
+    /// The time controller modifies the game state as time passes
     time_controller: TimeController,
+    /// We keep track of events that require playing sounds
     events: Vec<Event>,
+    /// A source of randomness
     rng: Pcg32Basic
 }
 
@@ -29,7 +34,7 @@ fn new_game_data(width: f32, height: f32) -> GameData {
     let mut rng = Pcg32Basic::from_seed([44, 44]);
     GameData {
         state: GameState::new(Size::new(width, height), &mut rng),
-        actions: Actions::default(),
+        input_controller: InputController::default(),
         time_controller: TimeController::new(),
         events: Vec::new(),
         rng
@@ -44,6 +49,20 @@ extern "C" {
     fn draw_bullet(_: c_float, _: c_float);
     fn draw_particle(_: c_float, _: c_float, _: c_float);
     fn draw_score(_: c_float);
+
+    // TODO: implement on the JS side
+    fn draw_message(); // FIXME: use wasm-bindgen here to pass a &str?
+    fn draw_gun_heat(); // FIXME: get the right parameters
+    fn draw_shield_powerup(_: c_float, _: c_float, _: c_float);
+    fn draw_time_slow_powerup(_: c_float, _: c_float, _: c_float);
+    fn draw_triple_shot_powerup(_: c_float, _: c_float, _: c_float);
+    fn draw_star(); // FIXME: will this work out with the amount of stars we have?
+    fn play_enemy_destroyed_sound();
+    fn play_player_destroyed_sound();
+    fn play_powerup_sound();
+    fn play_shot_sound();
+    fn play_enemy_spawn_sound();
+    fn play_game_start_sound();
 }
 
 #[no_mangle]
@@ -78,12 +97,30 @@ pub unsafe extern "C" fn draw() {
 }
 
 #[no_mangle]
+pub extern "C" fn play_sounds() {
+    DATA.with(|data| {
+        let mut data = data.borrow_mut();
+        for event in data.events.drain(..) {
+            use rocket::controllers::Event::*;
+            match event {
+                EnemyDestroyed => unsafe { play_enemy_destroyed_sound() },
+                PlayerDestroyed => unsafe { play_player_destroyed_sound() },
+                PowerupGained => unsafe { play_powerup_sound() },
+                ShotFired => unsafe { play_shot_sound() },
+                EnemySpawned => unsafe { play_enemy_spawn_sound() },
+                GameStart => unsafe { play_game_start_sound() }
+            }
+        }
+    });
+}
+
+#[no_mangle]
 pub extern "C" fn update(time: c_float) {
     DATA.with(|data| {
         let data: &mut GameData = &mut data.borrow_mut();
         data.time_controller.update(
             Duration::from_millis(time as u64),
-            &data.actions,
+            &data.input_controller,
             &mut data.state,
             &mut data.events,
             &mut data.rng);
@@ -97,6 +134,7 @@ fn int_to_bool(i: c_int) -> bool {
 
 #[no_mangle]
 pub extern "C" fn key_pressed() {
+    // This one...
     DATA.with(|data| {
         let data: &mut GameData = &mut data.borrow_mut();
         if let Some(_) = data.state.message {
@@ -107,20 +145,20 @@ pub extern "C" fn key_pressed() {
 
 #[no_mangle]
 pub extern "C" fn toggle_shoot(b: c_int) {
-    DATA.with(|data| data.borrow_mut().actions.shoot = int_to_bool(b));
+    DATA.with(|data| data.borrow_mut().input_controller.shoot = int_to_bool(b));
 }
 
 #[no_mangle]
 pub extern "C" fn toggle_boost(b: c_int) {
-    DATA.with(|data| data.borrow_mut().actions.boost = int_to_bool(b));
+    DATA.with(|data| data.borrow_mut().input_controller.boost = int_to_bool(b));
 }
 
 #[no_mangle]
 pub extern "C" fn toggle_turn_left(b: c_int) {
-    DATA.with(|data| data.borrow_mut().actions.rotate_left = int_to_bool(b));
+    DATA.with(|data| data.borrow_mut().input_controller.rotate_left = int_to_bool(b));
 }
 
 #[no_mangle]
 pub extern "C" fn toggle_turn_right(b: c_int) {
-    DATA.with(|data| data.borrow_mut().actions.rotate_right = int_to_bool(b));
+    DATA.with(|data| data.borrow_mut().input_controller.rotate_right = int_to_bool(b));
 }

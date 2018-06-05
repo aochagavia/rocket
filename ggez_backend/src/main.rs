@@ -55,7 +55,7 @@ impl ApplicationState {
             resources: Resources::new(ctx),
             game_state: GameState::new(game_size, &mut rng),
             time_controller: TimeController::new(),
-            input_controller: InputController::new(),
+            input_controller: InputController::default(),
             event_buffer: Vec::new(),
             rng,
         };
@@ -88,7 +88,7 @@ impl event::EventHandler for ApplicationState {
         let duration = ggez::timer::get_delta(ctx);
         self.time_controller.update(
             duration,
-            self.input_controller.actions(),
+            &self.input_controller,
             &mut self.game_state,
             &mut self.event_buffer,
             &mut self.rng
@@ -127,10 +127,10 @@ impl event::EventHandler for ApplicationState {
 /// Handle key press or release
 fn handle_key(input: &mut InputController, keycode: Keycode, enabled: bool) {
     match keycode {
-        Keycode::Left => input.actions.rotate_left = enabled,
-        Keycode::Right => input.actions.rotate_right = enabled,
-        Keycode::Up => input.actions.boost = enabled,
-        Keycode::Space => input.actions.shoot = enabled,
+        Keycode::Left => input.rotate_left = enabled,
+        Keycode::Right => input.rotate_right = enabled,
+        Keycode::Up => input.boost = enabled,
+        Keycode::Space => input.shoot = enabled,
         _ => ()
     }
 }

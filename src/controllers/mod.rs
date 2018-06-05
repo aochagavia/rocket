@@ -7,7 +7,7 @@ pub mod input;
 mod time;
 
 pub use self::collisions::CollisionsController;
-pub use self::input::{Actions, InputController};
+pub use self::input::InputController;
 pub use self::time::{TimeController, PLAYER_GRACE_AREA};
 
 pub enum Event {

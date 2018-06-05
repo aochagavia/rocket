@@ -6,8 +6,7 @@ use std::{mem, f32};
 use std::time::Duration;
 use rand::Rng;
 
-use controllers::input::Actions;
-use controllers::Event;
+use controllers::{Event, InputController};
 use game_state::GameState;
 use geometry::{Advance, Point, Position, Vector};
 use models::{Bullet, Enemy, Particle, Powerup, PowerupKind};
@@ -83,7 +82,7 @@ impl TimeController {
     pub fn update(
         &mut self,
         dt: Duration,
-        actions: &Actions,
+        actions: &InputController,
         state: &mut GameState,
         events: &mut Vec<Event>,
         rng: &mut impl Rng
@@ -116,7 +115,7 @@ impl TimeController {
     }
 
     // Updates the position and rotation of the player
-    fn update_player(&mut self, dt: f32, actions: &Actions, state: &mut GameState) {
+    fn update_player(&mut self, dt: f32, actions: &InputController, state: &mut GameState) {
         if !state.world.player.is_dead {
             if actions.rotate_left {
                 *state.world.player.direction_mut() += -ROTATE_SPEED * dt;
@@ -144,7 +143,7 @@ impl TimeController {
     fn update_bullets(
         &mut self,
         dt: f32,
-        actions: &Actions,
+        actions: &InputController,
         state: &mut GameState,
         events: &mut Vec<Event>,
     ) {
