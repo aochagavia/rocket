@@ -182,12 +182,11 @@ impl TimeController {
 
         // Advance bullets
         for bullet in &mut state.world.bullets {
-            bullet.update(dt * BULLET_SPEED);
+            bullet.update(dt * BULLET_SPEED, state.world.size);
         }
 
-        // Remove bullets outside the viewport
-        let size = &state.world.size;
-        util::fast_retain(&mut state.world.bullets, |b| size.contains(b.position()));
+        // Remove bullets which have moved too far
+        util::fast_retain(&mut state.world.bullets, |b| !b.reached_max_distance());
     }
 
     fn update_powerups<R: Rng>(&mut self, dt: f32, state: &mut GameState, rng: &mut R) {
