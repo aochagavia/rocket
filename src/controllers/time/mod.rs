@@ -284,6 +284,7 @@ impl TimeController {
                 enemy.update(
                     dt * base_speed + state.difficulty,
                     state.world.player.position(),
+                    state.world.size,
                 );
             } else {
                 enemy.advance(dt * ENEMY_SPEED);

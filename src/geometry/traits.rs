@@ -85,6 +85,6 @@ pub trait Collide: Position {
     /// Returns true if the two objects collide and false otherwise
     fn collides_with<O: Collide>(&self, other: &O) -> bool {
         let radii = self.radius() + other.radius();
-        self.position().squared_distance_to(&other.position()) < radii * radii
+        self.position().squared_distance_to(other.position()) < radii * radii
     }
 }
