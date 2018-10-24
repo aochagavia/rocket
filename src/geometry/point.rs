@@ -26,7 +26,7 @@ impl Point {
     }
 
     /// Returns the squared distance from this point to the given one
-    pub fn squared_distance_to(&self, target: &Point) -> f32 {
+    pub fn squared_distance_to(self, target: Point) -> f32 {
         (self.x - target.x) * (self.x - target.x) + (self.y - target.y) * (self.y - target.y)
     }
 

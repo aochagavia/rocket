@@ -1,4 +1,6 @@
-use geometry::{Advance, Collide, Vector};
+use geometry::{Advance, Collide, Vector, Size};
+
+const BULLET_DISTANCE: f32 = 384.;
 
 /// Bullets are spawned when the player shoots
 ///
@@ -6,6 +8,7 @@ use geometry::{Advance, Collide, Vector};
 #[derive(Clone)]
 pub struct Bullet {
     vector: Vector,
+    distance_left: f32,
 }
 
 derive_position_direction!(Bullet);
@@ -13,12 +16,18 @@ derive_position_direction!(Bullet);
 impl Bullet {
     /// Create a bullet with the given vector
     pub fn new(vector: Vector) -> Bullet {
-        Bullet { vector: vector }
+        Bullet { vector, distance_left: BULLET_DISTANCE }
     }
 
     /// Update the bullet's position
-    pub fn update(&mut self, units: f32) {
-        self.advance(units);
+    pub fn update(&mut self, units: f32, size: Size) {
+        self.advance_wrapping(units, size);
+        self.distance_left -= units;
+    }
+
+    /// Check if the bullet needs to be destroyed
+    pub fn reached_max_distance(&self) -> bool {
+        self.distance_left <= 0.
     }
 }
 
