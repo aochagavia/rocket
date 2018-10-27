@@ -4,6 +4,7 @@
 #![cfg_attr(feature = "clippy", plugin(clippy))]
 
 #![feature(nll)]
+#![feature(slice_patterns)]
 
 extern crate ggez;
 extern crate itertools_num;
@@ -27,6 +28,9 @@ use controllers::{CollisionsController, Event, InputController, TimeController};
 use game_state::GameState;
 use geometry::Size;
 use view::Resources;
+
+const DEFAULT_WIDTH: f32 = 1024.0;
+const DEFAULT_HEIGHT: f32 = 600.0;
 
 /// This struct contains the application's state
 pub struct ApplicationState {
@@ -124,13 +128,43 @@ impl event::EventHandler for ApplicationState {
     }
 }
 
+struct Args {
+    game_size: Size,
+}
+
+impl Args {
+    pub fn parse<I>(args: I) -> Self
+        where I: Iterator<Item=String>
+    {
+        let game_size = match &args.skip(1).collect::<Vec<String>>().as_slice() {
+            &[] => Size{
+                width: DEFAULT_WIDTH,
+                height: DEFAULT_HEIGHT,
+            },
+            &[width, height] => {
+                Size::new(
+                    width.parse().expect("width must be a decimal number"),
+                    height.parse().expect("height must be a decimal number"),
+                )
+            },
+            _ => {
+                println!("Usage:\n./rocket\n./rocket <width> <height>");
+                std::process::exit(1);
+            }
+        };
+        Args{
+            game_size,
+        }
+    }
+}
+
 fn main() {
     // Create the rendering context and set the background color to black
-    let game_size = Size::new(1024.0, 600.0);
-    let ctx = &mut view::init_rendering_ctx(game_size).unwrap();
+    let args = Args::parse(std::env::args());
+    let ctx = &mut view::init_rendering_ctx(args.game_size).unwrap();
 
     // Load the application state and start the event loop
-    let state = &mut ApplicationState::new(ctx, game_size).unwrap();
+    let state = &mut ApplicationState::new(ctx, args.game_size).unwrap();
     if let Err(err) = event::run(ctx, state) {
         println!("Error encountered: {}", err);
     } else {
