@@ -128,7 +128,9 @@ impl event::EventHandler for ApplicationState {
     }
 }
 
+/// Encapsulates all constants defined by command line arguments
 struct Args {
+    // Window size which is used for both rendering and game mechanics
     game_size: Size,
 }
 
@@ -136,6 +138,7 @@ impl Args {
     pub fn parse<I>(args: I) -> Self
         where I: Iterator<Item=String>
     {
+        // First argument is the path to binary and hence should be skipped
         let game_size = match &args.skip(1).collect::<Vec<String>>().as_slice() {
             &[] => Size{
                 width: DEFAULT_WIDTH,
@@ -159,8 +162,9 @@ impl Args {
 }
 
 fn main() {
-    // Create the rendering context and set the background color to black
     let args = Args::parse(std::env::args());
+
+    // Create the rendering context and set the background color to black
     let ctx = &mut view::init_rendering_ctx(args.game_size).unwrap();
 
     // Load the application state and start the event loop
