@@ -14,6 +14,8 @@ pub struct CollisionsController;
 
 impl CollisionsController {
     pub fn handle_collisions(state: &mut GameState, time_controller: &mut TimeController, events: &mut Vec<Event>) {
+        let old_enemy_count = state.world.enemies.len();
+
         CollisionsController::handle_bullet_collisions(state, events);
 
         let got_powerup =
@@ -34,6 +36,9 @@ impl CollisionsController {
             time_controller
                 .schedule_timeout(offset, Timeout::ShowGameOverScreen);
         }
+
+        let killed_enemies = (old_enemy_count - state.world.enemies.len()) as u32;
+        state.score += SCORE_PER_ENEMY * killed_enemies;
     }
 
     /// Handles collisions between the bullets and the enemies
@@ -41,8 +46,6 @@ impl CollisionsController {
     /// When an enemy is reached by a bullet, both the enemy and the bullet will be removed.
     /// Additionally, the score of the player will be increased
     fn handle_bullet_collisions(state: &mut GameState, events: &mut Vec<Event>) {
-        let old_enemy_count = state.world.enemies.len();
-
         // We introduce a scope to shorten the lifetime of the borrows below
         {
             let bullets = &mut state.world.bullets;
@@ -76,9 +79,6 @@ impl CollisionsController {
                 }
             });
         }
-
-        let killed_enemies = (old_enemy_count - state.world.enemies.len()) as u32;
-        state.score += SCORE_PER_ENEMY * killed_enemies;
     }
 
     /// Handles collisions between the player and powerups
