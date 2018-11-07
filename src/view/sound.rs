@@ -12,7 +12,7 @@ pub fn play_sounds(events: &mut Vec<Event>, resources: &mut Resources) -> GameRe
             PowerupGained => resources.powerup_sound.play()?,
             ShotFired => resources.shot_sound.play()?,
             EnemySpawned => resources.enemy_spawn_sound.play()?,
-            GameStart => resources.game_start_sound.play()?
+            GameStart => resources.game_start_sound.play()?,
         }
     }
 

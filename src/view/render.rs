@@ -1,14 +1,14 @@
-use std;
-use ggez::nalgebra::{Point2, Vector2};
 use ggez::graphics::{self, Color, DrawMode, Rect};
+use ggez::nalgebra::{Point2, Vector2};
 use ggez::{conf, Context, ContextBuilder, GameResult};
+use std;
 
-use ApplicationState;
 use game_state::Message;
 use geometry::{Advance, Collide, Position, Size};
 use models::{Player, PowerupKind, World, PLAYER_POLYGON};
 use view::drawing::color;
 use view::Resources;
+use ApplicationState;
 
 const SPRITE_SIZE: f32 = 32.0;
 const GUN_HEAT_STATUS_WIDTH: f32 = 100.0;
@@ -16,11 +16,12 @@ const GUN_HEAT_STATUS_HEIGHT: f32 = 20.0;
 
 pub fn init_ctx_builder(game_size: Size) -> GameResult<ContextBuilder> {
     Ok(ContextBuilder::new("rocket", "ggez")
-        .modules(conf::ModuleConf { audio: true, gamepad: false, })
+        .modules(conf::ModuleConf {
+            audio: true,
+            gamepad: false,
+        })
         .window_setup(conf::WindowSetup::default().title("Rocket!"))
-        .window_mode(
-            conf::WindowMode::default().dimensions(game_size.width, game_size.height),
-    ))
+        .window_mode(conf::WindowMode::default().dimensions(game_size.width, game_size.height)))
 }
 
 /// Renders the game to the screen
@@ -49,11 +50,11 @@ pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<
         color::RED
     } else {
         Color {
-                r: 1.0 * gun.temperature,
-                g: 0.5 - gun.temperature / 2.0,
-                b: 1.0 - gun.temperature,
-                a: 1.0,
-            }
+            r: 1.0 * gun.temperature,
+            g: 0.5 - gun.temperature / 2.0,
+            b: 1.0 - gun.temperature,
+            a: 1.0,
+        }
     };
 
     let Size { width, height } = app.game_state.world.size;
@@ -165,11 +166,7 @@ fn render_stars(ctx: &mut Context, world: &World, resources: &mut Resources) -> 
             .color(color::STAR);
         resources.star_sprite.add(p);
     }
-    graphics::draw(
-        ctx,
-        &resources.star_sprite,
-        graphics::DrawParam::new(),
-    )
+    graphics::draw(ctx, &resources.star_sprite, graphics::DrawParam::new())
 }
 
 /// Renders all the particles
@@ -188,11 +185,7 @@ pub fn render_particles(
             .color(color::PARTICLE);
         resources.circle_sprite.add(p);
     }
-    graphics::draw(
-        ctx,
-        &resources.circle_sprite,
-        graphics::DrawParam::new(),
-    )
+    graphics::draw(ctx, &resources.circle_sprite, graphics::DrawParam::new())
 }
 
 /// Renders a bullet
@@ -211,11 +204,7 @@ pub fn render_bullets(
             .color(color::BULLET);
         resources.circle_sprite.add(p);
     }
-    graphics::draw(
-        ctx,
-        &resources.circle_sprite,
-        graphics::DrawParam::new(),
-    )
+    graphics::draw(ctx, &resources.circle_sprite, graphics::DrawParam::new())
 }
 
 /// Renders an enemy
@@ -230,11 +219,7 @@ pub fn render_enemy(ctx: &mut Context, world: &World, resources: &mut Resources)
             .color(color::ENEMY);
         resources.circle_sprite.add(p);
     }
-    graphics::draw(
-        ctx,
-        &resources.circle_sprite,
-        graphics::DrawParam::new(),
-    )
+    graphics::draw(ctx, &resources.circle_sprite, graphics::DrawParam::new())
 }
 
 /// Renders the player

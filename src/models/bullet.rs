@@ -1,4 +1,4 @@
-use geometry::{Advance, Collide, Vector, Size};
+use geometry::{Advance, Collide, Size, Vector};
 
 const BULLET_DISTANCE: f32 = 384.;
 
@@ -16,7 +16,10 @@ derive_position_direction!(Bullet);
 impl Bullet {
     /// Create a bullet with the given vector
     pub fn new(vector: Vector) -> Bullet {
-        Bullet { vector, distance_left: BULLET_DISTANCE }
+        Bullet {
+            vector,
+            distance_left: BULLET_DISTANCE,
+        }
     }
 
     /// Update the bullet's position

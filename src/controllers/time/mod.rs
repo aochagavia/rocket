@@ -2,9 +2,9 @@ mod timeout;
 mod timeout_queue;
 mod timer;
 
-use std::{mem, f32};
-use std::time::Duration;
 use rand::Rng;
+use std::time::Duration;
+use std::{f32, mem};
 
 use controllers::input::Actions;
 use controllers::Event;
@@ -13,9 +13,9 @@ use geometry::{Advance, Point, Position, Vector};
 use models::{Bullet, Enemy, Particle, Powerup, PowerupKind};
 use util;
 
-use self::timer::Timer;
 pub use self::timeout::Timeout;
 use self::timeout_queue::TimeoutQueue;
+use self::timer::Timer;
 
 // Constants related to time
 const BULLETS_PER_SECOND: f32 = 30.0;
@@ -74,7 +74,8 @@ impl TimeController {
     }
 
     pub fn schedule_timeout(&mut self, offset: Duration, timeout: Timeout) {
-        self.scheduled_timeouts.push(self.current_time + offset, timeout);
+        self.scheduled_timeouts
+            .push(self.current_time + offset, timeout);
     }
 
     /// Updates the game
@@ -86,7 +87,7 @@ impl TimeController {
         actions: &Actions,
         state: &mut GameState,
         events: &mut Vec<Event>,
-        rng: &mut R
+        rng: &mut R,
     ) {
         self.current_time += dt;
 
@@ -233,7 +234,7 @@ impl TimeController {
         state: &mut GameState,
         events: &mut Vec<Event>,
         time_slow: bool,
-        rng: &mut R
+        rng: &mut R,
     ) {
         // Spawn enemies at random locations
         self.enemy_timer.update(self.current_time, || {

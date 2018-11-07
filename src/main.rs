@@ -2,7 +2,6 @@
 #![deny(missing_docs)]
 #![cfg_attr(feature = "clippy", feature(plugin))]
 #![cfg_attr(feature = "clippy", plugin(clippy))]
-
 #![feature(nll)]
 
 extern crate ggez;
@@ -14,10 +13,10 @@ extern crate rand;
 #[macro_use]
 mod geometry;
 mod controllers;
-mod view;
 mod game_state;
 mod models;
 mod util;
+mod view;
 
 use ggez::event::{self, KeyCode, KeyMods};
 use ggez::{Context, GameResult};
@@ -82,7 +81,7 @@ impl event::EventHandler for ApplicationState {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         // Pause the game if the window has no focus
         if !self.has_focus {
-            return Ok(())
+            return Ok(());
         }
 
         // Update game state, and check for collisions
@@ -92,10 +91,14 @@ impl event::EventHandler for ApplicationState {
             self.input_controller.actions(),
             &mut self.game_state,
             &mut self.event_buffer,
-            &mut self.rng
+            &mut self.rng,
         );
 
-        CollisionsController::handle_collisions(&mut self.game_state, &mut self.time_controller, &mut self.event_buffer);
+        CollisionsController::handle_collisions(
+            &mut self.game_state,
+            &mut self.time_controller,
+            &mut self.event_buffer,
+        );
 
         Ok(())
     }
@@ -107,7 +110,13 @@ impl event::EventHandler for ApplicationState {
     }
 
     // Listen for keyboard events
-    fn key_down_event(&mut self, _ctx: &mut Context, keycode: KeyCode, keymod: KeyMods, _repeat: bool) {
+    fn key_down_event(
+        &mut self,
+        _ctx: &mut Context,
+        keycode: KeyCode,
+        keymod: KeyMods,
+        _repeat: bool,
+    ) {
         // If we're displaying a message (waiting for user input) then hide it and reset the game
         if let Some(_) = self.game_state.message {
             self.reset();

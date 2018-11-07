@@ -3,7 +3,7 @@ use game_state::GameState;
 #[derive(Copy, Clone)]
 pub enum Timeout {
     RemovePowerup,
-    ShowGameOverScreen
+    ShowGameOverScreen,
 }
 
 impl Timeout {

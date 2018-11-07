@@ -1,6 +1,6 @@
-use ggez::{audio, Context};
 use ggez::graphics::spritebatch::SpriteBatch;
 use ggez::graphics::{Font, Image};
+use ggez::{audio, Context};
 
 /// Additional resources needed for the game
 pub struct Resources {

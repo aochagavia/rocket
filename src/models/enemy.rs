@@ -1,5 +1,5 @@
-use geometry::{Point, Size};
 use geometry::{Advance, Collide, Vector};
+use geometry::{Point, Size};
 
 /// Enemies follow the player in order to cause a collision and let him explode
 pub struct Enemy {
@@ -20,11 +20,10 @@ impl Enemy {
         self.point_to(nearest_virtual_position(
             self.vector.position,
             player_position,
-            size
+            size,
         ));
         self.advance_wrapping(speed, size);
     }
-
 }
 
 fn nearest_virtual_position(origin: Point, destination: Point, size: Size) -> Point {
@@ -32,13 +31,12 @@ fn nearest_virtual_position(origin: Point, destination: Point, size: Size) -> Po
     for i in -1..2 {
         for j in -1..2 {
             // A point where the enemy "sees" one of the player copies.
-            let virtual_position = destination + Point{
-                x: size.width * i as f32,
-                y: size.height * j as f32,
-            };
-            if origin.squared_distance_to(virtual_position)
-                < origin.squared_distance_to(nearest)
-            {
+            let virtual_position = destination
+                + Point {
+                    x: size.width * i as f32,
+                    y: size.height * j as f32,
+                };
+            if origin.squared_distance_to(virtual_position) < origin.squared_distance_to(nearest) {
                 nearest = virtual_position;
             }
         }
