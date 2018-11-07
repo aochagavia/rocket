@@ -3,7 +3,7 @@ use ggez::GameResult;
 use controllers::Event;
 use view::Resources;
 
-pub fn play_sounds(events: &mut Vec<Event>, resources: &Resources) -> GameResult<()> {
+pub fn play_sounds(events: &mut Vec<Event>, resources: &mut Resources) -> GameResult<()> {
     use controllers::Event::*;
     for event in events.drain(..) {
         match event {

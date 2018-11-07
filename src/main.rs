@@ -19,7 +19,7 @@ mod game_state;
 mod models;
 mod util;
 
-use ggez::event::{self, Keycode, Mod};
+use ggez::event::{self, KeyCode, KeyMods};
 use ggez::{Context, GameResult};
 use rand::ThreadRng;
 
@@ -86,7 +86,7 @@ impl event::EventHandler for ApplicationState {
         }
 
         // Update game state, and check for collisions
-        let duration = ggez::timer::get_delta(ctx);
+        let duration = ggez::timer::delta(ctx);
         self.time_controller.update_seconds(
             duration,
             self.input_controller.actions(),
@@ -107,14 +107,14 @@ impl event::EventHandler for ApplicationState {
     }
 
     // Listen for keyboard events
-    fn key_down_event(&mut self, _ctx: &mut Context, keycode: Keycode, keymod: Mod, _repeat: bool) {
+    fn key_down_event(&mut self, _ctx: &mut Context, keycode: KeyCode, keymod: KeyMods, _repeat: bool) {
         // If we're displaying a message (waiting for user input) then hide it and reset the game
         if let Some(_) = self.game_state.message {
             self.reset();
         }
         self.input_controller.key_press(keycode, keymod);
     }
-    fn key_up_event(&mut self, _ctx: &mut Context, keycode: Keycode, keymod: Mod, _repeat: bool) {
+    fn key_up_event(&mut self, _ctx: &mut Context, keycode: KeyCode, keymod: KeyMods) {
         self.input_controller.key_release(keycode, keymod);
     }
 
@@ -124,16 +124,19 @@ impl event::EventHandler for ApplicationState {
     }
 }
 
-fn main() {
+fn main() -> GameResult {
     // Create the rendering context and set the background color to black
     let game_size = Size::new(1024.0, 600.0);
-    let ctx = &mut view::init_rendering_ctx(game_size).unwrap();
+    let cb = view::init_ctx_builder(game_size)?;
+    let (ctx, events_loop) = &mut cb.build()?;
 
     // Load the application state and start the event loop
-    let state = &mut ApplicationState::new(ctx, game_size).unwrap();
-    if let Err(err) = event::run(ctx, state) {
+    let state = &mut ApplicationState::new(ctx, game_size)?;
+    if let Err(err) = event::run(ctx, events_loop, state) {
         println!("Error encountered: {}", err);
+        Err(err)
     } else {
         println!("Exited cleanly, thanks for playing Rocket!");
+        Ok(())
     }
 }

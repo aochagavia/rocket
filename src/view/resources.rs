@@ -34,7 +34,7 @@ impl Resources {
 
         let circle_image = Image::new(ctx, "/images/circle.png").unwrap();
         Resources {
-            font: Font::new(ctx, "/FiraMono-Bold.ttf", 14).unwrap(),
+            font: Font::new(ctx, "/FiraMono-Bold.ttf").unwrap(),
 
             powerup_shield: Image::new(ctx, "/images/powerup_shield.png").unwrap(),
             powerup_time_slow: Image::new(ctx, "/images/powerup_time_slow.png").unwrap(),
