@@ -38,7 +38,6 @@ pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<
     // Render the score
     let text = graphics::Text::new(graphics::TextFragment {
         text: format!("Score: {}", app.game_state.score),
-        font: Some(app.resources.font),
         scale: Some(graphics::Scale::uniform(28.0)),
         ..Default::default()
     });
@@ -102,7 +101,6 @@ fn render_message(ctx: &mut Context, app: &mut ApplicationState) -> GameResult<(
             |text: &str, color: graphics::Color, is_title: bool| -> GameResult<()> {
                 let mut text = graphics::Text::new(graphics::TextFragment {
                     text: text.to_owned(),
-                    font: Some(app.resources.font),
                     scale: Some(graphics::Scale::uniform(28.0)),
                     ..Default::default()
                 });
