@@ -228,12 +228,10 @@ pub fn render_player(ctx: &mut Context, player: &Player, resources: &Resources) 
     let pt = Point2::new(player.x(), player.y());
     if let Some(powerup) = player.powerup {
         if powerup == PowerupKind::Shield {
-            let scale = (player.radius() + 30.0) / SPRITE_SIZE;
+            let offset = SPRITE_SIZE / 2.0;
             let params = graphics::DrawParam::new()
-                .dest(pt)
-                .offset(Point2::new(0.5, 0.5))
-                .color(color::SHEILD)
-                .scale(Vector2::new(scale, scale));
+                .dest(Point2::new(player.x() - offset, player.y() - offset))
+                .color(color::SHEILD);
             graphics::draw(ctx, &resources.circle_image, params)?;
         }
     }
