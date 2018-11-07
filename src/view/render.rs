@@ -39,6 +39,7 @@ pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<
     let text = graphics::Text::new(graphics::TextFragment {
         text: format!("Score: {}", app.game_state.score),
         font: Some(app.resources.font),
+        scale: Some(graphics::Scale::uniform(28.0)),
         ..Default::default()
     });
     let pt = Point2::new(8.0, 4.0);
@@ -95,28 +96,30 @@ fn render_message(ctx: &mut Context, app: &mut ApplicationState) -> GameResult<(
     if let Some(ref message) = app.game_state.message {
         let Message { title, subtitle } = *message;
         let Size { width, height } = app.game_state.world.size;
+        let center_y = height / 2.0;
 
-        let w = width / 2.0;
-        let h = height / 2.0;
+        let mut draw_text =
+            |text: &str, color: graphics::Color, is_title: bool| -> GameResult<()> {
+                let mut text = graphics::Text::new(graphics::TextFragment {
+                    text: text.to_owned(),
+                    font: Some(app.resources.font),
+                    scale: Some(graphics::Scale::uniform(28.0)),
+                    ..Default::default()
+                });
 
-        let mut draw_text = |text: &str, color: graphics::Color, is_title: bool| {
-            let text = graphics::Text::new(graphics::TextFragment {
-                text: text.to_owned(),
-                font: Some(app.resources.font),
-                ..Default::default()
-            });
-            let width = w - (text.width(&ctx) as f32 / 2.0);
-            let height = if is_title {
-                h - text.height(&ctx) as f32
-            } else {
-                h
+                let x = 196.0;
+                let y = if is_title {
+                    center_y - text.height(&ctx) as f32
+                } else {
+                    center_y
+                };
+
+                text.set_bounds(Point2::new(width, height), graphics::Align::Center);
+                graphics::draw(ctx, &text, (Point2::new(x, y), color))
             };
-            let point = Point2::new(width, height);
-            graphics::draw(ctx, &text, (point, color)).unwrap();
-        };
 
-        draw_text(title, color::WHITE, true);
-        draw_text(subtitle, color::GREY, false);
+        draw_text(title, color::WHITE, true)?;
+        draw_text(subtitle, color::GREY, false)?;
     }
 
     Ok(())
