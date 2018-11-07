@@ -62,7 +62,7 @@ pub mod color {
     pub const BULLET: Color = CYAN;
     pub const ENEMY: Color = YELLOW;
     pub const POWERUP: Color = GREEN;
-    pub const SHEILD: Color = Color {
+    pub const SHIELD: Color = Color {
         r: 0.0,
         g: 1.0,
         b: 1.0,

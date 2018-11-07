@@ -231,7 +231,7 @@ pub fn render_player(ctx: &mut Context, player: &Player, resources: &Resources) 
             let offset = SPRITE_SIZE / 2.0;
             let params = graphics::DrawParam::new()
                 .dest(Point2::new(player.x() - offset, player.y() - offset))
-                .color(color::SHEILD);
+                .color(color::SHIELD);
             graphics::draw(ctx, &resources.circle_image, params)?;
         }
     }
