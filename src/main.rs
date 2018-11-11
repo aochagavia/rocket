@@ -4,7 +4,6 @@
 #![cfg_attr(feature = "clippy", plugin(clippy))]
 
 #![feature(nll)]
-#![feature(slice_patterns)]
 
 extern crate ggez;
 extern crate itertools_num;
