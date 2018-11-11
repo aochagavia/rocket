@@ -9,6 +9,7 @@
 extern crate ggez;
 extern crate itertools_num;
 extern crate rand;
+extern crate structopt;
 
 // Note: we need to load `geometry` first so the macro is available for
 // the modules that come afterwards
@@ -23,14 +24,12 @@ mod util;
 use ggez::event::{self, Keycode, Mod};
 use ggez::{Context, GameResult};
 use rand::ThreadRng;
+use structopt::StructOpt;
 
 use controllers::{CollisionsController, Event, InputController, TimeController};
 use game_state::GameState;
 use geometry::Size;
 use view::Resources;
-
-const DEFAULT_WIDTH: f32 = 1024.0;
-const DEFAULT_HEIGHT: f32 = 600.0;
 
 /// This struct contains the application's state
 pub struct ApplicationState {
@@ -128,47 +127,27 @@ impl event::EventHandler for ApplicationState {
     }
 }
 
-/// Encapsulates all constants defined by command line arguments
-struct Args {
-    // Window size which is used for both rendering and game mechanics
-    game_size: Size,
-}
+#[derive(StructOpt, Debug)]
+#[structopt(name = "Rocket")]
+struct Opt {
+    /// Window width
+    #[structopt(long = "width", default_value = "1024")]
+    width: usize,
 
-impl Args {
-    pub fn parse<I>(args: I) -> Self
-        where I: Iterator<Item=String>
-    {
-        // First argument is the path to binary and hence should be skipped
-        let game_size = match &args.skip(1).collect::<Vec<String>>().as_slice() {
-            &[] => Size{
-                width: DEFAULT_WIDTH,
-                height: DEFAULT_HEIGHT,
-            },
-            &[width, height] => {
-                Size::new(
-                    width.parse().expect("width must be a decimal number"),
-                    height.parse().expect("height must be a decimal number"),
-                )
-            },
-            _ => {
-                println!("Usage:\n./rocket\n./rocket <width> <height>");
-                std::process::exit(1);
-            }
-        };
-        Args{
-            game_size,
-        }
-    }
+    /// Window height
+    #[structopt(long = "height", default_value = "600")]
+    height: usize,
 }
 
 fn main() {
-    let args = Args::parse(std::env::args());
+    let opt = Opt::from_args();
+    let game_size = Size::new(opt.width as f32, opt.height as f32);
 
     // Create the rendering context and set the background color to black
-    let ctx = &mut view::init_rendering_ctx(args.game_size).unwrap();
+    let ctx = &mut view::init_rendering_ctx(game_size).unwrap();
 
     // Load the application state and start the event loop
-    let state = &mut ApplicationState::new(ctx, args.game_size).unwrap();
+    let state = &mut ApplicationState::new(ctx, game_size).unwrap();
     if let Err(err) = event::run(ctx, state) {
         println!("Error encountered: {}", err);
     } else {
