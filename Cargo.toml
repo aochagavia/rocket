@@ -9,6 +9,7 @@ clippy = { version = "0.0.118", optional = true }
 itertools-num = "0.1.1"
 rand = "0.3.14"
 ggez = "0.4"
+structopt = "0.2.13"
 
 [features]
 default = []
