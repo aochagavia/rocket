@@ -1,7 +1,7 @@
 use std::time::Duration;
 
-use controllers::{Event, PLAYER_GRACE_AREA};
 use controllers::time::{TimeController, Timeout};
+use controllers::{Event, PLAYER_GRACE_AREA};
 use game_state::GameState;
 use geometry::{Collide, Point, Position};
 use models::{Enemy, Particle, PowerupKind};
@@ -13,28 +13,28 @@ const POWERUP_DURATION: u64 = 10;
 pub struct CollisionsController;
 
 impl CollisionsController {
-    pub fn handle_collisions(state: &mut GameState, time_controller: &mut TimeController, events: &mut Vec<Event>) {
+    pub fn handle_collisions(
+        state: &mut GameState,
+        time_controller: &mut TimeController,
+        events: &mut Vec<Event>,
+    ) {
         let old_enemy_count = state.world.enemies.len();
 
         CollisionsController::handle_bullet_collisions(state, events);
 
-        let got_powerup =
-            CollisionsController::handle_powerup_collisions(state, events);
+        let got_powerup = CollisionsController::handle_powerup_collisions(state, events);
         if got_powerup {
             // Powerups run out after `POWERUP_DURATION` seconds
             let offset = Duration::from_secs(POWERUP_DURATION);
-            time_controller
-                .schedule_timeout(offset, Timeout::RemovePowerup);
+            time_controller.schedule_timeout(offset, Timeout::RemovePowerup);
         }
 
         // If the player died then we set a timeout after which a game over message
         // will appear, and the user will be able to restart.
-        let player_died =
-            CollisionsController::handle_player_collisions(state, events);
+        let player_died = CollisionsController::handle_player_collisions(state, events);
         if player_died {
             let offset = Duration::from_secs(2);
-            time_controller
-                .schedule_timeout(offset, Timeout::ShowGameOverScreen);
+            time_controller.schedule_timeout(offset, Timeout::ShowGameOverScreen);
         }
 
         let killed_enemies = (old_enemy_count - state.world.enemies.len()) as u32;

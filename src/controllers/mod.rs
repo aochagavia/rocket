@@ -16,5 +16,5 @@ pub enum Event {
     PowerupGained,
     ShotFired,
     EnemySpawned,
-    GameStart
+    GameStart,
 }

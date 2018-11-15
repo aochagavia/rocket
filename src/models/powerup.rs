@@ -1,5 +1,5 @@
-use rand::Rng;
 use geometry::{Collide, Point, Position, Size};
+use rand::Rng;
 
 const POWERUP_TTL: f32 = 10.0;
 const POWERUP_SIZE: f32 = 20.0;

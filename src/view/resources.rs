@@ -1,11 +1,9 @@
-use ggez::{audio, Context};
 use ggez::graphics::spritebatch::SpriteBatch;
-use ggez::graphics::{Font, Image};
+use ggez::graphics::Image;
+use ggez::{audio, Context};
 
 /// Additional resources needed for the game
 pub struct Resources {
-    pub(in view) font: Font,
-
     // Images
     pub(in view) powerup_shield: Image,
     pub(in view) powerup_time_slow: Image,
@@ -34,8 +32,6 @@ impl Resources {
 
         let circle_image = Image::new(ctx, "/images/circle.png").unwrap();
         Resources {
-            font: Font::new(ctx, "/FiraMono-Bold.ttf", 14).unwrap(),
-
             powerup_shield: Image::new(ctx, "/images/powerup_shield.png").unwrap(),
             powerup_time_slow: Image::new(ctx, "/images/powerup_time_slow.png").unwrap(),
             powerup_triple_shot: Image::new(ctx, "/images/powerup_triple_shot.png").unwrap(),

@@ -8,7 +8,7 @@ build = "build.rs"
 clippy = { version = "0.0.118", optional = true }
 itertools-num = "0.1.1"
 rand = "0.3.14"
-ggez = "0.4"
+ggez = { git = "https://github.com/ggez/ggez.git", branch = "devel" }
 structopt = "0.2.13"
 
 [features]

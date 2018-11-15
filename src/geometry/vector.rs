@@ -1,5 +1,5 @@
-use std::f32;
 use rand::Rng;
+use std::f32;
 
 use super::{Point, Size};
 
@@ -41,10 +41,18 @@ impl Vector {
 macro_rules! derive_position_direction {
     ($t:ty) => {
         impl ::geometry::Position for $t {
-            fn x(&self) -> f32 { self.vector.position.x }
-            fn y(&self) -> f32 { self.vector.position.y }
-            fn x_mut(&mut self) -> &mut f32 { &mut self.vector.position.x }
-            fn y_mut(&mut self) -> &mut f32 { &mut self.vector.position.y }
+            fn x(&self) -> f32 {
+                self.vector.position.x
+            }
+            fn y(&self) -> f32 {
+                self.vector.position.y
+            }
+            fn x_mut(&mut self) -> &mut f32 {
+                &mut self.vector.position.x
+            }
+            fn y_mut(&mut self) -> &mut f32 {
+                &mut self.vector.position.y
+            }
         }
 
         impl ::geometry::Advance for $t {
@@ -56,5 +64,5 @@ macro_rules! derive_position_direction {
                 &mut self.vector.direction
             }
         }
-    }
+    };
 }

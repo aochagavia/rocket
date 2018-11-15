@@ -26,7 +26,7 @@ Keyboard                | Action
 
 ### Running Rocket
 
-Unless you are using Windows, you'll need to install SDL2 on your system. There are detailed instructions [here](https://github.com/Rust-SDL2/rust-sdl2). And as always, it is a real pleasure to work with Cargo. You only need the following:
+As always, it is a real pleasure to work with Cargo. You only need the following:
 
 ```
 cargo run --release

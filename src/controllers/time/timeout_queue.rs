@@ -1,7 +1,7 @@
-use std::collections::BinaryHeap;
-use std::time::Duration;
 use std::cmp::Ordering;
+use std::collections::BinaryHeap;
 use std::fmt;
+use std::time::Duration;
 
 use controllers::time::Timeout;
 
@@ -69,8 +69,6 @@ impl TimeoutQueue {
     }
 
     pub fn pop(&mut self) -> Option<Timeout> {
-        self.heap
-            .pop()
-            .map(|ScheduledTimeout(_, event)| event)
+        self.heap.pop().map(|ScheduledTimeout(_, event)| event)
     }
 }
