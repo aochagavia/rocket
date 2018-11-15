@@ -7,6 +7,7 @@
 extern crate ggez;
 extern crate itertools_num;
 extern crate rand;
+extern crate structopt;
 
 // Note: we need to load `geometry` first so the macro is available for
 // the modules that come afterwards
@@ -21,6 +22,7 @@ mod view;
 use ggez::event::{self, KeyCode, KeyMods};
 use ggez::{Context, GameResult};
 use rand::ThreadRng;
+use structopt::StructOpt;
 
 use controllers::{CollisionsController, Event, InputController, TimeController};
 use game_state::GameState;
@@ -133,9 +135,24 @@ impl event::EventHandler for ApplicationState {
     }
 }
 
+#[derive(StructOpt, Debug)]
+#[structopt(name = "Rocket")]
+struct Opt {
+    /// Window width
+    #[structopt(long = "width", default_value = "1024")]
+    width: usize,
+
+    /// Window height
+    #[structopt(long = "height", default_value = "600")]
+    height: usize,
+}
+
 fn main() -> GameResult {
-    // Create the rendering context and set the background color to black
-    let game_size = Size::new(1024.0, 600.0);
+    // Parse command line arguments
+    let opt = Opt::from_args();
+    let game_size = Size::new(opt.width as f32, opt.height as f32);
+
+    // Create the rendering context
     let cb = view::init_ctx_builder(game_size)?;
     let (ctx, events_loop) = &mut cb.build()?;
 
