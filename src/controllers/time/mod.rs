@@ -295,7 +295,8 @@ impl TimeController {
     fn update_stars(&mut self, dt: f32, state: &mut GameState, time_slow: bool) {
         for star in &mut state.world.stars {
             let base_speed = if time_slow { 20.0 } else { STAR_BASE_SPEED };
-            star.advance_wrapping(dt * base_speed * star.speed, state.world.size);
+            let speed = dt * base_speed * star.speed;
+            star.advance_wrapping(speed, state.world.size);
         }
     }
 }

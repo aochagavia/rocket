@@ -3,8 +3,6 @@
 #![cfg_attr(feature = "clippy", feature(plugin))]
 #![cfg_attr(feature = "clippy", plugin(clippy))]
 
-#![feature(nll)]
-
 extern crate ggez;
 extern crate itertools_num;
 extern crate rand;
