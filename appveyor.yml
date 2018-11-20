@@ -4,9 +4,13 @@ environment:
 
   matrix:
       - TARGET: x86_64-pc-windows-gnu
-        CHANNEL: nightly
+        CHANNEL: stable
       - TARGET: i686-pc-windows-gnu
-        CHANNEL: nightly
+        CHANNEL: stable
+      - TARGET: x86_64-pc-windows-gnu
+        CHANNEL: beta
+      - TARGET: i686-pc-windows-gnu
+        CHANNEL: beta
 
 # Based on https://github.com/japaric/rust-everywhere/blob/master/appveyor.yml
 install:
