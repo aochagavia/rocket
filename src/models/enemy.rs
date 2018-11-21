@@ -16,9 +16,10 @@ impl Enemy {
 
     /// Update the enemy
     pub fn update(&mut self, speed: f32, player_position: Point, size: Size) {
+        let vector_position = self.vector.position;
         // Point to the player
         self.point_to(nearest_virtual_position(
-            self.vector.position,
+            vector_position,
             player_position,
             size
         ));
