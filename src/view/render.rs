@@ -2,12 +2,14 @@ use std;
 use ggez::graphics::{self, Color, DrawMode, Point2, Rect};
 use ggez::{conf, Context, ContextBuilder, GameResult};
 
-use ApplicationState;
-use game_state::Message;
-use geometry::{Advance, Collide, Position, Size};
-use models::{Player, PowerupKind, World, PLAYER_POLYGON};
-use view::drawing::color;
-use view::Resources;
+use crate::{
+    ApplicationState,
+    game_state::Message,
+    geometry::{Advance, Collide, Position, Size},
+    models::{Player, PowerupKind, World, PLAYER_POLYGON},
+    view::drawing::color,
+    view::Resources,
+};
 
 const SPRITE_SIZE: f32 = 32.0;
 const GUN_HEAT_STATUS_WIDTH: f32 = 100.0;

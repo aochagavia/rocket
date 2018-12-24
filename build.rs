@@ -7,7 +7,7 @@ fn main() {
     let res_dir_source = Path::new(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("resources/");
     let res_dir_target = Path::new(&env::var("OUT_DIR").unwrap()).join("../../../resources/");
 
-    //copies all resource files to "target/NAME/resources". Prints out any errors if failed.
+    // Copies all resource files to "target/NAME/resources". Prints out any errors if failed.
     if let Err(io_error) = add_resources(&res_dir_source, &res_dir_target) {
         println!("OS Error: {}", io_error);
     }
@@ -51,8 +51,8 @@ fn main() {
     }
 }
 
-///Recursively copy all files in dir given by source_path to dir given by target path
-///WARNING! Overwrites files with same name
+// Recursively copy all files in dir given by source_path to dir given by target path
+// WARNING! Overwrites files with same name
 fn add_resources(source_path: &PathBuf, target_path: &PathBuf) -> io::Result<()> {
     match read_dir(source_path) {
         Ok(entry_iter) => {

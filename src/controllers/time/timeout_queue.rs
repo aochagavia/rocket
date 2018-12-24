@@ -3,7 +3,7 @@ use std::time::Duration;
 use std::cmp::Ordering;
 use std::fmt;
 
-use controllers::time::Timeout;
+use crate::controllers::time::Timeout;
 
 // This is a Priority Queue. Rust's native implementation of a BinaryHeap is a max-heap - we want to
 // use a min-heap, so we have to define a min-ordering for a custom type which is just a wrapper for

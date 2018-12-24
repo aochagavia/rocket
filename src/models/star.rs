@@ -1,6 +1,6 @@
 use std;
 use rand::Rng;
-use geometry::{Point, Size, Vector};
+use crate::geometry::{Point, Size, Vector};
 
 /// Stars glide from right to left across the screen in the background
 pub struct Star {

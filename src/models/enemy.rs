@@ -1,5 +1,4 @@
-use geometry::{Point, Size};
-use geometry::{Advance, Collide, Vector};
+use crate::geometry::{Point, Size, Advance, Collide, Vector};
 
 /// Enemies follow the player in order to cause a collision and let him explode
 pub struct Enemy {

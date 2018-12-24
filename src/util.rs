@@ -1,7 +1,9 @@
 use std::time::Duration;
 
-use geometry::{Point, Vector};
-use models::Particle;
+use crate::{
+    geometry::{Point, Vector},
+    models::Particle,
+};
 
 /// Converts a duration to seconds
 pub fn duration_to_seconds(d: Duration) -> f32 {

@@ -1,26 +1,32 @@
-use ggez::{audio, Context};
-use ggez::graphics::spritebatch::SpriteBatch;
-use ggez::graphics::{Font, Image};
+use ggez::{
+    audio,
+    Context,
+    graphics::{
+        Font,
+        Image,
+        spritebatch::SpriteBatch,
+    }
+};
 
 /// Additional resources needed for the game
 pub struct Resources {
-    pub(in view) font: Font,
+    pub(in crate::view) font: Font,
 
     // Images
-    pub(in view) powerup_shield: Image,
-    pub(in view) powerup_time_slow: Image,
-    pub(in view) powerup_triple_shot: Image,
-    pub(in view) circle_image: Image,
-    pub(in view) star_sprite: SpriteBatch,
-    pub(in view) circle_sprite: SpriteBatch,
+    pub(in crate::view) powerup_shield: Image,
+    pub(in crate::view) powerup_time_slow: Image,
+    pub(in crate::view) powerup_triple_shot: Image,
+    pub(in crate::view) circle_image: Image,
+    pub(in crate::view) star_sprite: SpriteBatch,
+    pub(in crate::view) circle_sprite: SpriteBatch,
 
     // Sounds
-    pub(in view) shot_sound: audio::Source,
-    pub(in view) powerup_sound: audio::Source,
-    pub(in view) game_start_sound: audio::Source,
-    pub(in view) enemy_spawn_sound: audio::Source,
-    pub(in view) enemy_destroyed_sound: audio::Source,
-    pub(in view) player_destroyed_sound: audio::Source,
+    pub(in crate::view) shot_sound: audio::Source,
+    pub(in crate::view) powerup_sound: audio::Source,
+    pub(in crate::view) game_start_sound: audio::Source,
+    pub(in crate::view) enemy_spawn_sound: audio::Source,
+    pub(in crate::view) enemy_destroyed_sound: audio::Source,
+    pub(in crate::view) player_destroyed_sound: audio::Source,
 }
 
 impl Resources {

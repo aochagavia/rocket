@@ -1,11 +1,16 @@
 use std::time::Duration;
 
-use controllers::{Event, PLAYER_GRACE_AREA};
-use controllers::time::{TimeController, Timeout};
-use game_state::GameState;
-use geometry::{Collide, Point, Position};
-use models::{Enemy, Particle, PowerupKind};
-use util;
+use crate::{
+    controllers::{
+        Event,
+        PLAYER_GRACE_AREA,
+        time::{TimeController, Timeout},
+    },
+    game_state::GameState,
+    geometry::{Collide, Point, Position},
+    models::{Enemy, Particle, PowerupKind},
+    util,
+};
 
 const SCORE_PER_ENEMY: u32 = 10;
 const POWERUP_DURATION: u64 = 10;

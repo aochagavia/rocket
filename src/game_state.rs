@@ -1,7 +1,9 @@
 use rand::Rng;
 
-use geometry::{Position, Size};
-use models::World;
+use crate::{
+    geometry::{Position, Size},
+    models::World,
+};
 
 /// This is a message that will be drawn to the screen. When it's shown on the screen the game
 /// will be waiting for user input

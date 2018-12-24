@@ -1,4 +1,4 @@
-use geometry::{Advance, Collide, Vector, Size};
+use crate::geometry::{Advance, Collide, Vector, Size};
 
 const BULLET_DISTANCE: f32 = 384.;
 

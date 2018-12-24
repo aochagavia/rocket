@@ -1,7 +1,9 @@
 use rand::Rng;
 
-use geometry::Size;
-use models::{Bullet, Enemy, Particle, Player, Powerup, Star};
+use crate::{
+    geometry::Size,
+    models::{Bullet, Enemy, Particle, Player, Powerup, Star},
+};
 
 const MAX_STARS: usize = 100;
 

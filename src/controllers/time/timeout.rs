@@ -1,4 +1,4 @@
-use game_state::GameState;
+use crate::game_state::GameState;
 
 #[derive(Copy, Clone)]
 pub enum Timeout {

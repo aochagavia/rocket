@@ -1,12 +1,5 @@
 //! A 2D toy game written in Rust, using the ggez library.
 #![deny(missing_docs)]
-#![cfg_attr(feature = "clippy", feature(plugin))]
-#![cfg_attr(feature = "clippy", plugin(clippy))]
-
-extern crate ggez;
-extern crate itertools_num;
-extern crate rand;
-extern crate structopt;
 
 // Note: we need to load `geometry` first so the macro is available for
 // the modules that come afterwards
@@ -20,13 +13,16 @@ mod util;
 
 use ggez::event::{self, Keycode, Mod};
 use ggez::{Context, GameResult};
-use rand::ThreadRng;
+use rand::prelude::ThreadRng;
 use structopt::StructOpt;
 
-use controllers::{CollisionsController, Event, InputController, TimeController};
-use game_state::GameState;
-use geometry::Size;
-use view::Resources;
+use crate::{
+    controllers::{CollisionsController, Event, InputController, TimeController},
+    game_state::GameState,
+    geometry::Size,
+    view::Resources,
+};
+
 
 /// This struct contains the application's state
 pub struct ApplicationState {

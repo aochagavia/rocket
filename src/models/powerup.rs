@@ -1,5 +1,5 @@
-use rand::Rng;
-use geometry::{Collide, Point, Position, Size};
+use rand::{Rng, seq::SliceRandom};
+use crate::geometry::{Collide, Point, Position, Size};
 
 const POWERUP_TTL: f32 = 10.0;
 const POWERUP_SIZE: f32 = 20.0;
@@ -17,12 +17,12 @@ pub enum PowerupKind {
 
 impl PowerupKind {
     pub fn random<R: Rng>(rng: &mut R) -> PowerupKind {
-        let choices = [
+        let choices = &[
             PowerupKind::Shield,
             PowerupKind::TimeSlow,
             PowerupKind::TripleShot,
         ];
-        *rng.choose(&choices).unwrap()
+        *choices.choose(rng).unwrap()
     }
 }
 

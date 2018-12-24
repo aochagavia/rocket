@@ -6,12 +6,16 @@ use std::{mem, f32};
 use std::time::Duration;
 use rand::Rng;
 
-use controllers::input::Actions;
-use controllers::Event;
-use game_state::GameState;
-use geometry::{Advance, Point, Position, Vector};
-use models::{Bullet, Enemy, Particle, Powerup, PowerupKind};
-use util;
+use crate::{
+    controllers::{
+        Event,
+        input::Actions,
+    },
+    game_state::GameState,
+    geometry::{Advance, Point, Position, Vector},
+    models::{Bullet, Enemy, Particle, Powerup, PowerupKind},
+    util,
+};
 
 use self::timer::Timer;
 pub use self::timeout::Timeout;

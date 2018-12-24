@@ -1,10 +1,12 @@
 use ggez::GameResult;
 
-use controllers::Event;
-use view::Resources;
+use crate::{
+    controllers::Event,
+    view::Resources,
+};
 
 pub fn play_sounds(events: &mut Vec<Event>, resources: &Resources) -> GameResult<()> {
-    use controllers::Event::*;
+    use self::Event::*;
     for event in events.drain(..) {
         match event {
             EnemyDestroyed => resources.enemy_destroyed_sound.play()?,

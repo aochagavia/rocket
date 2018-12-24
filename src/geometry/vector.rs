@@ -40,14 +40,14 @@ impl Vector {
 #[macro_export]
 macro_rules! derive_position_direction {
     ($t:ty) => {
-        impl ::geometry::Position for $t {
+        impl crate::geometry::Position for $t {
             fn x(&self) -> f32 { self.vector.position.x }
             fn y(&self) -> f32 { self.vector.position.y }
             fn x_mut(&mut self) -> &mut f32 { &mut self.vector.position.x }
             fn y_mut(&mut self) -> &mut f32 { &mut self.vector.position.y }
         }
 
-        impl ::geometry::Advance for $t {
+        impl crate::geometry::Advance for $t {
             fn direction(&self) -> f32 {
                 self.vector.direction
             }

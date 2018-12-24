@@ -3,14 +3,11 @@ name = "rocket"
 version = "1.0.0"
 authors = ["Adolfo Ochagavía <aochagavia92@gmail.com>"]
 build = "build.rs"
+edition = "2018"
 
 [dependencies]
-clippy = { version = "0.0.118", optional = true }
-itertools-num = "0.1.1"
-rand = "0.3.14"
-ggez = "0.4"
-structopt = "0.2.13"
-
-[features]
-default = []
-debug = []
+itertools-num = "0.1.3"
+rand = "0.6.1"
+ggez = "0.4.4"
+structopt = "0.2.14"
+specs = "0.14.1"

@@ -1,7 +1,7 @@
 use rand::Rng;
 
 use super::{Gun, PowerupKind};
-use geometry::{Advance, Collide, Point, Position, Size, Vector};
+use crate::geometry::{Advance, Collide, Point, Position, Size, Vector};
 
 /// The `Player` is the rocket controlled by the user
 #[derive(Default)]

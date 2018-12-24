@@ -1,4 +1,4 @@
-use geometry::{Advance, Vector};
+use crate::geometry::{Advance, Vector};
 
 /// A model representing a particle
 ///
