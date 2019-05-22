@@ -1,10 +1,9 @@
 //! A 2D toy game written in Rust, using the ggez library.
 #![deny(missing_docs)]
 
-// Note: we need to load `geometry` first so the macro is available for
-// the modules that come afterwards
-#[macro_use]
-mod geometry;
+extern crate geometry;
+extern crate geometry_derive;
+
 mod controllers;
 mod view;
 mod game_state;

@@ -1,15 +1,15 @@
 use std;
 use rand::Rng;
-use crate::geometry::{Point, Size, Vector};
+use crate::geometry::{Advance, Position, Point, Size, Vector};
+use crate::geometry_derive::{Advance, Position};
 
 /// Stars glide from right to left across the screen in the background
+#[derive(Advance, Position)]
 pub struct Star {
     vector: Vector,
     pub speed: f32,
     pub size: f32,
 }
-
-derive_position_direction!(Star);
 
 impl Star {
     // Create a new star at a random point, with a random speed and size

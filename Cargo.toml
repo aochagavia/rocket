@@ -11,3 +11,11 @@ rand = "0.6.1"
 ggez = "0.4.4"
 structopt = "0.2.14"
 specs = "0.14.1"
+geometry = { path = "geometry" }
+geometry-derive = { path = "geometry-derive" }
+
+[workspace]
+members = [
+    "geometry",
+    "geometry-derive"
+]

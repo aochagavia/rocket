@@ -1,16 +1,16 @@
-use crate::geometry::{Advance, Vector};
+use crate::geometry::{Advance, Position, Vector};
+use crate::geometry_derive::{Advance, Position};
 
 /// A model representing a particle
 ///
 /// Particles are visible objects that have a time to live and move around
 /// in a given direction until their time is up. They are spawned when the
 /// player or an enemy is killed
+#[derive(Advance, Position)]
 pub struct Particle {
     pub vector: Vector,
     pub ttl: f32,
 }
-
-derive_position_direction!(Particle);
 
 impl Particle {
     /// Create a particle with the given vector and time to live in seconds

@@ -35,26 +35,3 @@ impl Vector {
         self
     }
 }
-
-/// A macro to implement `Position` and `Direction` for any type that has a field named `vector`
-#[macro_export]
-macro_rules! derive_position_direction {
-    ($t:ty) => {
-        impl crate::geometry::Position for $t {
-            fn x(&self) -> f32 { self.vector.position.x }
-            fn y(&self) -> f32 { self.vector.position.y }
-            fn x_mut(&mut self) -> &mut f32 { &mut self.vector.position.x }
-            fn y_mut(&mut self) -> &mut f32 { &mut self.vector.position.y }
-        }
-
-        impl crate::geometry::Advance for $t {
-            fn direction(&self) -> f32 {
-                self.vector.direction
-            }
-
-            fn direction_mut(&mut self) -> &mut f32 {
-                &mut self.vector.direction
-            }
-        }
-    }
-}

@@ -1,11 +1,11 @@
-use crate::geometry::{Point, Size, Advance, Collide, Vector};
+use crate::geometry::{Point, Size, Advance, Position, Collide, Vector};
+use crate::geometry_derive::{Advance, Position};
 
 /// Enemies follow the player in order to cause a collision and let him explode
+#[derive(Advance, Position)]
 pub struct Enemy {
     vector: Vector,
 }
-
-derive_position_direction!(Enemy);
 
 impl Enemy {
     /// Create a enemy with the given vector

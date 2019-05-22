@@ -2,17 +2,16 @@ use rand::Rng;
 
 use super::{Gun, PowerupKind};
 use crate::geometry::{Advance, Collide, Point, Position, Size, Vector};
+use crate::geometry_derive::{Advance, Position};
 
 /// The `Player` is the rocket controlled by the user
-#[derive(Default)]
+#[derive(Default, Advance, Position)]
 pub struct Player {
     pub vector: Vector,
     pub is_dead: bool,
     pub powerup: Option<PowerupKind>,
     pub gun: Gun,
 }
-
-derive_position_direction!(Player);
 
 /// The player is represented as the polygon below
 pub const POLYGON: &'static [[f32; 2]] = &[[-10.0, -8.0], [10.0, 0.0], [-10.0, 8.0]];

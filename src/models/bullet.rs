@@ -1,17 +1,16 @@
-use crate::geometry::{Advance, Collide, Vector, Size};
+use crate::geometry::{Advance, Position, Collide, Vector, Size};
+use crate::geometry_derive::{Advance, Position};
 
 const BULLET_DISTANCE: f32 = 384.;
 
 /// Bullets are spawned when the player shoots
 ///
 /// When an enemy is reached by a bullet, it will explode
-#[derive(Clone)]
+#[derive(Clone, Advance, Position)]
 pub struct Bullet {
     vector: Vector,
     distance_left: f32,
 }
-
-derive_position_direction!(Bullet);
 
 impl Bullet {
     /// Create a bullet with the given vector
