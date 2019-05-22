@@ -1,5 +1,5 @@
-use crate::geometry::{Advance, Position, Collide, Vector, Size};
-use crate::geometry_derive::{Advance, Position};
+use geometry::{Advance, Position, Collide, Vector, Size};
+use geometry_derive::{Advance, Position};
 
 const BULLET_DISTANCE: f32 = 384.;
 

@@ -1,7 +1,7 @@
 use std;
 use rand::Rng;
-use crate::geometry::{Advance, Position, Point, Size, Vector};
-use crate::geometry_derive::{Advance, Position};
+use geometry::{Advance, Position, Point, Size, Vector};
+use geometry_derive::{Advance, Position};
 
 /// Stars glide from right to left across the screen in the background
 #[derive(Advance, Position)]

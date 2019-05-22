@@ -1,5 +1,5 @@
-use crate::geometry::{Advance, Position, Vector};
-use crate::geometry_derive::{Advance, Position};
+use geometry::{Advance, Position, Vector};
+use geometry_derive::{Advance, Position};
 
 /// A model representing a particle
 ///

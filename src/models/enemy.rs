@@ -1,5 +1,5 @@
-use crate::geometry::{Point, Size, Advance, Position, Collide, Vector};
-use crate::geometry_derive::{Advance, Position};
+use geometry::{Point, Size, Advance, Position, Collide, Vector};
+use geometry_derive::{Advance, Position};
 
 /// Enemies follow the player in order to cause a collision and let him explode
 #[derive(Advance, Position)]

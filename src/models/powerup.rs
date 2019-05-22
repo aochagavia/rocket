@@ -1,5 +1,5 @@
 use rand::{Rng, seq::SliceRandom};
-use crate::geometry::{Collide, Point, Position, Size};
+use geometry::{Collide, Point, Position, Size};
 
 const POWERUP_TTL: f32 = 10.0;
 const POWERUP_SIZE: f32 = 20.0;
