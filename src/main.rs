@@ -10,7 +10,7 @@ mod game_state;
 mod models;
 mod util;
 
-use ggez::event::{self, Keycode, Mod};
+use ggez::event::{self, KeyCode, KeyMods};
 use ggez::{Context, GameResult};
 use rand::prelude::ThreadRng;
 use structopt::StructOpt;
@@ -81,7 +81,7 @@ impl event::EventHandler for ApplicationState {
         }
 
         // Update game state, and check for collisions
-        let duration = ggez::timer::get_delta(ctx);
+        let duration = ggez::timer::delta(ctx);
         self.time_controller.update_seconds(
             duration,
             self.input_controller.actions(),
@@ -97,19 +97,20 @@ impl event::EventHandler for ApplicationState {
 
     // This is called when ggez wants us to draw our game
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
-        view::play_sounds(&mut self.event_buffer, &mut self.resources)?;
+        view::play_sounds(ctx, &mut self.event_buffer, &mut self.resources)?;
         view::render_game(self, ctx)
     }
 
     // Listen for keyboard events
-    fn key_down_event(&mut self, _ctx: &mut Context, keycode: Keycode, keymod: Mod, _repeat: bool) {
+    fn key_down_event(&mut self, _ctx: &mut Context, keycode: KeyCode, keymod: KeyMods, _repeat: bool) {
         // If we're displaying a message (waiting for user input) then hide it and reset the game
         if let Some(_) = self.game_state.message {
             self.reset();
         }
         self.input_controller.key_press(keycode, keymod);
     }
-    fn key_up_event(&mut self, _ctx: &mut Context, keycode: Keycode, keymod: Mod, _repeat: bool) {
+
+    fn key_up_event(&mut self, _ctx: &mut Context, keycode: KeyCode, keymod: KeyMods) {
         self.input_controller.key_release(keycode, keymod);
     }
 
@@ -127,7 +128,7 @@ struct Opt {
     width: usize,
 
     /// Window height
-    #[structopt(long = "height", default_value = "600")]
+    #[structopt(long = "height", default_value = "576")]
     height: usize,
 }
 
@@ -136,13 +137,9 @@ fn main() {
     let game_size = Size::new(opt.width as f32, opt.height as f32);
 
     // Create the rendering context and set the background color to black
-    let ctx = &mut view::init_rendering_ctx(game_size).unwrap();
+    let (mut ctx, event_loop) = view::init_rendering_ctx(game_size).unwrap();
 
     // Load the application state and start the event loop
-    let state = &mut ApplicationState::new(ctx, game_size).unwrap();
-    if let Err(err) = event::run(ctx, state) {
-        println!("Error encountered: {}", err);
-    } else {
-        println!("Exited cleanly, thanks for playing Rocket!");
-    }
+    let state = ApplicationState::new(&mut ctx, game_size).unwrap();
+    event::run(ctx, event_loop, state);
 }

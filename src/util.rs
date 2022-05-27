@@ -30,7 +30,6 @@ where
 /// Generates a new explosion of the given intensity at the given position.
 /// This works best with values between 5 and 25
 pub fn make_explosion(particles: &mut Vec<Particle>, position: &Point, intensity: u8) {
-    use itertools_num;
     for rotation in itertools_num::linspace(0.0, 2.0 * ::std::f32::consts::PI, 30) {
         for ttl in (1..intensity).map(|x| (x as f32) / 10.0) {
             particles.push(Particle::new(Vector::new(position.clone(), rotation), ttl));

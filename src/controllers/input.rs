@@ -1,4 +1,4 @@
-use ggez::event::{Keycode, Mod};
+use ggez::event::{KeyCode, KeyMods};
 
 #[derive(Default)]
 pub struct InputController {
@@ -26,22 +26,22 @@ impl InputController {
     }
 
     /// Processes a key press
-    pub fn key_press(&mut self, keycode: Keycode, _keymod: Mod) {
+    pub fn key_press(&mut self, keycode: KeyCode, _keymod: KeyMods) {
         self.handle_key(keycode, true);
     }
 
     /// Processes a key release
-    pub fn key_release(&mut self, keycode: Keycode, _keymod: Mod) {
+    pub fn key_release(&mut self, keycode: KeyCode, _keymod: KeyMods) {
         self.handle_key(keycode, false);
     }
 
     /// Handles a key press or release
-    fn handle_key(&mut self, keycode: Keycode, pressed: bool) {
+    fn handle_key(&mut self, keycode: KeyCode, pressed: bool) {
         match keycode {
-            Keycode::Left => self.actions.rotate_left = pressed,
-            Keycode::Right => self.actions.rotate_right = pressed,
-            Keycode::Up => self.actions.boost = pressed,
-            Keycode::Space => self.actions.shoot = pressed,
+            KeyCode::Left => self.actions.rotate_left = pressed,
+            KeyCode::Right => self.actions.rotate_right = pressed,
+            KeyCode::Up => self.actions.boost = pressed,
+            KeyCode::Space => self.actions.shoot = pressed,
             _ => (),
         }
     }

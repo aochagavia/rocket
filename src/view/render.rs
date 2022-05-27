@@ -1,6 +1,9 @@
 use std;
-use ggez::graphics::{self, Color, DrawMode, Point2, Rect};
+use ggez::graphics::{self, Color, DrawMode, DrawParam, FillOptions, Mesh, Rect, StrokeOptions, TextFragment};
 use ggez::{conf, Context, ContextBuilder, GameResult};
+use ggez::event::EventLoop;
+use ggez::mint::Point2;
+use geometry::Point;
 
 use crate::{
     ApplicationState,
@@ -15,22 +18,21 @@ const SPRITE_SIZE: f32 = 32.0;
 const GUN_HEAT_STATUS_WIDTH: f32 = 100.0;
 const GUN_HEAT_STATUS_HEIGHT: f32 = 20.0;
 
-pub fn init_rendering_ctx(game_size: Size) -> GameResult<Context> {
+pub fn init_rendering_ctx(game_size: Size) -> GameResult<(Context, EventLoop<()>)> {
     let cb = ContextBuilder::new("rocket", "ggez")
         .window_setup(conf::WindowSetup::default().title("Rocket!"))
         .window_mode(
-            conf::WindowMode::default().dimensions(game_size.width as u32, game_size.height as u32),
+            conf::WindowMode::default().dimensions(game_size.width, game_size.height),
         );
 
-    let mut ctx = cb.build()?;
-    graphics::set_background_color(&mut ctx, color::BLACK);
+    let ctx = cb.build()?;
     Ok(ctx)
 }
 
 /// Renders the game to the screen
 pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<()> {
     // Clear everything
-    graphics::clear(ctx);
+    graphics::clear(ctx, Color::BLACK);
 
     // Render the world
     render_world(ctx, &app.game_state.world, &mut app.resources)?;
@@ -39,57 +41,54 @@ pub fn render_game(app: &mut ApplicationState, ctx: &mut Context) -> GameResult<
     render_message(ctx, app)?;
 
     // Render the score
-    let text = graphics::Text::new(
-        ctx,
-        &format!("Score: {}", app.game_state.score),
-        &app.resources.font,
-    )?;
-    let pt = Point2::new(8.0, 4.0);
-    graphics::set_color(ctx, color::SCORE)?;
-    graphics::draw(ctx, &text, pt, 0.0)?;
+    let fragment = TextFragment::new(format!("Score: {}", app.game_state.score)).font(app.resources.font);
+    let text = graphics::Text::new(fragment);
+    let pt = point2(Point::new(8.0, 4.0));
+    graphics::draw(ctx, &text, DrawParam::new().dest(pt).color(color::SCORE))?;
 
     // Render the gun's heat status in the bottom right of the screen
     let gun = &app.game_state.world.player.gun;
-    if !gun.is_available() {
-        graphics::set_color(ctx, color::RED)?;
+    let color = if !gun.is_available() {
+        color::RED
     } else {
-        graphics::set_color(
-            ctx,
-            Color {
-                r: 1.0 * gun.temperature,
-                g: 0.5 - gun.temperature / 2.0,
-                b: 1.0 - gun.temperature,
-                a: 1.0,
-            },
-        )?;
-    }
+        Color {
+            r: 1.0 * gun.temperature,
+            g: 0.5 - gun.temperature / 2.0,
+            b: 1.0 - gun.temperature,
+            a: 1.0,
+        }
+    };
 
     let Size { width, height } = app.game_state.world.size;
     let x = width - GUN_HEAT_STATUS_WIDTH - 20.0;
     let y = height - 40.0;
     let rect = Rect {
-        x: x,
-        y: y,
+        x,
+        y,
         w: GUN_HEAT_STATUS_WIDTH * gun.temperature,
         h: GUN_HEAT_STATUS_HEIGHT,
     };
-    graphics::rectangle(ctx, DrawMode::Fill, rect)?;
-    graphics::rectangle(
+    let r1 = Mesh::new_rectangle(ctx, DrawMode::Fill(FillOptions::default()), rect, color)?;
+    let r2 = Mesh::new_rectangle(
         ctx,
-        DrawMode::Line(1.0),
+        DrawMode::Stroke(StrokeOptions::default().with_line_width(1.0)),
         Rect {
-            x: x,
-            y: y,
+            x,
+            y,
             w: GUN_HEAT_STATUS_WIDTH,
             h: GUN_HEAT_STATUS_HEIGHT,
         },
+        color
     )?;
+
+    graphics::draw(ctx, &r1, DrawParam::new())?;
+    graphics::draw(ctx, &r2, DrawParam::new())?;
 
     // NOTE: for limiting FPS rate, see https://github.com/ggez/ggez/issues/171
     // If you want to log the current FPS, uncomment the next line
     // println!("{}", ggez::timer::get_fps(ctx));
 
-    graphics::present(ctx);
+    graphics::present(ctx)?;
     Ok(())
 }
 
@@ -102,17 +101,17 @@ fn render_message(ctx: &mut Context, app: &mut ApplicationState) -> GameResult<(
         let w = width / 2.0;
         let h = height / 2.0;
 
-        let mut draw_text = |text: &str, color: graphics::Color, is_title: bool| {
-            let drawable = graphics::Text::new(ctx, text, &app.resources.font).unwrap();
-            let width = w - (drawable.width() as f32 / 2.0);
+        let mut draw_text = |text: &str, color: Color, is_title: bool| {
+            let fragment = TextFragment::new(text).font(app.resources.font);
+            let drawable = graphics::Text::new(fragment);
+            let width = w - (drawable.width(ctx) as f32 / 2.0);
             let height = if is_title {
-                h - drawable.height() as f32
+                h - drawable.height(ctx) as f32
             } else {
                 h
             };
-            let point = Point2::new(width, height);
-            graphics::set_color(ctx, color).unwrap();
-            graphics::draw(ctx, &drawable, point, 0.0).unwrap();
+            let point = point2(Point::new(width, height));
+            graphics::draw(ctx, &drawable, DrawParam::new().dest(point).color(color)).unwrap();
         };
 
         draw_text(title, color::WHITE, true);
@@ -124,20 +123,9 @@ fn render_message(ctx: &mut Context, app: &mut ApplicationState) -> GameResult<(
 
 /// Renders the world and everything in it
 pub fn render_world(ctx: &mut Context, world: &World, resources: &mut Resources) -> GameResult<()> {
-    // Render stars in the background
-    graphics::set_color(ctx, color::STAR)?;
     render_stars(ctx, world, resources)?;
-
-    // Draws particles in violet
-    graphics::set_color(ctx, color::PARTICLE)?;
     render_particles(ctx, world, resources)?;
-
-    // Draw any bullets as blue
-    graphics::set_color(ctx, color::BULLET)?;
     render_bullets(ctx, world, resources)?;
-
-    // Now we draw the enemies as yellow
-    graphics::set_color(ctx, color::ENEMY)?;
     render_enemy(ctx, world, resources)?;
 
     // Finally draw the player as red
@@ -146,7 +134,6 @@ pub fn render_world(ctx: &mut Context, world: &World, resources: &mut Resources)
     }
 
     // Draw powerups
-    graphics::set_color(ctx, color::POWERUP)?;
     for powerup in &world.powerups {
         let image = match powerup.kind {
             PowerupKind::Shield => &resources.powerup_shield,
@@ -154,13 +141,12 @@ pub fn render_world(ctx: &mut Context, world: &World, resources: &mut Resources)
             PowerupKind::TripleShot => &resources.powerup_triple_shot,
         };
         let scale = powerup.radius() / SPRITE_SIZE;
-        let params = graphics::DrawParam {
-            dest: Point2::new(powerup.x(), powerup.y()),
-            scale: Point2::new(scale, scale),
-            ..Default::default()
-        };
+        let params = DrawParam::new()
+            .dest(point2(powerup.position()))
+            .scale(point2(Point::new(scale, scale)))
+            .color(color::POWERUP);
 
-        graphics::draw_ex(ctx, image, params)?;
+        graphics::draw(ctx, image, params)?;
     }
 
     Ok(())
@@ -173,19 +159,16 @@ fn render_stars(ctx: &mut Context, world: &World, resources: &mut Resources) -> 
     // list - this isn't a truly random rotation, but it works visually
     for (i, star) in world.stars.iter().enumerate() {
         let scale = star.size / SPRITE_SIZE;
-        resources.star_sprite.add(graphics::DrawParam {
-            dest: Point2::new(star.x(), star.y()),
-            rotation: (i as f32 / 100.0) * 2.0 * std::f32::consts::PI,
-            scale: Point2::new(scale, scale),
-            ..Default::default()
-        });
+        resources.star_sprite.add(DrawParam::new()
+            .dest(point2(Point::new(star.x(), star.y())))
+            .rotation((i as f32 / 100.0) * 2.0 * std::f32::consts::PI)
+            .scale(point2(Point::new(scale, scale)))
+            .color(color::STAR));
     }
-    graphics::draw_ex(
+    graphics::draw(
         ctx,
         &resources.star_sprite,
-        graphics::DrawParam {
-            ..Default::default()
-        },
+        DrawParam::new(),
     )
 }
 
@@ -198,19 +181,16 @@ pub fn render_particles(
     resources.circle_sprite.clear();
     for particle in &world.particles {
         let scale = 0.4 * particle.ttl;
-        resources.circle_sprite.add(graphics::DrawParam {
-            dest: Point2::new(particle.x(), particle.y()),
-            offset: Point2::new(0.5, 0.5),
-            scale: Point2::new(scale, scale),
-            ..Default::default()
-        });
+        resources.circle_sprite.add(DrawParam::new()
+            .dest(point2(Point::new(particle.x(), particle.y())))
+            .offset(point2(Point::new(0.5, 0.5)))
+            .scale(point2(Point::new(scale, scale)))
+            .color(color::PARTICLE));
     }
-    graphics::draw_ex(
+    graphics::draw(
         ctx,
         &resources.circle_sprite,
-        graphics::DrawParam {
-            ..Default::default()
-        },
+        DrawParam::new(),
     )
 }
 
@@ -223,19 +203,17 @@ pub fn render_bullets(
     resources.circle_sprite.clear();
     for bullet in &world.bullets {
         let scale = bullet.radius() / SPRITE_SIZE;
-        resources.circle_sprite.add(graphics::DrawParam {
-            dest: Point2::new(bullet.x(), bullet.y()),
-            offset: Point2::new(0.5, 0.5),
-            scale: Point2::new(scale, scale),
-            ..Default::default()
-        });
+        resources.circle_sprite.add(DrawParam::new()
+            .dest(point2(bullet.position()))
+            .offset(point2(Point::new(0.5, 0.5)))
+            .scale(point2(Point::new(scale, scale)))
+            .color(color::BULLET)
+        );
     }
-    graphics::draw_ex(
+    graphics::draw(
         ctx,
         &resources.circle_sprite,
-        graphics::DrawParam {
-            ..Default::default()
-        },
+        DrawParam::new(),
     )
 }
 
@@ -244,17 +222,16 @@ pub fn render_enemy(ctx: &mut Context, world: &World, resources: &mut Resources)
     resources.circle_sprite.clear();
     for enemy in &world.enemies {
         let scale = enemy.radius() * 2.0 / SPRITE_SIZE;
-        resources.circle_sprite.add(graphics::DrawParam {
-            dest: Point2::new(enemy.x(), enemy.y()),
-            offset: Point2::new(0.5, 0.5),
-            scale: Point2::new(scale, scale),
-            ..Default::default()
-        });
+        resources.circle_sprite.add(DrawParam::new()
+            .dest(point2(enemy.position()))
+            .offset(point2(Point::new(0.5, 0.5)))
+            .scale(point2(Point::new(scale, scale)))
+            .color(color::ENEMY));
     }
-    graphics::draw_ex(
+    graphics::draw(
         ctx,
         &resources.circle_sprite,
-        graphics::DrawParam {
+        DrawParam {
             ..Default::default()
         },
     )
@@ -263,27 +240,28 @@ pub fn render_enemy(ctx: &mut Context, world: &World, resources: &mut Resources)
 /// Renders the player
 pub fn render_player(ctx: &mut Context, player: &Player, resources: &Resources) -> GameResult<()> {
     // Render shield if one is active
-    let pt = Point2::new(player.x(), player.y());
+    let pt = Point::new(player.x(), player.y());
     if let Some(powerup) = player.powerup {
         if powerup == PowerupKind::Shield {
             let scale = (player.radius() + 30.0) / SPRITE_SIZE;
-            let params = graphics::DrawParam {
-                dest: pt,
-                offset: Point2::new(0.5, 0.5),
-                scale: Point2::new(scale, scale),
-                ..Default::default()
-            };
-            graphics::set_color(ctx, color::SHEILD)?;
-            graphics::draw_ex(ctx, &resources.circle_image, params)?;
+            let params = DrawParam::new()
+                .dest(point2(pt))
+                .offset(point2(Point::new(0.5, 0.5)))
+                .scale(point2(Point::new(scale, scale)))
+                .color(color::SHIELD);
+            graphics::draw(ctx, &resources.circle_image, params)?;
         }
     }
 
     // Render the player
-    graphics::set_color(ctx, color::PLAYER)?;
-    let p1 = Point2::new(PLAYER_POLYGON[0][0], PLAYER_POLYGON[0][1]);
-    let p2 = Point2::new(PLAYER_POLYGON[1][0], PLAYER_POLYGON[1][1]);
-    let p3 = Point2::new(PLAYER_POLYGON[2][0], PLAYER_POLYGON[2][1]);
-    let mesh = graphics::Mesh::new_polygon(ctx, DrawMode::Fill, &[p1, p2, p3])?;
+    let p1 = point2(Point::new(PLAYER_POLYGON[0][0], PLAYER_POLYGON[0][1]));
+    let p2 = point2(Point::new(PLAYER_POLYGON[1][0], PLAYER_POLYGON[1][1]));
+    let p3 = point2(Point::new(PLAYER_POLYGON[2][0], PLAYER_POLYGON[2][1]));
+    let mesh = Mesh::new_polygon(ctx, DrawMode::Fill(FillOptions::default()), &[p1, p2, p3], color::PLAYER)?;
     let dir = player.direction();
-    graphics::draw(ctx, &mesh, pt, dir)
+    graphics::draw(ctx, &mesh, DrawParam::new().dest(point2(pt)).rotation(dir))
+}
+
+fn point2(p: Point) -> Point2<f32> {
+    Point2 {x: p.x, y: p.y}
 }

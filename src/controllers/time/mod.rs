@@ -74,7 +74,7 @@ impl TimeController {
 
     // Called when the game is reset
     pub fn reset(&mut self) {
-        mem::replace(self, TimeController::new());
+        let _ = mem::replace(self, TimeController::new());
     }
 
     pub fn schedule_timeout(&mut self, offset: Duration, timeout: Timeout) {
