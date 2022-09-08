@@ -1,16 +1,15 @@
 [package]
 name = "rocket"
 version = "1.0.0"
-authors = ["Adolfo Ochagavía <aochagavia92@gmail.com>"]
+authors = ["Adolfo Ochagavía"]
 build = "build.rs"
 edition = "2018"
 
 [dependencies]
 itertools-num = "0.1.3"
-rand = "0.6.1"
+rand = "0.8.5"
 ggez = "0.7.0"
-structopt = "0.2.14"
-specs = "0.14.1"
+structopt = "0.3.26"
 geometry = { path = "geometry" }
 geometry-derive = { path = "geometry-derive" }
 

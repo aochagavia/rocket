@@ -20,8 +20,8 @@ impl Point {
     /// Returns a random `Point` within the given bounds (exclusive)
     pub fn random<R: Rng>(rng: &mut R, bounds: Size) -> Point {
         Point {
-            x: rng.gen_range(0.0, bounds.width),
-            y: rng.gen_range(0.0, bounds.height),
+            x: rng.gen_range(0.0 .. bounds.width),
+            y: rng.gen_range(0.0 .. bounds.height),
         }
     }
 

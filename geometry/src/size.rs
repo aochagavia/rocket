@@ -18,11 +18,11 @@ impl Size {
 
     /// Returns a random x coordinate within the bounds of this `Size`
     pub fn random_x<R: Rng>(&self, rng: &mut R) -> f32 {
-        rng.gen_range(0.0, self.width)
+        rng.gen_range(0.0 .. self.width)
     }
 
     /// Returns a random y coordinate within the bounds of this `Size`
     pub fn random_y<R: Rng>(&self, rng: &mut R) -> f32 {
-        rng.gen_range(0.0, self.height)
+        rng.gen_range(0.0 .. self.height)
     }
 }

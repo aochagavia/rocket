@@ -8,6 +8,6 @@ edition = "2018"
 proc-macro = true
 
 [dependencies]
-syn = "0.15.34"
-quote = "0.6.12"
+syn = "1.0.99"
+quote = "1.0.21"
 geometry = { path = "../geometry" }
