@@ -5,10 +5,12 @@ authors = ["Adolfo Ochagavía"]
 build = "build.rs"
 edition = "2018"
 
+resolver = "2"
+
 [dependencies]
 itertools-num = "0.1.3"
 rand = "0.8.5"
-ggez = "0.7.0"
+ggez = "0.8.0"
 structopt = "0.3.26"
 geometry = { path = "geometry" }
 geometry-derive = { path = "geometry-derive" }

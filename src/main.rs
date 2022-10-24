@@ -5,12 +5,13 @@ extern crate geometry;
 extern crate geometry_derive;
 
 mod controllers;
-mod view;
 mod game_state;
 mod models;
 mod util;
+mod view;
 
-use ggez::event::{self, KeyCode, KeyMods};
+use ggez::event;
+use ggez::input::keyboard::KeyInput;
 use ggez::{Context, GameResult};
 use rand::prelude::ThreadRng;
 use structopt::StructOpt;
@@ -21,7 +22,6 @@ use crate::{
     geometry::Size,
     view::Resources,
 };
-
 
 /// This struct contains the application's state
 pub struct ApplicationState {
@@ -77,20 +77,24 @@ impl event::EventHandler for ApplicationState {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         // Pause the game if the window has no focus
         if !self.has_focus {
-            return Ok(())
+            return Ok(());
         }
 
         // Update game state, and check for collisions
-        let duration = ggez::timer::delta(ctx);
+        let duration = ctx.time.delta();
         self.time_controller.update_seconds(
             duration,
             self.input_controller.actions(),
             &mut self.game_state,
             &mut self.event_buffer,
-            &mut self.rng
+            &mut self.rng,
         );
 
-        CollisionsController::handle_collisions(&mut self.game_state, &mut self.time_controller, &mut self.event_buffer);
+        CollisionsController::handle_collisions(
+            &mut self.game_state,
+            &mut self.time_controller,
+            &mut self.event_buffer,
+        );
 
         Ok(())
     }
@@ -102,21 +106,29 @@ impl event::EventHandler for ApplicationState {
     }
 
     // Listen for keyboard events
-    fn key_down_event(&mut self, _ctx: &mut Context, keycode: KeyCode, keymod: KeyMods, _repeat: bool) {
+    fn key_down_event(
+        &mut self,
+        _ctx: &mut Context,
+        input: KeyInput,
+        _repeated: bool,
+    ) -> GameResult {
         // If we're displaying a message (waiting for user input) then hide it and reset the game
         if let Some(_) = self.game_state.message {
             self.reset();
         }
-        self.input_controller.key_press(keycode, keymod);
+        self.input_controller.key_press(input);
+        Ok(())
     }
 
-    fn key_up_event(&mut self, _ctx: &mut Context, keycode: KeyCode, keymod: KeyMods) {
-        self.input_controller.key_release(keycode, keymod);
+    fn key_up_event(&mut self, _ctx: &mut Context, input: KeyInput) -> GameResult {
+        self.input_controller.key_release(input);
+        Ok(())
     }
 
     // Listen for window focus to pause the game's execution
-    fn focus_event(&mut self, _ctx: &mut Context, has_focus: bool) {
+    fn focus_event(&mut self, _ctx: &mut Context, has_focus: bool) -> GameResult {
         self.has_focus = has_focus;
+        Ok(())
     }
 }
 
